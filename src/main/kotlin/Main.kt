@@ -8,6 +8,12 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Window
 import androidx.compose.ui.window.application
 
@@ -29,6 +35,10 @@ fun main() = application {
     Window(onCloseRequest = ::exitApplication) {
         App()
     }
+
+
+
+
 //    val animales = AnimalDB.getAnimales()
 //    for (animal in animales) {
 //        println("Código: ${animal.codigo}, Nombre: ${animal.nombre}, Especie: ${animal.especie}, Raza: ${animal.raza}, Edad: ${animal.edad}, Peso: ${animal.peso}, Cantidad de Días: ${animal.cantDias}")
