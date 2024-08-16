@@ -5,9 +5,9 @@ import java.sql.DriverManager
 
 object Database {
 
-    private val url = "jdbc:postgresql://2.tcp.eu.ngrok.io:14571/postgres"
+    private val url = "jdbc:postgresql://localhost:5432/PruebaProyecto"
     private val user = "postgres"
-    private val password = "clari12345*"
+    private val password = "Ruben.2003"
 
     fun connect(): Connection {
 

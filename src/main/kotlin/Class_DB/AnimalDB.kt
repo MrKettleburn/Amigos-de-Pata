@@ -9,7 +9,7 @@ import java.sql.Connection
 
 object AnimalDB {
 
-     fun getAnimales(): List<Animal> {
+     suspend fun getAnimales(): List<Animal> = withContext(Dispatchers.IO) {
 
         val animales= mutableListOf<Animal>()
         val dbConnection: Connection = Database.connect()
@@ -34,6 +34,52 @@ object AnimalDB {
         resultSet.close()
         statement.close()
         dbConnection.close()
+         animales
+    }
+
+     fun getAnimalesFilter(
+        name: String?,
+        especie: String?,
+        raza: String?,
+        edad: Int?,
+        peso: Double?,
+        cantDias: Int?
+    ): List<Animal>  {
+
+        val animales = mutableListOf<Animal>()
+        val dbConnection: Connection = Database.connect()
+        val statement= dbConnection.prepareStatement(
+            "SELECT * FROM buscar_animalesCAM(?, ?, ?, ?, ?, ?)"
+        )
+
+        statement.setString(1, name)
+        statement.setString(2, especie)
+        statement.setString(3, raza)
+        if (edad != null) statement.setInt(4, edad) else statement.setNull(4, java.sql.Types.INTEGER)
+        if (peso != null) statement.setDouble(5, peso) else statement.setNull(5, java.sql.Types.DOUBLE)
+        if (cantDias != null) statement.setInt(6, cantDias) else statement.setNull(6, java.sql.Types.INTEGER)
+
+
+        val resultSet = statement.executeQuery()
+
+
+        while (resultSet.next()) {
+            animales.add(
+                Animal(
+                    codigo = resultSet.getInt("id_animal"),
+                    nombre = resultSet.getString("nombre_animal"),
+                    especie = resultSet.getString("especie"),
+                    raza = resultSet.getString("raza"),
+                    edad = resultSet.getInt("edad"),
+                    peso = resultSet.getDouble("peso"),
+                    cantDias = resultSet.getInt("cant_dias")
+                )
+            )
+        }
+        resultSet.close()
+        statement.close()
+        dbConnection.close()
         return animales
+        //PROBAR INTERFAZ
     }
 }

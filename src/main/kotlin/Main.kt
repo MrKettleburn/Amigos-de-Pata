@@ -47,11 +47,13 @@ fun App() {
 }
 
 fun main() = application {
-    Window(onCloseRequest = ::exitApplication) {
-        App()
-    }
-//    val animales = AnimalDB.getAnimales()
-//    for (animal in animales) {
-//        println("Código: ${animal.codigo}, Nombre: ${animal.nombre}, Especie: ${animal.especie}, Raza: ${animal.raza}, Edad: ${animal.edad}, Peso: ${animal.peso}, Cantidad de Días: ${animal.cantDias}")
+//    Window(onCloseRequest = ::exitApplication) {
+//        App()
 //    }
+
+    val animales = AnimalDB.getAnimalesFilter("Rex",null,null,null,null,null)
+//    val animales = AnimalDB.getAnimales()
+    for (animal in animales) {
+        println("Código: ${animal.codigo}, Nombre: ${animal.nombre}, Especie: ${animal.especie}, Raza: ${animal.raza}, Edad: ${animal.edad}, Peso: ${animal.peso}, Cantidad de Días: ${animal.cantDias}")
+    }
 }
