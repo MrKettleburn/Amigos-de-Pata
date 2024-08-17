@@ -9,7 +9,7 @@ import kotlinx.coroutines.withContext
 import java.sql.Connection
 object ServiciosDB {
 
-suspend fun getServiciosVeterinarios(
+suspend fun getServiciosVeterinariosFilter(
     codigo: Int?,
     precioUnitInf: Double?,
     precioUnitSup: Double?,
@@ -18,7 +18,7 @@ suspend fun getServiciosVeterinarios(
     val servVeterinarios = mutableListOf<ServVeterinario>()
     val dbConnection: Connection = Database.connect()
     val statement = dbConnection.prepareStatement(
-        "SELECT * FROM buscar_servicios(?,?,?,?,'Veterinario')"
+        "SELECT * FROM buscar_serviciosVeter(?,?,?,?,'Veterinario')"
     )
 
     if (codigo != null) statement.setInt(1, codigo) else statement.setNull(1, java.sql.Types.INTEGER)
@@ -42,7 +42,7 @@ suspend fun getServiciosVeterinarios(
     dbConnection.close()
     servVeterinarios
 }
-    suspend fun getServiciosTransportacion(
+    suspend fun getServiciosTransportacionFilter(
         codigo: Int?,
         precioUnitInf: Double?,
         precioUnitSup: Double?,
@@ -51,7 +51,7 @@ suspend fun getServiciosVeterinarios(
         val servTransportacion = mutableListOf<ServTransporte>()
         val dbConnection: Connection = Database.connect()
         val statement = dbConnection.prepareStatement(
-            "SELECT * FROM buscar_servicios(?,?,?,?,'Transporte')"
+            "SELECT * FROM buscar_serviciosTransp(?,?,?,?,'Transporte')"
         )
 
         if (codigo != null) statement.setInt(1, codigo) else statement.setNull(1, java.sql.Types.INTEGER)
@@ -76,7 +76,7 @@ suspend fun getServiciosVeterinarios(
         servTransportacion
     }
 
-    suspend fun getServiciosAlimenticios(
+    suspend fun getServiciosAlimenticiosFilter(
         codigo: Int?,
         precioUnitInf: Double?,
         precioUnitSup: Double?,
@@ -85,7 +85,7 @@ suspend fun getServiciosVeterinarios(
         val servAlimentacion = mutableListOf<ServAlimenticio>()
         val dbConnection: Connection = Database.connect()
         val statement = dbConnection.prepareStatement(
-            "SELECT * FROM buscar_servicios(?,?,?,?,'Alimentacion')"
+            "SELECT * FROM buscar_serviciosAlim(?,?,?,?,'Alimentacion')"
         )
 
         if (codigo != null) statement.setInt(1, codigo) else statement.setNull(1, java.sql.Types.INTEGER)

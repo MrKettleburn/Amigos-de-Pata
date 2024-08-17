@@ -2,6 +2,7 @@ package Class_DB
 
 import Models.Animal
 import Database.Database
+import Models.AnimalAdoptado
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.sql.Connection
@@ -82,4 +83,28 @@ object AnimalDB {
          animales
         //PROBAR INTERFAZ
     }
+
+    suspend fun getAnimalAdoptFilter(
+        codigo: Int?,
+        nombre: String?,
+        especie: String?,
+        raza: String?,
+        edad: Int?,
+        peso: Double?,
+        cantDias: Int?,
+        precioAdop: Double?
+    ): List<AnimalAdoptado> = withContext(Dispatchers.IO) {
+
+        val animalesAdopt = mutableListOf<AnimalAdoptado>()
+        val dbConnection: Connection = Database.connect()
+        val statement= dbConnection.prepareStatement(
+            "SELECT * FROM buscar_animalesAdopt(?, ?, ?, ?, ?, ?)"
+        )
+
+
+
+
+        animalesAdopt
+    }
+
 }
