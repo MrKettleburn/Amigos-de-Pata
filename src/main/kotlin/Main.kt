@@ -16,6 +16,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Window
 import androidx.compose.ui.window.application
+import java.time.LocalDate
 
 @Composable
 @Preview
@@ -47,9 +48,10 @@ fun App() {
 }
 
 fun main() = application {
-    Window(onCloseRequest = ::exitApplication) {
-        App()
-    }
+//    Window(onCloseRequest = ::exitApplication) {
+//        App()
+//    }
+
 
 //    val animales = AnimalDB.getAnimalesFilter("Rex",null,null,null,null,null)
 ////    val animales = AnimalDB.getAnimales()
