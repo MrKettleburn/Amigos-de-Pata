@@ -1,6 +1,6 @@
 package Models
 
-data class Tranporte (
+data class Transporte (
     val codigo: Int,
     val nombre: String,
     val email: String,
