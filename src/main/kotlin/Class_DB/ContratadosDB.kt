@@ -23,7 +23,7 @@ object ContratadosDB {
         val veterinarios = mutableListOf<Veterinario>()
         val dbConnection: Connection = Database.connect()
         val statement = dbConnection.prepareStatement(
-            "SELECT * FROM buscar_veterinarios(?,?,?,?,?,?,?,?,'Veterinario')"
+            "SELECT * FROM buscar_veterinarios(?,?,?,?,?,?,?,?)"
         )
 
         if (codigo != null) statement.setInt(1, codigo) else statement.setNull(1, java.sql.Types.INTEGER)
@@ -70,7 +70,7 @@ object ContratadosDB {
      val transportistas = mutableListOf<Transporte>()
      val dbConnection: Connection = Database.connect()
      val statement = dbConnection.prepareStatement(
-         "SELECT * FROM buscar_transportistas(?,?,?,?,?,?,'Transporte')"
+         "SELECT * FROM buscar_transporte(?,?,?,?,?,?)"
      )
 
      if (codigo != null) statement.setInt(1, codigo) else statement.setNull(1, java.sql.Types.INTEGER)
@@ -111,7 +111,7 @@ object ContratadosDB {
         val proveedores = mutableListOf<ProveedorDeAlimentos>()
         val dbConnection: Connection = Database.connect()
         val statement = dbConnection.prepareStatement(
-            "SELECT * FROM buscar_proveedoresA(?,?,?,?,?,?,'ProveedorAlimentos')"
+            "SELECT * FROM buscar_proveedoresA(?,?,?,?,?,?)"
         )
 
         if (codigo != null) statement.setInt(1, codigo) else statement.setNull(1, java.sql.Types.INTEGER)
