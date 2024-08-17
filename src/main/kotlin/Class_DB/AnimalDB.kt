@@ -37,14 +37,14 @@ object AnimalDB {
          animales
     }
 
-     fun getAnimalesFilter(
+     suspend fun getAnimalesFilter(
         name: String?,
         especie: String?,
         raza: String?,
         edad: Int?,
         peso: Double?,
         cantDias: Int?
-    ): List<Animal>  {
+    ): List<Animal>  = withContext(Dispatchers.IO) {
 
         val animales = mutableListOf<Animal>()
         val dbConnection: Connection = Database.connect()
@@ -79,7 +79,7 @@ object AnimalDB {
         resultSet.close()
         statement.close()
         dbConnection.close()
-        return animales
+         animales
         //PROBAR INTERFAZ
     }
 }
