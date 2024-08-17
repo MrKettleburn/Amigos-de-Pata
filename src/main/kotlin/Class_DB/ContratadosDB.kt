@@ -1,4 +1,144 @@
 package Class_DB
 
+import Database.Database
+import Models.ProveedorDeAlimentos
+import Models.Transporte
+import Models.Veterinario
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
+import java.sql.Connection
+
 object ContratadosDB {
+    suspend fun getVeterinariosFilter(
+        codigo: Int?,
+        nombre: String?,
+        email: String?,
+        provincia: String?,
+        direccion: String?,
+        telefono: String?,
+        especialidad: String?,
+        clinica: String?
+    ): List<Veterinario> = withContext(Dispatchers.IO) {
+
+        val veterinarios = mutableListOf<Veterinario>()
+        val dbConnection: Connection = Database.connect()
+        val statement = dbConnection.prepareStatement(
+            "SELECT * FROM buscar_veterinarios(?,?,?,?,?,?,?,?,'Veterinario')"
+        )
+
+        if (codigo != null) statement.setInt(1, codigo) else statement.setNull(1, java.sql.Types.INTEGER)
+        statement.setString(2, nombre)
+        statement.setString(3, email)
+        statement.setString(4, provincia)
+        statement.setString(5, direccion)
+        statement.setString(6, telefono)
+        statement.setString(7, especialidad)
+        statement.setString(8, clinica)
+
+        val resultSet = statement.executeQuery()
+
+        while (resultSet.next()) {
+            veterinarios.add(
+                Veterinario(
+                    codigo = resultSet.getInt("id_contratado"),
+                    nombre = resultSet.getString("nombre_contratado"),
+                    email = resultSet.getString("email"),
+                    provincia = resultSet.getString("provincia"),
+                    direccion = resultSet.getString("direccion"),
+                    telefono = resultSet.getString("telefono"),
+                    especialidad = resultSet.getString("especialidad"),
+                    clinica = resultSet.getString("clinica")
+                )
+            )
+        }
+
+        resultSet.close()
+        statement.close()
+        dbConnection.close()
+        veterinarios
+    }
+
+ suspend fun getTransportistasFilter(
+     codigo: Int?,
+     nombre: String?,
+     email: String?,
+     provincia: String?,
+     direccion: String?,
+     telefono: String?
+ ): List<Transporte> = withContext(Dispatchers.IO){
+
+     val transportistas = mutableListOf<Transporte>()
+     val dbConnection: Connection = Database.connect()
+     val statement = dbConnection.prepareStatement(
+         "SELECT * FROM buscar_transportistas(?,?,?,?,?,?,'Transporte')"
+     )
+
+     if (codigo != null) statement.setInt(1, codigo) else statement.setNull(1, java.sql.Types.INTEGER)
+     statement.setString(2, nombre)
+     statement.setString(3, email)
+     statement.setString(4, provincia)
+     statement.setString(5, direccion)
+     statement.setString(6, telefono)
+
+     val resultSet = statement.executeQuery()
+
+     while (resultSet.next()) {
+         transportistas.add(
+             Transporte(
+                 codigo = resultSet.getInt("id_contratado"),
+                 nombre = resultSet.getString("nombre_contratado"),
+                 email = resultSet.getString("email"),
+                 provincia = resultSet.getString("provincia"),
+                 direccion = resultSet.getString("direccion"),
+                 telefono = resultSet.getString("telefono")
+             )
+         )
+     }
+     resultSet.close()
+     statement.close()
+     dbConnection.close()
+     transportistas
+ }
+
+    suspend fun getProveedoresAlimentosFilter(
+        codigo: Int?,
+        nombre: String?,
+        email: String?,
+        provincia: String?,
+        direccion: String?,
+        telefono: String?
+    ): List<ProveedorDeAlimentos> = withContext(Dispatchers.IO){
+        val proveedores = mutableListOf<ProveedorDeAlimentos>()
+        val dbConnection: Connection = Database.connect()
+        val statement = dbConnection.prepareStatement(
+            "SELECT * FROM buscar_proveedoresA(?,?,?,?,?,?,'ProveedorAlimentos')"
+        )
+
+        if (codigo != null) statement.setInt(1, codigo) else statement.setNull(1, java.sql.Types.INTEGER)
+        statement.setString(2, nombre)
+        statement.setString(3, email)
+        statement.setString(4, provincia)
+        statement.setString(5, direccion)
+        statement.setString(6, telefono)
+
+        val resultSet = statement.executeQuery()
+
+        while (resultSet.next()) {
+            proveedores.add(
+                ProveedorDeAlimentos(
+                    codigo = resultSet.getInt("id_contratado"),
+                    nombre = resultSet.getString("nombre_contratado"),
+                    email = resultSet.getString("email"),
+                    provincia = resultSet.getString("provincia"),
+                    direccion = resultSet.getString("direccion"),
+                    telefono = resultSet.getString("telefono")
+                )
+            )
+        }
+        resultSet.close()
+        statement.close()
+        dbConnection.close()
+        proveedores
+    }
+
 }
