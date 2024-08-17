@@ -39,6 +39,7 @@ object AnimalDB {
     }
 
      suspend fun getAnimalesFilter(
+        codigo: Int?,
         name: String?,
         especie: String?,
         raza: String?,
@@ -47,24 +48,23 @@ object AnimalDB {
         cantDias: Int?
     ): List<Animal>  = withContext(Dispatchers.IO) {
 
-        val animales = mutableListOf<Animal>()
-        val dbConnection: Connection = Database.connect()
-        val statement= dbConnection.prepareStatement(
-            "SELECT * FROM buscar_animalesCAM(?, ?, ?, ?, ?, ?)"
-        )
+         val animales = mutableListOf<Animal>()
+         val dbConnection: Connection = Database.connect()
+         val statement = dbConnection.prepareStatement(
+             "SELECT * FROM buscar_animalesCAM(?, ?, ?, ?, ?, ?, ?)"
+         )
 
-        statement.setString(1, name)
-        statement.setString(2, especie)
-        statement.setString(3, raza)
-        if (edad != null) statement.setInt(4, edad) else statement.setNull(4, java.sql.Types.INTEGER)
-        if (peso != null) statement.setDouble(5, peso) else statement.setNull(5, java.sql.Types.DOUBLE)
-        if (cantDias != null) statement.setInt(6, cantDias) else statement.setNull(6, java.sql.Types.INTEGER)
+         if (codigo != null) statement.setInt(1, codigo) else statement.setNull(1, java.sql.Types.INTEGER)
+         statement.setString(2, name)
+         statement.setString(3, especie)
+         statement.setString(4, raza)
+         if (edad != null) statement.setInt(5, edad) else statement.setNull(5, java.sql.Types.INTEGER)
+         if (peso != null) statement.setDouble(6, peso) else statement.setNull(6, java.sql.Types.DOUBLE)
+         if (cantDias != null) statement.setInt(7, cantDias) else statement.setNull(7, java.sql.Types.INTEGER)
 
+         val resultSet = statement.executeQuery()
 
-        val resultSet = statement.executeQuery()
-
-
-        while (resultSet.next()) {
+         while (resultSet.next()) {
             animales.add(
                 Animal(
                     codigo = resultSet.getInt("id_animal"),
@@ -77,9 +77,9 @@ object AnimalDB {
                 )
             )
         }
-        resultSet.close()
-        statement.close()
-        dbConnection.close()
+         resultSet.close()
+         statement.close()
+         dbConnection.close()
          animales
         //PROBAR INTERFAZ
     }
@@ -98,13 +98,36 @@ object AnimalDB {
         val animalesAdopt = mutableListOf<AnimalAdoptado>()
         val dbConnection: Connection = Database.connect()
         val statement= dbConnection.prepareStatement(
-            "SELECT * FROM buscar_animalesAdopt(?, ?, ?, ?, ?, ?)"
+            "SELECT * FROM buscar_animalesAdopt(?, ?, ?, ?, ?, ?, ?, ?)"
         )
+        if (codigo != null) statement.setInt(1, codigo) else statement.setNull(1, java.sql.Types.INTEGER)
+        statement.setString(2, nombre)
+        statement.setString(3, especie)
+        statement.setString(4, raza)
+        if (edad != null) statement.setInt(5, edad) else statement.setNull(5, java.sql.Types.INTEGER)
+        if (peso != null) statement.setDouble(6, peso) else statement.setNull(6, java.sql.Types.DOUBLE)
+        if (cantDias != null) statement.setInt(7, cantDias) else statement.setNull(7, java.sql.Types.INTEGER)
+        if (precioAdop != null) statement.setDouble(8,precioAdop) else statement.setNull(8,java.sql.Types.DOUBLE)
 
+        val resultSet = statement.executeQuery()
 
-
-
+        while (resultSet.next()) {
+            animalesAdopt.add(
+                AnimalAdoptado(
+                    codigo = resultSet.getInt("id_animal"),
+                    nombre = resultSet.getString("nombre_animal"),
+                    especie = resultSet.getString("especie"),
+                    raza = resultSet.getString("raza"),
+                    edad = resultSet.getInt("edad"),
+                    peso = resultSet.getDouble("peso"),
+                    cantDias = resultSet.getInt("cant_dias"),
+                    precioAdop = resultSet.getDouble("precio_adopcion")
+                )
+            )
+        }
+        resultSet.close()
+        statement.close()
+        dbConnection.close()
         animalesAdopt
     }
-
 }
