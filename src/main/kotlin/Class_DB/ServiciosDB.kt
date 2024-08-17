@@ -18,7 +18,7 @@ suspend fun getServiciosVeterinariosFilter(
     val servVeterinarios = mutableListOf<ServVeterinario>()
     val dbConnection: Connection = Database.connect()
     val statement = dbConnection.prepareStatement(
-        "SELECT * FROM buscar_serviciosVeter(?,?,?,?,'Veterinario')"
+        "SELECT * FROM buscar_serviciosVeter(?,?,?,?)"
     )
 
     if (codigo != null) statement.setInt(1, codigo) else statement.setNull(1, java.sql.Types.INTEGER)
@@ -51,7 +51,7 @@ suspend fun getServiciosVeterinariosFilter(
         val servTransportacion = mutableListOf<ServTransporte>()
         val dbConnection: Connection = Database.connect()
         val statement = dbConnection.prepareStatement(
-            "SELECT * FROM buscar_serviciosTransp(?,?,?,?,'Transporte')"
+            "SELECT * FROM buscar_serviciosTransp(?,?,?,?)"
         )
 
         if (codigo != null) statement.setInt(1, codigo) else statement.setNull(1, java.sql.Types.INTEGER)
@@ -85,7 +85,7 @@ suspend fun getServiciosVeterinariosFilter(
         val servAlimentacion = mutableListOf<ServAlimenticio>()
         val dbConnection: Connection = Database.connect()
         val statement = dbConnection.prepareStatement(
-            "SELECT * FROM buscar_serviciosAlim(?,?,?,?,'Alimentacion')"
+            "SELECT * FROM buscar_serviciosAlim(?,?,?,?)"
         )
 
         if (codigo != null) statement.setInt(1, codigo) else statement.setNull(1, java.sql.Types.INTEGER)
