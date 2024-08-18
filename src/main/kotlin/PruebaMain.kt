@@ -1,9 +1,7 @@
-import Visuals.LoginScreen
-import Visuals.MainScreen
+import Views.LoginScreen
+import Views.MainScreen
 import androidx.compose.desktop.ui.tooling.preview.Preview
-import androidx.compose.material.*
 import androidx.compose.runtime.*
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
@@ -11,7 +9,6 @@ import androidx.compose.ui.window.*
 import java.awt.Dimension
 import java.awt.GraphicsDevice
 import java.awt.GraphicsEnvironment
-import java.awt.Toolkit
 
 @Composable
 @Preview
