@@ -10,7 +10,26 @@ import java.sql.Connection
 
 object AnimalDB {
 
-     suspend fun getAnimales(): List<Animal> = withContext(Dispatchers.IO) {
+    suspend fun createAnimal(nombre: String, especie: String, raza: String, edad: Int, peso: Double, cantDias: Int): Boolean = withContext(Dispatchers.IO) {
+        val dbConnection = Database.connect()
+        val statement = dbConnection.prepareStatement(
+            "INSERT INTO animal (nombre_animal, especie, raza, edad, peso, cant_dias) VALUES(?,?,?,?,?,?)"  // QUITAR LUEGO LOS DIAS
+        )
+
+        statement.setString(1,nombre)
+        statement.setString(2,especie)
+        statement.setString(3,raza)
+        statement.setInt(4,edad)
+        statement.setDouble(5,peso)
+        statement.setInt(6,cantDias)
+
+        val rowsInserted = statement.executeUpdate()
+        statement.close()
+        dbConnection.close()
+        rowsInserted > 0
+    }
+
+    suspend fun getAnimales(): List<Animal> = withContext(Dispatchers.IO) {
 
         val animales= mutableListOf<Animal>()
         val dbConnection: Connection = Database.connect()

@@ -5,13 +5,11 @@ import java.sql.DriverManager
 
 object Database {
 
-    private val url = "jdbc:postgresql://localhost:5432/PruebaProyecto"
-    private val user = "postgres"
-    private val password = "Ruben.2003"
+    private val url = System.getenv("DB_URL") ?: throw IllegalStateException("DB_URL no está configurado")
 
     fun connect(): Connection {
 
-        val connection = DriverManager.getConnection(url, user, password)
+        val connection = DriverManager.getConnection(url)
         println("Conexión a la base de datos establecida correctamente")
         return connection
 
