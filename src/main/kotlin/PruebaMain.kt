@@ -1,49 +1,55 @@
 import Visuals.LoginScreen
+import Visuals.MainScreen
 import androidx.compose.desktop.ui.tooling.preview.Preview
 import androidx.compose.material.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.window.Window
-import androidx.compose.ui.window.WindowPosition
-import androidx.compose.ui.window.WindowState
-import androidx.compose.ui.window.application
+import androidx.compose.ui.window.*
+import java.awt.Dimension
+import java.awt.GraphicsDevice
+import java.awt.GraphicsEnvironment
 import java.awt.Toolkit
 
 @Composable
 @Preview
-fun App() {
+fun App(window: java.awt.Window) {
     var isLoggedIn by remember { mutableStateOf(false) }
 
-    // Si el usuario está autenticado, muestra la pantalla principal
     if (isLoggedIn) {
+        // Cambia la ventana a pantalla completa
+        LaunchedEffect(Unit) {
+            setFullScreen(window)
+        }
         MainScreen()
     } else {
-        // Muestra la pantalla de login
         LoginScreen(onLoginSuccess = { isLoggedIn = true })
     }
 }
 
-@Composable
-fun MainScreen() {
-    // Aquí iría el contenido de la pantalla principal
-    Text(text = "Welcome to the Main Screen!", style = MaterialTheme.typography.h4)
+
+fun Dimension.toDpSize(): DpSize {
+    val density = java.awt.Toolkit.getDefaultToolkit().screenResolution / 96.0 // Obtén la densidad de pantalla
+    val widthDp: Dp = (width / density).dp
+    val heightDp: Dp = (height / density).dp
+    return DpSize(widthDp, heightDp)
 }
 
 fun main() = application {
-    val screenSize = Toolkit.getDefaultToolkit().screenSize
-    val windowWidth = 400.dp // Ajustar el ancho deseado
-    val windowHeight = 600.dp // Ajustar la altura deseada
 
     Window(
         onCloseRequest = ::exitApplication,
         title = "Login",
-        state = WindowState(
-            size = DpSize(windowWidth, windowHeight),
-            position = WindowPosition(Alignment.Center)
-        )
+        state = androidx.compose.ui.window.WindowState(width = 800.dp, height = 600.dp)
     ) {
-        App()
+        App(window)
     }
+}
+
+// Función para poner la ventana a pantalla completa
+fun setFullScreen(window: java.awt.Window) {
+    val graphicsDevice: GraphicsDevice = GraphicsEnvironment.getLocalGraphicsEnvironment().defaultScreenDevice
+    graphicsDevice.fullScreenWindow = window // Configurar la ventana a pantalla completa
 }
