@@ -9,6 +9,8 @@ import kotlinx.coroutines.withContext
 import java.sql.Connection
 
 object ContratadosDB {
+
+    //-------------------------------------CONSULTAS----------------------------------------------------------------
     suspend fun getVeterinariosFilter(
         codigo: Int?,
         nombre: String?,
@@ -141,4 +143,42 @@ object ContratadosDB {
         proveedores
     }
 
+    //-------------------------------------INSERCCIONES----------------------------------------------------------------
+
+    suspend fun insertarVeterinario(
+        nombre: String,
+        email: String,
+        provincia: String,
+        direccion: String,
+        telefono: String,
+        especialidad: String,
+        clinica: String
+    ): Int = withContext(Dispatchers.IO) {
+
+        var nuevoId = -1
+        val dbConnection: Connection = Database.connect()
+        val statement = dbConnection.prepareStatement(
+            "SELECT insertar_veterinario(?, ?, ?, ?, ?, ?, ?)",
+            arrayOf("id_contratado")
+        )
+
+        statement.setString(1, nombre)
+        statement.setString(2, email)
+        statement.setString(3, provincia)
+        statement.setString(4, direccion)
+        statement.setString(5, telefono)
+        statement.setString(6, especialidad)
+        statement.setString(7, clinica)
+
+        val resultSet = statement.executeQuery()
+
+        if (resultSet.next()) {
+            nuevoId = resultSet.getInt(1)
+        }
+
+        resultSet.close()
+        statement.close()
+        dbConnection.close()
+        nuevoId
+    }
 }
