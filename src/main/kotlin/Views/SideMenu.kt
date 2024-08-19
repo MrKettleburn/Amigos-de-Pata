@@ -19,9 +19,12 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 
 @Composable
-fun AnimatedSideMenu(colors: RefugioColorPalette) {
-    var selectedItem by remember { mutableStateOf("") }
-    var selectedSubItem by remember { mutableStateOf("") }
+fun AnimatedSideMenu(
+    colors: RefugioColorPalette,
+    selectedItem: String,
+    selectedSubItem: String,
+    onSelectionChanged: (String, String) -> Unit
+) {
     val scrollState = rememberScrollState()
 
     Column(
@@ -41,20 +44,16 @@ fun AnimatedSideMenu(colors: RefugioColorPalette) {
         )
 
         ExpandableMenuItem("Contratos", colors, selectedItem, selectedSubItem) { item, subItem ->
-            selectedItem = item
-            selectedSubItem = subItem
+            onSelectionChanged(item, subItem)
         }
         ExpandableMenuItem("Contratados", colors, selectedItem, selectedSubItem) { item, subItem ->
-            selectedItem = item
-            selectedSubItem = subItem
+            onSelectionChanged(item, subItem)
         }
         ExpandableMenuItem("Servicios", colors, selectedItem, selectedSubItem) { item, subItem ->
-            selectedItem = item
-            selectedSubItem = subItem
+            onSelectionChanged(item, subItem)
         }
         MenuItem("Animales", colors, selectedItem, selectedSubItem) {
-            selectedItem = it
-            selectedSubItem = ""
+            onSelectionChanged(it, "")
         }
 
         Spacer(modifier = Modifier.height(16.dp))
@@ -69,8 +68,7 @@ fun AnimatedSideMenu(colors: RefugioColorPalette) {
 
         for (i in 1..5) {
             MenuItem("Reporte $i", colors, selectedItem, selectedSubItem) {
-                selectedItem = it
-                selectedSubItem = ""
+                onSelectionChanged(it, "")
             }
         }
     }
