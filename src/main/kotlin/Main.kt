@@ -33,7 +33,7 @@ fun main() = application {
     Window(
         onCloseRequest = ::exitApplication,
         title = "Login",
-        state = androidx.compose.ui.window.WindowState(width = 800.dp, height = 600.dp)
+        state = androidx.compose.ui.window.WindowState(width = 700.dp, height = 600.dp)
     ) {
         App(window)
     }

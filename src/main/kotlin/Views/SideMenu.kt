@@ -19,9 +19,12 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 
 @Composable
-fun AnimatedSideMenu(colors: RefugioColorPalette) {
-    var selectedItem by remember { mutableStateOf("") }
-    var selectedSubItem by remember { mutableStateOf("") }
+fun AnimatedSideMenu(
+    colors: RefugioColorPalette,
+    selectedItem: String,
+    selectedSubItem: String,
+    onSelectionChanged: (String, String) -> Unit
+) {
     val scrollState = rememberScrollState()
 
     Column(
@@ -40,21 +43,11 @@ fun AnimatedSideMenu(colors: RefugioColorPalette) {
             modifier = Modifier.padding(bottom = 8.dp)
         )
 
-        ExpandableMenuItem("Contratos", colors, selectedItem, selectedSubItem) { item, subItem ->
-            selectedItem = item
-            selectedSubItem = subItem
-        }
-        ExpandableMenuItem("Contratados", colors, selectedItem, selectedSubItem) { item, subItem ->
-            selectedItem = item
-            selectedSubItem = subItem
-        }
-        ExpandableMenuItem("Servicios", colors, selectedItem, selectedSubItem) { item, subItem ->
-            selectedItem = item
-            selectedSubItem = subItem
-        }
+        ExpandableMenuItem("Contratos", colors, selectedItem, selectedSubItem, onSelectionChanged)
+        ExpandableMenuItem("Contratados", colors, selectedItem, selectedSubItem, onSelectionChanged)
+        ExpandableMenuItem("Servicios", colors, selectedItem, selectedSubItem, onSelectionChanged)
         MenuItem("Animales", colors, selectedItem, selectedSubItem) {
-            selectedItem = it
-            selectedSubItem = ""
+            onSelectionChanged(it, "")
         }
 
         Spacer(modifier = Modifier.height(16.dp))
@@ -69,8 +62,7 @@ fun AnimatedSideMenu(colors: RefugioColorPalette) {
 
         for (i in 1..5) {
             MenuItem("Reporte $i", colors, selectedItem, selectedSubItem) {
-                selectedItem = it
-                selectedSubItem = ""
+                onSelectionChanged(it, "")
             }
         }
     }
@@ -131,6 +123,7 @@ fun SubMenuItem(
     parentTitle: String,
     onItemSelected: (String) -> Unit
 ) {
+    Spacer(modifier = Modifier.width(16.dp))
     Text(
         text = title,
         color = if (selectedItem == parentTitle && selectedSubItem == title) colors.onMenuItemSelected else colors.onMenuItem,
