@@ -1,5 +1,4 @@
 import Views.LoginScreen
-import Views.MainScreen
 import Views.RefugioApp
 import Views.RefugioColorPalette
 import androidx.compose.ui.window.Window
