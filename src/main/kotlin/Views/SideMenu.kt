@@ -9,12 +9,13 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.KeyboardArrowDown
+import androidx.compose.material.icons.filled.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 
@@ -43,10 +44,10 @@ fun AnimatedSideMenu(
             modifier = Modifier.padding(bottom = 8.dp)
         )
 
-        ExpandableMenuItem("Contratos", colors, selectedItem, selectedSubItem, onSelectionChanged)
-        ExpandableMenuItem("Contratados", colors, selectedItem, selectedSubItem, onSelectionChanged)
-        ExpandableMenuItem("Servicios", colors, selectedItem, selectedSubItem, onSelectionChanged)
-        MenuItem("Animales", colors, selectedItem, selectedSubItem) {
+        ExpandableMenuItem("Contratos", colors, selectedItem, selectedSubItem, onSelectionChanged, Icons.Default.Description)
+        ExpandableMenuItem("Contratados", colors, selectedItem, selectedSubItem, onSelectionChanged, Icons.Default.People)
+        ExpandableMenuItem("Servicios", colors, selectedItem, selectedSubItem, onSelectionChanged, Icons.Default.Build)
+        MenuItem("Animales", colors, selectedItem, selectedSubItem, Icons.Default.Pets) {
             onSelectionChanged(it, "")
         }
 
@@ -61,7 +62,7 @@ fun AnimatedSideMenu(
         )
 
         for (i in 1..5) {
-            MenuItem("Reporte $i", colors, selectedItem, selectedSubItem) {
+            MenuItem("Reporte $i", colors, selectedItem, selectedSubItem, Icons.Default.Assessment) {
                 onSelectionChanged(it, "")
             }
         }
@@ -74,7 +75,8 @@ fun ExpandableMenuItem(
     colors: RefugioColorPalette,
     selectedItem: String,
     selectedSubItem: String,
-    onItemSelected: (String, String) -> Unit
+    onItemSelected: (String, String) -> Unit,
+    icon: ImageVector
 ) {
     var expanded by remember { mutableStateOf(false) }
     val rotationState by animateFloatAsState(if (expanded) 180f else 0f)
@@ -91,6 +93,12 @@ fun ExpandableMenuItem(
                 .padding(vertical = 8.dp, horizontal = 8.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
+            Icon(
+                imageVector = icon,
+                contentDescription = null,
+                tint = if (selectedItem == title) colors.onMenuItemSelected else colors.onMenuItem,
+                modifier = Modifier.padding(end = 8.dp)
+            )
             Text(
                 text = title,
                 color = if (selectedItem == title) colors.onMenuItemSelected else colors.onMenuItem,
@@ -106,9 +114,9 @@ fun ExpandableMenuItem(
 
         AnimatedVisibility(visible = expanded) {
             Column {
-                SubMenuItem("Veterinarios", colors, selectedItem, selectedSubItem, title) { onItemSelected(title, it) }
-                SubMenuItem("Transporte", colors, selectedItem, selectedSubItem, title) { onItemSelected(title, it) }
-                SubMenuItem("Proveedor de alimentos", colors, selectedItem, selectedSubItem, title) { onItemSelected(title, it) }
+                SubMenuItem("Veterinarios", colors, selectedItem, selectedSubItem, title, Icons.Default.MedicalServices) { onItemSelected(title, it) }
+                SubMenuItem("Transporte", colors, selectedItem, selectedSubItem, title, Icons.Default.LocalShipping) { onItemSelected(title, it) }
+                SubMenuItem("Proveedor de alimentos", colors, selectedItem, selectedSubItem, title, Icons.Default.Fastfood) { onItemSelected(title, it) }
             }
         }
     }
@@ -121,18 +129,29 @@ fun SubMenuItem(
     selectedItem: String,
     selectedSubItem: String,
     parentTitle: String,
+    icon: ImageVector,
     onItemSelected: (String) -> Unit
 ) {
     Spacer(modifier = Modifier.width(16.dp))
-    Text(
-        text = title,
-        color = if (selectedItem == parentTitle && selectedSubItem == title) colors.onMenuItemSelected else colors.onMenuItem,
+    Row(
+        verticalAlignment = Alignment.CenterVertically,
         modifier = Modifier
             .fillMaxWidth()
             .clickable { onItemSelected(title) }
             .background(if (selectedItem == parentTitle && selectedSubItem == title) colors.menuItemSelected else Color.Transparent)
             .padding(vertical = 8.dp, horizontal = 24.dp)
-    )
+    ) {
+        Icon(
+            imageVector = icon,
+            contentDescription = null,
+            tint = if (selectedItem == parentTitle && selectedSubItem == title) colors.onMenuItemSelected else colors.onMenuItem,
+            modifier = Modifier.padding(end = 8.dp)
+        )
+        Text(
+            text = title,
+            color = if (selectedItem == parentTitle && selectedSubItem == title) colors.onMenuItemSelected else colors.onMenuItem
+        )
+    }
 }
 
 @Composable
@@ -141,15 +160,26 @@ fun MenuItem(
     colors: RefugioColorPalette,
     selectedItem: String,
     selectedSubItem: String,
+    icon: ImageVector,
     onItemSelected: (String) -> Unit
 ) {
-    Text(
-        text = title,
-        color = if (selectedItem == title && selectedSubItem.isEmpty()) colors.onMenuItemSelected else colors.onMenuItem,
+    Row(
+        verticalAlignment = Alignment.CenterVertically,
         modifier = Modifier
             .fillMaxWidth()
             .clickable { onItemSelected(title) }
             .background(if (selectedItem == title && selectedSubItem.isEmpty()) colors.menuItemSelected else Color.Transparent)
             .padding(vertical = 8.dp, horizontal = 8.dp)
-    )
+    ) {
+        Icon(
+            imageVector = icon,
+            contentDescription = null,
+            tint = if (selectedItem == title && selectedSubItem.isEmpty()) colors.onMenuItemSelected else colors.onMenuItem,
+            modifier = Modifier.padding(end = 8.dp)
+        )
+        Text(
+            text = title,
+            color = if (selectedItem == title && selectedSubItem.isEmpty()) colors.onMenuItemSelected else colors.onMenuItem
+        )
+    }
 }
