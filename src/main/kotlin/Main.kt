@@ -1,13 +1,12 @@
 import Views.LoginScreen
+import Views.MainScreen
+import Views.RefugioApp
+import Views.RefugioColorPalette
 import androidx.compose.ui.window.Window
 import androidx.compose.ui.window.application
-import Views.RefugioApp
 import androidx.compose.desktop.ui.tooling.preview.Preview
 import androidx.compose.runtime.*
-import androidx.compose.ui.unit.Dp
-import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
-import java.awt.Dimension
 import java.awt.GraphicsDevice
 import java.awt.GraphicsEnvironment
 
@@ -16,6 +15,9 @@ import java.awt.GraphicsEnvironment
 fun App(window: java.awt.Window) {
     var isLoggedIn by remember { mutableStateOf(false) }
 
+    // Instancia de la paleta de colores
+    val colors = RefugioColorPalette()
+
     if (isLoggedIn) {
         // Cambia la ventana a pantalla completa
         LaunchedEffect(Unit) {
@@ -23,12 +25,11 @@ fun App(window: java.awt.Window) {
         }
         RefugioApp()
     } else {
-        LoginScreen(onLoginSuccess = { isLoggedIn = true })
+        LoginScreen(colors = colors, onLoginSuccess = { isLoggedIn = true })
     }
 }
 
 fun main() = application {
-
     Window(
         onCloseRequest = ::exitApplication,
         title = "Login",
@@ -37,8 +38,8 @@ fun main() = application {
         App(window)
     }
 }
+
 fun setFullScreen(window: java.awt.Window) {
     val graphicsDevice: GraphicsDevice = GraphicsEnvironment.getLocalGraphicsEnvironment().defaultScreenDevice
     graphicsDevice.fullScreenWindow = window // Configurar la ventana a pantalla completa
 }
-
