@@ -1,5 +1,6 @@
 package Views
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -7,9 +8,13 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
+import androidx.compose.material.icons.rounded.Badge
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 
 @Composable
@@ -19,6 +24,7 @@ fun AnimalesMostrar(colors: RefugioColorPalette, selectedItem: String, selectedS
             modifier = Modifier
                 .fillMaxSize()
                 .padding(16.dp)
+
         ) {
             // Título de la sección
             Text(
@@ -93,7 +99,23 @@ fun ExpandableRow(row: TableRow) {
             verticalAlignment = Alignment.CenterVertically
         ) {
             row.mainAttributes.forEach { (key, value) ->
-                Text("$key: $value", modifier = Modifier.weight(1f))
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    modifier = Modifier.weight(1f)
+                ) {
+                    // Agrega el ícono y el subtítulo en negrita
+                    Icon(
+                        imageVector = getIconForAttribute(key),
+                        contentDescription = null,
+                        modifier = Modifier.size(20.dp)
+                    )
+                    Spacer(modifier = Modifier.width(4.dp))
+                    Text(
+                        text = "$key: ",
+                        fontWeight = FontWeight.Bold
+                    )
+                    Text(text = value)
+                }
             }
             Row {
                 IconButton(onClick = { /* TODO: Implementar modificar */ }) {
@@ -113,9 +135,38 @@ fun ExpandableRow(row: TableRow) {
 
         if (expanded) {
             row.expandedAttributes.forEach { (key, value) ->
-                Text("$key: $value", modifier = Modifier.padding(start = 16.dp, top = 4.dp))
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    modifier = Modifier.padding(start = 16.dp, top = 8.dp)
+                ) {
+
+                    // Agrega el ícono y el subtítulo en negrita para los atributos expandibles
+                    Icon(
+                        imageVector = getIconForAttribute(key),
+                        contentDescription = null,
+                        modifier = Modifier.size(20.dp)
+                    )
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Text(
+                        text = "$key: ",
+                        fontWeight = FontWeight.Bold
+                    )
+                    Text(text = value)
+                }
             }
         }
+    }
+}
+
+// Función para asignar íconos a cada atributo
+fun getIconForAttribute(attribute: String): ImageVector {
+    return when (attribute) {
+        "Nombre" -> Icons.Default.Person
+        "Especialidad" -> Icons.Default.Work
+        "Teléfono" -> Icons.Default.Phone
+        "Email" -> Icons.Default.Email
+        "Fecha de contrato" -> Icons.Default.CalendarToday
+        else -> Icons.Default.Info
     }
 }
 
@@ -147,3 +198,28 @@ fun getDataForSection(selectedItem: String, selectedSubItem: String): List<Table
         // Añade más casos para otras combinaciones de selectedItem y selectedSubItem
 
     }
+
+@Composable
+fun PatientDetailItem(icon: ImageVector, label: String, value: String) {
+    Row(verticalAlignment = Alignment.CenterVertically) {
+        androidx.compose.material3.Icon(
+            imageVector = icon,
+            contentDescription = label,
+            tint = androidx.compose.material3.MaterialTheme.colorScheme.primary,
+            modifier = Modifier.size(20.dp)
+        )
+        Spacer(modifier = Modifier.width(8.dp))
+        Column {
+            androidx.compose.material3.Text(
+                label,
+                style = androidx.compose.material3.MaterialTheme.typography.labelSmall,
+                color = androidx.compose.material3.MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f)
+            )
+            androidx.compose.material3.Text(
+                value,
+                style = androidx.compose.material3.MaterialTheme.typography.bodyMedium,
+                color = androidx.compose.material3.MaterialTheme.colorScheme.onSurface
+            )
+        }
+    }
+}

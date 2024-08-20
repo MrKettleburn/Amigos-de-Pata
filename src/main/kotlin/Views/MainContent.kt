@@ -27,7 +27,7 @@ fun MainContent(colors: RefugioColorPalette) {
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .background(Color.White)
+                .background(Color(255,249,234))
                 .padding(16.dp)
         ) {
             when (selectedItem) {
