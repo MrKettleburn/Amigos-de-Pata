@@ -28,42 +28,56 @@ fun MainContent(colors: RefugioColorPalette) {
 
 @Composable
 fun MainArea(colors: RefugioColorPalette, selectedItem: String, selectedSubItem: String) {
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(16.dp)
-    ) {
-        // Título de la sección
-        Text(
-            text = "$selectedItem - $selectedSubItem",
-            style = MaterialTheme.typography.h5,
-            modifier = Modifier.padding(bottom = 16.dp)
-        )
-
-        // Botones de acción
-        Row(
-            modifier = Modifier.fillMaxWidth().padding(bottom = 16.dp),
-            horizontalArrangement = Arrangement.SpaceBetween
+    Box(modifier = Modifier.fillMaxSize()) {
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(16.dp)
         ) {
-            Button(onClick = { /* TODO: Implementar agregar */ }) {
-                Icon(Icons.Default.Add, contentDescription = "Agregar")
-                Spacer(Modifier.width(4.dp))
-                Text("Agregar")
-            }
-            Button(onClick = { /* TODO: Implementar modificar */ }) {
-                Icon(Icons.Default.Edit, contentDescription = "Modificar")
-                Spacer(Modifier.width(4.dp))
-                Text("Modificar")
-            }
-            Button(onClick = { /* TODO: Implementar eliminar */ }) {
-                Icon(Icons.Default.Delete, contentDescription = "Eliminar")
-                Spacer(Modifier.width(4.dp))
-                Text("Eliminar")
-            }
+            // Título de la sección
+            Text(
+                text = "$selectedItem - $selectedSubItem",
+                style = MaterialTheme.typography.h5,
+                modifier = Modifier.padding(bottom = 16.dp)
+            )
+
+            // Componentes de filtrado
+            FilterComponents()
+
+            // Tabla expandible
+            ExpandableTable(getDataForSection(selectedItem, selectedSubItem))
         }
 
-        // Tabla expandible
-        ExpandableTable(getDataForSection(selectedItem, selectedSubItem))
+        // Botón flotante de agregar
+        FloatingActionButton(
+            onClick = { /* TODO: Implementar agregar */ },
+            modifier = Modifier
+                .align(Alignment.BottomEnd)
+                .padding(16.dp)
+        ) {
+            Icon(Icons.Default.Add, contentDescription = "Agregar")
+        }
+    }
+}
+
+@Composable
+fun FilterComponents() {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(bottom = 16.dp),
+        horizontalArrangement = Arrangement.SpaceBetween
+    ) {
+        OutlinedTextField(
+            value = "",
+            onValueChange = { /* TODO: Implementar filtrado */ },
+            label = { Text("Buscar") },
+            modifier = Modifier.weight(1f)
+        )
+        Spacer(modifier = Modifier.width(8.dp))
+        Button(onClick = { /* TODO: Implementar filtrado avanzado */ }) {
+            Text("Filtros avanzados")
+        }
     }
 }
 
@@ -95,11 +109,19 @@ fun ExpandableRow(row: TableRow) {
             row.mainAttributes.forEach { (key, value) ->
                 Text("$key: $value", modifier = Modifier.weight(1f))
             }
-            IconButton(onClick = { expanded = !expanded }) {
-                Icon(
-                    if (expanded) Icons.Default.KeyboardArrowUp else Icons.Default.KeyboardArrowDown,
-                    contentDescription = if (expanded) "Collapse" else "Expand"
-                )
+            Row {
+                IconButton(onClick = { /* TODO: Implementar modificar */ }) {
+                    Icon(Icons.Default.Edit, contentDescription = "Modificar")
+                }
+                IconButton(onClick = { /* TODO: Implementar eliminar */ }) {
+                    Icon(Icons.Default.Delete, contentDescription = "Eliminar")
+                }
+                IconButton(onClick = { expanded = !expanded }) {
+                    Icon(
+                        if (expanded) Icons.Default.KeyboardArrowUp else Icons.Default.KeyboardArrowDown,
+                        contentDescription = if (expanded) "Collapse" else "Expand"
+                    )
+                }
             }
         }
 
@@ -110,6 +132,8 @@ fun ExpandableRow(row: TableRow) {
         }
     }
 }
+
+// El resto del código permanece igual
 
 data class TableRow(
     val id: String,
