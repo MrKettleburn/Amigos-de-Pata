@@ -51,9 +51,17 @@ fun AnimalesMostrar(colors: RefugioColorPalette, selectedItem: String, selectedS
 
 
     // Cargar los datos iniciales
-    LaunchedEffect(Unit) {
-        animales = AnimalDB.getAnimalesFilter(null, null, null, null, null, null, null)
-    }
+        LaunchedEffect(Unit) {
+            animales = AnimalDB.getAnimalesFilter(
+                codigo?.toIntOrNull(),
+                nombre,
+                especie,
+                raza,
+                edad,
+                fechaLI?.format(DateTimeFormatter.ISO_DATE),
+                fechaLS?.format(DateTimeFormatter.ISO_DATE)
+            )
+        }
 
     Box(modifier = Modifier.fillMaxSize()) {
         Column(
