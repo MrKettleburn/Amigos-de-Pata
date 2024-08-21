@@ -16,7 +16,8 @@ object ActividadDB {
     suspend fun getActividadesFilter(
         codigoAnim: Int,
         codigo: Int?,
-        indicacionFecha: String?,   //VER COMO FILTRAR POR DIA SEMANA Y MES
+        fechaLI: String?,
+        fechaLS: String?,
         tipo: String?,
         tipoContrato: String?,
     ): List<Actividad>  = withContext(Dispatchers.IO) {
@@ -24,14 +25,15 @@ object ActividadDB {
         val actividades = mutableListOf<Actividad>()
         val dbConnection: Connection = Database.connect()
         val statement = dbConnection.prepareStatement(
-            "SELECT * FROM buscar_actividades(?, ?, ?, ?, ?)"
+            "SELECT * FROM buscar_actividades(?, ?, ?, ?, ?, ?)"
         )
 
         statement.setInt(1, codigoAnim)
         if (codigo != null) statement.setInt(2, codigo) else statement.setNull(2, Types.INTEGER)
-        statement.setString(3, indicacionFecha)
-        statement.setString(4, tipo)
-        statement.setString(5, tipoContrato)
+        statement.setString(3, fechaLI)
+        statement.setString(4, fechaLS)
+        statement.setString(5, tipo)
+        statement.setString(6, tipoContrato)
 
         val resultSet = statement.executeQuery()
 
@@ -43,11 +45,12 @@ object ActividadDB {
                 Actividad(
                     codigo = resultSet.getInt("id_actividad"),
                     codigoAnim = resultSet.getInt("id_animal"),
-                    fecha = LocalDate.parse(resultSet.getDate("fecha_inicio").toString(), formatterDate),
-                    hora = LocalTime.parse(resultSet.getObject("hora").toString(),formatterTime),
+                    fecha = resultSet.getDate("fecha").toLocalDate(),
+                    hora = resultSet.getTime("hora").toLocalTime(),
                     tipo = resultSet.getString("tipo_actividad"),
                     codigoContr = resultSet.getInt("id_contrato"),
-                    tipoContrato = resultSet.getString("tipo_contrato")
+                    tipoContrato = resultSet.getString("tipo_contrato"),
+                    descrip = resultSet.getString("descrip_act")
                 )
             )
         }

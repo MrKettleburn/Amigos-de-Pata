@@ -43,7 +43,7 @@ fun MainContent(colors: RefugioColorPalette) {
         Box(
             modifier = Modifier
                 .fillMaxSize()
-                .background(Color(255, 249, 234))
+                .background(Color(0xD4FEDD))
                 .padding(16.dp)
         ) {
             if (selectedItem.isEmpty() || (selectedItem in listOf("Contratos", "Contratados", "Servicios") && selectedSubItem.isEmpty())) {

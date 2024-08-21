@@ -10,5 +10,6 @@ data class Actividad(
     val hora: LocalTime,
     val tipo: String,
     val codigoContr: Int,
-    val tipoContrato: String
+    val tipoContrato: String,
+    val descrip: String
 )
