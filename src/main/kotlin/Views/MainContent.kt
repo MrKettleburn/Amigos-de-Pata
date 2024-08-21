@@ -43,17 +43,17 @@ fun MainContent(colors: RefugioColorPalette) {
         Box(
             modifier = Modifier
                 .fillMaxSize()
-                .background(Color(0xD4FEDD))
-                .padding(16.dp)
+                .background(Color.White)
+                .padding(0.dp)
         ) {
-            if (selectedItem.isEmpty() || (selectedItem in listOf("Contratos", "Contratados", "Servicios") && selectedSubItem.isEmpty())) {
+            //if (selectedItem.isEmpty() || (selectedItem in listOf("Contratos", "Contratados", "Servicios") && selectedSubItem.isEmpty())) {
                 // Contenido predeterminado para ambientar cuando no hay selección
                 DefaultContent(colors)
-            } else {
+//            } else {
                 Column(
                     modifier = Modifier
                         .fillMaxSize()
-                        .padding(16.dp)
+                        .padding(0.dp)
                 ) {
                     when (selectedItem) {
                         "Contratos" -> {
@@ -86,17 +86,17 @@ fun MainContent(colors: RefugioColorPalette) {
             }
         }
     }
-    }
+
 
     @Composable
     fun DefaultContent(colors: RefugioColorPalette) {
-        Box(
+        Column(
             modifier = Modifier
                 .fillMaxSize()
         ) {
             // Cargar la imagen desde los recursos
             Image(
-                painter = painterResource("photo_2024-08-20_19-13-28.jpg"),
+                painter = painterResource("FondoAmigosDePata.jpg"),
                 contentDescription = "Fondo de refugio de animales",
                 contentScale = ContentScale.Crop,
                 modifier = Modifier.fillMaxSize()
@@ -111,7 +111,7 @@ fun MainContent(colors: RefugioColorPalette) {
                 verticalArrangement = Arrangement.Center
             ) {
                 Text(
-                    text = "Bienvenido a la Gestión de Refugio",
+                    text = "",
                     style = MaterialTheme.typography.h4,
                     color = Color.White,
                     textAlign = TextAlign.Center

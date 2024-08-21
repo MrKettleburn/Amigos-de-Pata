@@ -57,12 +57,12 @@ fun AnimalesMostrar(colors: RefugioColorPalette, selectedItem: String, selectedS
         animales = AnimalDB.getAnimalesFilter(null, null, null, null, null, null, null)
     }
 
-    Box(modifier = Modifier.fillMaxSize()) {
+    Box(modifier = Modifier.fillMaxSize().background(Color(0xDCFFFFFF)).padding(16.dp)) {
         Column(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(1.dp)
-
+                .background(Color(255,251,242,0))
         ) {
             // Título de la sección
             Text(
@@ -679,7 +679,7 @@ fun ActividadesDialog(
         modifier = Modifier
             .border(width = 1.2.dp, brush = Brush.verticalGradient(colors = listOf(colors.primary, colors.secondary)), shape = RoundedCornerShape(8.dp))
             .width(1200.dp)
-            .height(500.dp)
+            .height(400.dp)
             .background(Color.White) // Fondo para la caja
             .padding(0.dp)
     ) {
@@ -716,31 +716,31 @@ fun ActividadesDialog(
                         value = codigoActividad.orEmpty(),
                         onValueChange = { codigoActividad = if (it.isEmpty()) null else it },
                         label = { Text("Código Actividad") },
-                        modifier = Modifier.width(130.dp)  // Tamaño fijo
+                        modifier = Modifier.width(160.dp)  // Tamaño fijo
                     )
                     OutlinedTextField(
                         value = tipo.orEmpty(),
                         onValueChange = { tipo = if (it.isEmpty()) null else it },
                         label = { Text("Tipo Actividad") },
-                        modifier = Modifier.width(130.dp)  // Tamaño fijo
+                        modifier = Modifier.width(150.dp)  // Tamaño fijo
                     )
                     OutlinedTextField(
                         value = tipoContrato.orEmpty(),
                         onValueChange = { tipoContrato = if (it.isEmpty()) null else it },
                         label = { Text("Tipo Contrato") },
-                        modifier = Modifier.width(130.dp)  // Tamaño fijo
+                        modifier = Modifier.width(150.dp)  // Tamaño fijo
                     )
                     DatePicker(
                         label = { Text("Fecha Desde") },
                         selectedDate = fechaLI,
                         onDateChange = { fechaLI = it },
-                        modifier = Modifier.width(160.dp)  // Tamaño fijo
+                        modifier = Modifier.width(180.dp)  // Tamaño fijo
                     )
                     DatePicker(
                         label = { Text("Fecha Hasta") },
                         selectedDate = fechaLS,
                         onDateChange = { fechaLS = it },
-                        modifier = Modifier.width(160.dp)  // Tamaño fijo
+                        modifier = Modifier.width(180.dp)  // Tamaño fijo
                     )
                     Button(
                         onClick = {
