@@ -51,17 +51,17 @@ fun AnimalesMostrar(colors: RefugioColorPalette, selectedItem: String, selectedS
 
 
     // Cargar los datos iniciales
-        LaunchedEffect(Unit) {
-            animales = AnimalDB.getAnimalesFilter(
-                codigo?.toIntOrNull(),
-                nombre,
-                especie,
-                raza,
-                edad,
-                fechaLI?.format(DateTimeFormatter.ISO_DATE),
-                fechaLS?.format(DateTimeFormatter.ISO_DATE)
-            )
-        }
+    LaunchedEffect(Unit) {
+        animales = AnimalDB.getAnimalesFilter(
+            codigo?.toIntOrNull(),
+            nombre,
+            especie,
+            raza,
+            edad,
+            fechaLI?.format(DateTimeFormatter.ISO_DATE),
+            fechaLS?.format(DateTimeFormatter.ISO_DATE)
+        )
+    }
 
     Box(modifier = Modifier.fillMaxSize()) {
         Column(
@@ -149,7 +149,8 @@ fun FilterComponents(
         modifier = Modifier
             .fillMaxWidth()
             .padding(vertical = 8.dp),
-        horizontalArrangement = Arrangement.spacedBy(8.dp)
+        horizontalArrangement = Arrangement.spacedBy(8.dp),
+        verticalAlignment = Alignment.CenterVertically
     ) {
         OutlinedTextField(
             value = codigo.orEmpty(),
@@ -181,18 +182,20 @@ fun FilterComponents(
             label = { Text("Edad") },
             modifier = Modifier.width(100.dp) // Tamaño fijo
         )
-        DatePicker(
+
+        DatePickerTextField(
             label = { Text("Fecha Desde") },
             selectedDate = fechaLI,
             onDateChange = { onFechaLIChange(it) },
             modifier = Modifier.width(140.dp) // Tamaño fijo
         )
-        DatePicker(
+        DatePickerTextField(
             label = { Text("Fecha Hasta") },
             selectedDate = fechaLS,
             onDateChange = { onFechaLSChange(it) },
             modifier = Modifier.width(140.dp) // Tamaño fijo
         )
+
         Button(
             onClick = { onFilterApplied() },
             modifier = Modifier.align(Alignment.CenterVertically)
