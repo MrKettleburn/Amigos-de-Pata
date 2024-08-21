@@ -11,7 +11,6 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
-import androidx.compose.material.icons.rounded.Badge
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -22,19 +21,15 @@ import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.launch
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
-import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.grid.GridCells
-import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
-import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.*
-import androidx.compose.runtime.*
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
-import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
-import java.time.YearMonth
-import java.time.format.TextStyle
-import java.util.*
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 
 @Composable
 fun AnimalesMostrar(colors: RefugioColorPalette, selectedItem: String, selectedSubItem: String) {
@@ -306,10 +301,26 @@ fun AnimalsExpandableTable(colors: RefugioColorPalette, data: List<AnimalTableRo
 
 @Composable
 fun ActividadesExpandableTable(colors: RefugioColorPalette, data: List<ActividadTableRow>) {
-    LazyColumn {
-        items(data) { row ->
-            ActividadesExpandableRow(colors, row)
-            Divider(color = colors.primary, thickness = 1.5.dp)
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .heightIn(0.dp, 100.dp) // Establecer una altura máxima de 400 dp
+            .clip(RoundedCornerShape(8.dp))
+            .border(
+                width = 1.dp,
+                color = colors.primary,
+                shape = RoundedCornerShape(8.dp)
+            )
+    ) {
+        Column(
+            modifier = Modifier
+                .verticalScroll(rememberScrollState())
+                .fillMaxSize()
+        ) {
+            data.forEach { row ->
+                ActividadesExpandableRow(colors, row)
+                Divider(color = colors.primary, thickness = 1.5.dp)
+            }
         }
     }
 }
@@ -415,6 +426,8 @@ fun ActividadesExpandableRow(colors: RefugioColorPalette, row: ActividadTableRow
             .fillMaxWidth()
             .background(backgroundColor) // Color de fondo para la fila expandida
             .padding(vertical = 8.dp)
+            .heightIn(100.dp) // Establecer una altura máxima para el Column
+
     ) {
         Row(
             modifier = Modifier
@@ -458,6 +471,10 @@ fun ActividadesExpandableRow(colors: RefugioColorPalette, row: ActividadTableRow
         }
 
         if (expanded) {
+            Column(
+                modifier = Modifier
+                    .heightIn(200.dp) // Establecer una altura máxima para el Column anidado
+            ) {
             row.expandedAttributes.forEach { (key, value) ->
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
@@ -475,6 +492,7 @@ fun ActividadesExpandableRow(colors: RefugioColorPalette, row: ActividadTableRow
                     )
                     Text(text = value)
                 }
+            }
             }
         }
 
@@ -764,9 +782,26 @@ fun ActividadesDialog(
                 Spacer(modifier = Modifier.height(16.dp))
 
                 // Tabla de actividades
-                ActividadesExpandableTable(colors, getActividadesTableRows(actividades))
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .fillMaxHeight(0.8f)
+                        .clip(RoundedCornerShape(8.dp))
+                        .border(
+                            width = 1.dp,
+                            color = colors.primary,
+                            shape = RoundedCornerShape(8.dp)
+                        )
+                ) {
+                    Column(
+                        modifier = Modifier
+                            .verticalScroll(rememberScrollState())
+                            .heightIn(100.dp) // Establecer la altura máxima deseada
+                    ) {
+                        ActividadesExpandableTable(colors, getActividadesTableRows(actividades))
+                    }
+                }
             }
         }
     }
 }
-
