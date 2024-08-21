@@ -8,7 +8,7 @@ class RefugioColorPalette {
     val primary = Color(0xFF4CAF50)
     val secondary = Color(0xFF8BC34A)
     val background = Color(0xFFF1F8E9)
-    val menuBackground = Color(0xFFE8F5E9)
+    val menuBackground = Color(215,242,216) //0xFFE8F5E9
     val menuItem = Color(0xFFC8E6C9)
     val menuItemSelected = Color(0xFF66BB6A)
     val onMenuItem = Color(0xFF33691E)
