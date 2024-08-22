@@ -243,7 +243,6 @@ fun AddServicioDialog(
     onDismissRequest: () -> Unit,
     onServicioAdded: (ServVeterinario) -> Unit
 ) {
-    var codigo by remember { mutableStateOf<String?>(null) }
     var precio by remember { mutableStateOf<Double?>(null) }
     var modalidad by remember { mutableStateOf<String>("") }
 
@@ -255,13 +254,6 @@ fun AddServicioDialog(
         ) {
             Column(modifier = Modifier.padding(16.dp)) {
                 Text("Agregar Servicio Veterinario", style = MaterialTheme.typography.h6)
-
-                OutlinedTextField(
-                    value = codigo.orEmpty(),
-                    onValueChange = { codigo = it },
-                    label = { Text("Código") },
-                    modifier = Modifier.fillMaxWidth()
-                )
 
                 OutlinedTextField(
                     value = modalidad,
@@ -288,14 +280,18 @@ fun AddServicioDialog(
                     }
                     Spacer(modifier = Modifier.width(8.dp))
                     Button(onClick = {
-                        if (codigo != null && modalidad.isNotBlank() && precio != null) {
+                        if (modalidad.isNotBlank() && precio != null && precio != 0.0) {
                             onServicioAdded(
                                 ServVeterinario(
-                                    codigo = codigo!!.toInt(),
+                                    codigo = 0,
                                     modalidad = modalidad,
                                     precioUni = precio!!
                                 )
                             )
+                        }
+                        else{
+                            //CARTEL DE VALIDACION
+                            print("No esa talla")
                         }
                     }) {
                         Text("Agregar")

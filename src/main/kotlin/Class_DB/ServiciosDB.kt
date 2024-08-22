@@ -136,12 +136,11 @@ object ServiciosDB {
     suspend fun createServicioVeterinario(servicio: ServVeterinario): Boolean = withContext(Dispatchers.IO) {
         val dbConnection = Database.connect()
         val statement = dbConnection.prepareStatement(
-            "INSERT INTO servicio_veterinario (codigo, modalidad, precio_uni) VALUES(?,?,?)"
+            "INSERT INTO insert_servicio_veterinario(modalidad, precio_uni) VALUES(?,?)"
         )
 
-        statement.setInt(1, servicio.codigo)
-        statement.setString(2, servicio.modalidad)
-        statement.setDouble(3, servicio.precioUni)
+        statement.setString(1, servicio.modalidad)
+        statement.setDouble(2, servicio.precioUni)
 
         val rowsInserted = statement.executeUpdate()
         statement.close()
