@@ -73,7 +73,7 @@ fun AnimalesMostrar(colors: RefugioColorPalette, selectedItem: String, selectedS
 
 
             // Componentes de filtrado
-            FilterComponents(
+            FilterComponentsAnimals(
                 colors,
                 onFilterApplied = {
                     // Convertir los valores de los filtros a los tipos correctos y aplicar el filtro
@@ -139,7 +139,7 @@ fun AnimalesMostrar(colors: RefugioColorPalette, selectedItem: String, selectedS
 
 
 @Composable
-fun FilterComponents(
+fun FilterComponentsAnimals(
     colors: RefugioColorPalette,
     onFilterApplied: () -> Unit,
     codigo: String?,
@@ -195,7 +195,8 @@ fun FilterComponents(
             value = edad ?: 0,
             onValueChange = { onEdadChange(if (it == 0) null else it) },
             label = { Text("Edad") },
-            modifier = Modifier.width(100.dp) // Tamaño fijo
+            modifier = Modifier.width(100.dp), // Tamaño fijo
+            step = 1
         )
         Spacer(modifier = Modifier.width(9.dp))
         DatePicker(
@@ -219,79 +220,7 @@ fun FilterComponents(
     }
 }
 
-@Composable
-fun Spinner(
-    value: Int,
-    onValueChange: (Int) -> Unit,
-    label: @Composable () -> Unit,
-    modifier: Modifier = Modifier
-) {
-    var text by remember { mutableStateOf(value.toString()) }
 
-    Row(
-        modifier = modifier,
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        OutlinedTextField(
-            value = text,
-            onValueChange = {
-                text = it
-                val intValue = it.toIntOrNull() ?: 0
-                onValueChange(intValue)
-            },
-            label = label,
-            modifier = Modifier.weight(1f)
-        )
-
-        Column {
-            IconButton(
-                onClick = {
-                    val newValue = (text.toIntOrNull() ?: 0) + 1
-                    text = newValue.toString()
-                    onValueChange(newValue)
-                },
-                modifier = Modifier.size(24.dp) // Tamaño pequeño
-            ) {
-                Icon(Icons.Default.KeyboardArrowUp, contentDescription = "Incrementar")
-            }
-            IconButton(
-                onClick = {
-                    val newValue = (text.toIntOrNull() ?: 0) - 1
-                    if (newValue >= 0) {
-                        text = newValue.toString()
-                        onValueChange(newValue)
-                    }
-                },
-                modifier = Modifier.size(24.dp) // Tamaño pequeño
-            ) {
-                Icon(Icons.Default.KeyboardArrowDown, contentDescription = "Decrementar")
-            }
-        }
-    }
-}
-@Composable
-fun DateCell(
-    date: LocalDate,
-    isSelected: Boolean,
-    onClick: () -> Unit
-) {
-    val backgroundColor = if (isSelected) MaterialTheme.colors.primary else Color.Transparent
-    val textColor = if (isSelected) Color.White else MaterialTheme.colors.onSurface
-
-    Box(
-        contentAlignment = Alignment.Center,
-        modifier = Modifier
-            .size(40.dp)
-            .background(backgroundColor, shape = MaterialTheme.shapes.small)
-            .clickable { onClick() }
-    ) {
-        Text(
-            text = date.dayOfMonth.toString(),
-            color = textColor,
-            style = MaterialTheme.typography.body1
-        )
-    }
-}
 
 
 @Composable
@@ -480,40 +409,6 @@ fun ActividadesExpandableRow(colors: RefugioColorPalette, row: ActividadTableRow
 
     }
 }
-
-// Función para asignar íconos a cada atributo
-fun getIconForAttribute(attribute: String): ImageVector {
-    return when (attribute) {
-        "Código" -> Icons.Default.Badge
-        "Nombre" -> Icons.Default.Person
-        "Especie" -> Icons.Default.Pets
-        "Raza" -> Icons.Default.Pets
-        "Edad" -> Icons.Default.Cake
-        "Peso" -> Icons.Default.FitnessCenter
-        "Días en Refugio" -> Icons.Default.Numbers
-        "Fecha de Ingreso" -> Icons.Default.CalendarToday
-        "Fecha" -> Icons.Default.CalendarToday
-        "Tipo" -> Icons.Default.Bloodtype
-        "Hora" -> Icons.Default.Timer
-        "Descripción" -> Icons.Default.Textsms
-        "Código Contrato" -> Icons.Default.Description
-        else -> Icons.Default.Info
-    }
-}
-
-data class AnimalTableRow(
-    val id: String,
-    val nombreAnim: String,
-    val mainAttributes: Map<String, String>,
-    val expandedAttributes: Map<String, String>
-)
-
-data class ActividadTableRow(
-    val id: String,
-    val mainAttributes: Map<String, String>,
-    val expandedAttributes: Map<String, String>
-)
-
 
 fun getAnimalsTableRows(animales: List<Animal>): List<AnimalTableRow> {
     val formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy")

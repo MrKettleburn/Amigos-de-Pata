@@ -44,17 +44,14 @@ object ContratoDB {
 //    }
 
     suspend fun getContratosVeterinariosFilter(
-        codigo: String?,
+        codigo: Int?,
         precioLI: Double?,
         precioLS: Double?,
         nombreVet: String?,
         clinicaVet: String?,
         provinciaVet: String?,
-        direccVet: String?,
         especialidad: String?,
         modalidadServVet: String?,
-        precioUnitLI: Double?,
-        precioUnitLS: Double?,
         fechaInicioLI: String?,
         fechaInicioLS: String?,
         fechaFinLI: String?,
@@ -66,26 +63,23 @@ object ContratoDB {
         val contratos = mutableListOf<ContratoVeterinario>()
         val dbConnection: Connection = Database.connect()
         val statement= dbConnection.prepareStatement(
-            "SELECT * FROM buscar_contratos_veterinario(?,    ?,       ?,       ?,     ?,    ?,     ?,    ?,     ?,     ?,    ?,     ?,    ?,    ?,      ?,     ?,     ?)"
-        )//                                                cod   precLI   precLS   nombV  clin  provV  dirV   espV  modal  pULI  pULS   fILI  fILS   fFLI   fFLS    fCLI   fCLS
+            "SELECT * FROM buscar_contratos_veterinario(?,    ?,       ?,       ?,     ?,    ?,     ?,     ?,    ?,    ?,    ?,      ?,     ?,     ?)"
+        )//                                                cod   precLI   precLS   nombV  clin  provV  espV  modal fILI  fILS   fFLI   fFLS    fCLI   fCLS
 
-        if (codigo != null) statement.setInt(1, codigo.toInt()) else statement.setNull(1, java.sql.Types.INTEGER)
+        if (codigo != null) statement.setInt(1, codigo) else statement.setNull(1, java.sql.Types.INTEGER)
         if (precioLI != null) statement.setDouble(2, precioLI) else statement.setNull(2, java.sql.Types.DOUBLE)
         if (precioLS != null) statement.setDouble(3, precioLS) else statement.setNull(2, java.sql.Types.DOUBLE)
         statement.setString(4, nombreVet)
         statement.setString(5, clinicaVet)
         statement.setString(6, provinciaVet)
-        statement.setString(7, direccVet)
-        statement.setString(8, especialidad)
-        statement.setString(9, modalidadServVet)
-        if (precioUnitLI != null) statement.setDouble(10, precioUnitLI) else statement.setNull(10, java.sql.Types.DOUBLE)
-        if (precioUnitLS != null) statement.setDouble(11, precioUnitLS) else statement.setNull(11, java.sql.Types.DOUBLE)
-        statement.setString(12, fechaInicioLI)
-        statement.setString(13, fechaInicioLS)
-        statement.setString(14, fechaFinLI)
-        statement.setString(15, fechaFinLS)
-        statement.setString(16, fechaConcilLI)
-        statement.setString(17, fechaConcilLS)
+        statement.setString(7, especialidad)
+        statement.setString(8, modalidadServVet)
+        statement.setString(9, fechaInicioLI)
+        statement.setString(10, fechaInicioLS)
+        statement.setString(11, fechaFinLI)
+        statement.setString(12, fechaFinLS)
+        statement.setString(13, fechaConcilLI)
+        statement.setString(14, fechaConcilLS)
 
         val resultSet = statement.executeQuery()
 
@@ -104,9 +98,9 @@ object ContratoDB {
                     especialidad = resultSet.getString("especialidad"),
                     modalidadServVet= resultSet.getString("modalidad"),
                     precioUnit = resultSet.getDouble("precio_unitario"),
-                    fechaInicio = LocalDate.parse(resultSet.getString("fecha_inicio"), formatter),
-                    fechaFin = LocalDate.parse(resultSet.getString("fecha_fin"), formatter),
-                    fechaConcil = LocalDate.parse(resultSet.getString("fecha_conciliacion"), formatter)
+                    fechaInicio = resultSet.getDate("fecha_inicio").toLocalDate(),
+                    fechaFin = resultSet.getDate("fecha_fin").toLocalDate(),
+                    fechaConcil = resultSet.getDate("fecha_conciliacion").toLocalDate(),
                 )
             )
         }
@@ -118,15 +112,12 @@ object ContratoDB {
     }
 
     suspend fun getContratosProveedorAlimFilter(
-        codigo: String?,
+        codigo: Int?,
         precioLI: Double?,
         precioLS: Double?,
         nombreProv: String?,
         provinciaProv: String?,
-        direccProv: String?,
         tipoAlim: String?,
-        precioUnitLI: Double?,
-        precioUnitLS: Double?,
         fechaInicioLI: String?,
         fechaInicioLS: String?,
         fechaFinLI: String?,
@@ -138,24 +129,21 @@ object ContratoDB {
         val contratos = mutableListOf<ContratoProveedorAlim>()
         val dbConnection: Connection = Database.connect()
         val statement= dbConnection.prepareStatement(
-            "SELECT * FROM buscar_contratos_proveedor(?,    ?,       ?,       ?,      ?,     ?,      ?,       ?,    ?,     ?,    ?,    ?,      ?,     ?,     ?)"
-        )//                                              cod   precLI   precLS   nombV   provV  dirV   tipoAlim  pULI  pULS   fILI  fILS   fFLI   fFLS    fCLI   fCLS
+            "SELECT * FROM buscar_contratos_proveedor(?,    ?,       ?,       ?,      ?,     ?,       ?,    ?,    ?,      ?,     ?,     ?)"
+        )//                                              cod   precLI   precLS   nombV   provV  tipoAlim  fILI  fILS   fFLI   fFLS    fCLI   fCLS
 
-        if (codigo != null) statement.setInt(1, codigo.toInt()) else statement.setNull(1, java.sql.Types.INTEGER)
+        if (codigo != null) statement.setInt(1, codigo) else statement.setNull(1, java.sql.Types.INTEGER)
         if (precioLI != null) statement.setDouble(2, precioLI) else statement.setNull(2, java.sql.Types.DOUBLE)
         if (precioLS != null) statement.setDouble(3, precioLS) else statement.setNull(2, java.sql.Types.DOUBLE)
         statement.setString(4, nombreProv)
         statement.setString(5, provinciaProv)
-        statement.setString(6, direccProv)
-        statement.setString(7, tipoAlim)
-        if (precioUnitLI != null) statement.setDouble(8, precioUnitLI) else statement.setNull(8, java.sql.Types.DOUBLE)
-        if (precioUnitLS != null) statement.setDouble(9, precioUnitLS) else statement.setNull(9, java.sql.Types.DOUBLE)
-        statement.setString(10, fechaInicioLI)
-        statement.setString(11, fechaInicioLS)
-        statement.setString(12, fechaFinLI)
-        statement.setString(13, fechaFinLS)
-        statement.setString(14, fechaConcilLI)
-        statement.setString(15, fechaConcilLS)
+        statement.setString(6, tipoAlim)
+        statement.setString(7, fechaInicioLI)
+        statement.setString(8, fechaInicioLS)
+        statement.setString(9, fechaFinLI)
+        statement.setString(10, fechaFinLS)
+        statement.setString(11, fechaConcilLI)
+        statement.setString(12, fechaConcilLS)
 
         val resultSet = statement.executeQuery()
 
@@ -172,9 +160,9 @@ object ContratoDB {
                     direccProv = resultSet.getString("direccion"),
                     tipoAlim= resultSet.getString("tipo_alimento"),
                     precioUnit = resultSet.getDouble("precio_unitario"),
-                    fechaInicio = LocalDate.parse(resultSet.getString("fecha_inicio"), formatter),
-                    fechaFin = LocalDate.parse(resultSet.getString("fecha_fin"), formatter),
-                    fechaConcil = LocalDate.parse(resultSet.getString("fecha_conciliacion"), formatter)
+                    fechaInicio = resultSet.getDate("fecha_inicio").toLocalDate(),
+                    fechaFin = resultSet.getDate("fecha_fin").toLocalDate(),
+                    fechaConcil = resultSet.getDate("fecha_conciliacion").toLocalDate(),
                 )
             )
         }
@@ -186,15 +174,11 @@ object ContratoDB {
     }
 
     suspend fun getContratosTransporteFilter(
-        codigo: String?,
+        codigo: Int?,
         precioLI: Double?,
         precioLS: Double?,
         nombreProv: String?,
         provinciaProv: String?,
-        direccProv: String?,
-        vehiculo: String?,
-        precioUnitLI: Double?,
-        precioUnitLS: Double?,
         fechaInicioLI: String?,
         fechaInicioLS: String?,
         fechaFinLI: String?,
@@ -206,28 +190,22 @@ object ContratoDB {
         val contratos = mutableListOf<ContratoTransporte>()
         val dbConnection: Connection = Database.connect()
         val statement= dbConnection.prepareStatement(
-            "SELECT * FROM buscar_contratos_transporte(?,    ?,       ?,       ?,      ?,     ?,      ?,       ?,    ?,     ?,    ?,    ?,      ?,     ?,     ?)"
-        )//                                               cod   precLI   precLS   nombV   provV  dirV   tipoAlim  pULI  pULS   fILI  fILS   fFLI   fFLS    fCLI   fCLS
+            "SELECT * FROM buscar_contratos_transporte(?,    ?,       ?,       ?,      ?,      ?,       ?,    ?,      ?,      ?,     ?,     ?)"
+        )//                                               cod   precLI   precLS   nombV   provV  tipoAlim   fILI  fILS   fFLI   fFLS    fCLI   fCLS
 
-        if (codigo != null) statement.setInt(1, codigo.toInt()) else statement.setNull(1, java.sql.Types.INTEGER)
+        if (codigo != null) statement.setInt(1, codigo) else statement.setNull(1, java.sql.Types.INTEGER)
         if (precioLI != null) statement.setDouble(2, precioLI) else statement.setNull(2, java.sql.Types.DOUBLE)
         if (precioLS != null) statement.setDouble(3, precioLS) else statement.setNull(2, java.sql.Types.DOUBLE)
         statement.setString(4, nombreProv)
         statement.setString(5, provinciaProv)
-        statement.setString(6, direccProv)
-        statement.setString(7, vehiculo)
-        if (precioUnitLI != null) statement.setDouble(8, precioUnitLI) else statement.setNull(8, java.sql.Types.DOUBLE)
-        if (precioUnitLS != null) statement.setDouble(9, precioUnitLS) else statement.setNull(9, java.sql.Types.DOUBLE)
-        statement.setString(10, fechaInicioLI)
-        statement.setString(11, fechaInicioLS)
-        statement.setString(12, fechaFinLI)
-        statement.setString(13, fechaFinLS)
-        statement.setString(14, fechaConcilLI)
-        statement.setString(15, fechaConcilLS)
+        statement.setString(6, fechaInicioLI)
+        statement.setString(7, fechaInicioLS)
+        statement.setString(8, fechaFinLI)
+        statement.setString(9, fechaFinLS)
+        statement.setString(10, fechaConcilLI)
+        statement.setString(11, fechaConcilLS)
 
         val resultSet = statement.executeQuery()
-
-        val formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy")
 
         while (resultSet.next()) {
             contratos.add(
@@ -240,9 +218,9 @@ object ContratoDB {
                     direccionTrans = resultSet.getString("direccion"),
                     vehiculo = resultSet.getString("tipo_alimento"),
                     precioUnit = resultSet.getDouble("precio_unitario"),
-                    fechaInicio = LocalDate.parse(resultSet.getString("fecha_inicio"), formatter),
-                    fechaFin = LocalDate.parse(resultSet.getString("fecha_fin"), formatter),
-                    fechaConcil = LocalDate.parse(resultSet.getString("fecha_conciliacion"), formatter)
+                    fechaInicio = resultSet.getDate("fecha_inicio").toLocalDate(),
+                    fechaFin = resultSet.getDate("fecha_fin").toLocalDate(),
+                    fechaConcil = resultSet.getDate("fecha_conciliacion").toLocalDate(),
                 )
             )
         }

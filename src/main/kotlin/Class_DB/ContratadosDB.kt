@@ -14,10 +14,7 @@ object ContratadosDB {
     suspend fun getVeterinariosFilter(
         codigo: Int?,
         nombre: String?,
-        email: String?,
         provincia: String?,
-        direccion: String?,
-        telefono: String?,
         especialidad: String?,
         clinica: String?
     ): List<Veterinario> = withContext(Dispatchers.IO) {
@@ -25,17 +22,14 @@ object ContratadosDB {
         val veterinarios = mutableListOf<Veterinario>()
         val dbConnection: Connection = Database.connect()
         val statement = dbConnection.prepareStatement(
-            "SELECT * FROM buscar_veterinarios(?,?,?,?,?,?,?,?)"
+            "SELECT * FROM buscar_veterinarios(?,?,?,?,?)"
         )
 
         if (codigo != null) statement.setInt(1, codigo) else statement.setNull(1, java.sql.Types.INTEGER)
         statement.setString(2, nombre)
-        statement.setString(3, email)
-        statement.setString(4, provincia)
-        statement.setString(5, direccion)
-        statement.setString(6, telefono)
-        statement.setString(7, especialidad)
-        statement.setString(8, clinica)
+        statement.setString(3, provincia)
+        statement.setString(4, especialidad)
+        statement.setString(5, clinica)
 
         val resultSet = statement.executeQuery()
 
@@ -63,24 +57,18 @@ object ContratadosDB {
  suspend fun getTransportistasFilter(
      codigo: Int?,
      nombre: String?,
-     email: String?,
      provincia: String?,
-     direccion: String?,
-     telefono: String?
  ): List<Transporte> = withContext(Dispatchers.IO){
 
      val transportistas = mutableListOf<Transporte>()
      val dbConnection: Connection = Database.connect()
      val statement = dbConnection.prepareStatement(
-         "SELECT * FROM buscar_transporte(?,?,?,?,?,?)"
+         "SELECT * FROM buscar_transporte(?,?,?)"
      )
 
      if (codigo != null) statement.setInt(1, codigo) else statement.setNull(1, java.sql.Types.INTEGER)
      statement.setString(2, nombre)
-     statement.setString(3, email)
-     statement.setString(4, provincia)
-     statement.setString(5, direccion)
-     statement.setString(6, telefono)
+     statement.setString(3, provincia)
 
      val resultSet = statement.executeQuery()
 
@@ -105,23 +93,17 @@ object ContratadosDB {
     suspend fun getProveedoresAlimentosFilter(
         codigo: Int?,
         nombre: String?,
-        email: String?,
         provincia: String?,
-        direccion: String?,
-        telefono: String?
     ): List<ProveedorDeAlimentos> = withContext(Dispatchers.IO){
         val proveedores = mutableListOf<ProveedorDeAlimentos>()
         val dbConnection: Connection = Database.connect()
         val statement = dbConnection.prepareStatement(
-            "SELECT * FROM buscar_proveedoresA(?,?,?,?,?,?)"
+            "SELECT * FROM buscar_proveedoresA(?,?,?)"
         )
 
         if (codigo != null) statement.setInt(1, codigo) else statement.setNull(1, java.sql.Types.INTEGER)
         statement.setString(2, nombre)
-        statement.setString(3, email)
-        statement.setString(4, provincia)
-        statement.setString(5, direccion)
-        statement.setString(6, telefono)
+        statement.setString(3, provincia)
 
         val resultSet = statement.executeQuery()
 

@@ -58,7 +58,7 @@ fun MainContent(colors: RefugioColorPalette) {
                     when (selectedItem) {
                         "Contratos" -> {
                             when (selectedSubItem) {
-                                "Veterinarios" -> Text("CONTRATOS VETERINARIOS")
+                                "Veterinarios" -> print(5) //ContratosVeterinariosMostrar(colors, selectedItem, selectedSubItem)
                                 "Transporte" -> Text("CONTRATOS TRANSPORTES")
                                 "Proveedor de alimentos" -> Text("CONTRATOS PROVEEDOR DE ALIM")
                             }
