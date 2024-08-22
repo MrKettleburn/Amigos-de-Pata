@@ -127,7 +127,7 @@ object ContratadosDB {
 
     //-------------------------------------INSERCCIONES----------------------------------------------------------------
 
-    suspend fun insertarVeterinario(
+    suspend fun createVeterinario(
         nombre: String,
         email: String,
         provincia: String,
