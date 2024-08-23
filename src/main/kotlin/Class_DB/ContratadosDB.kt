@@ -127,30 +127,21 @@ object ContratadosDB {
 
     //-------------------------------------INSERCCIONES----------------------------------------------------------------
 
-    suspend fun createVeterinario(
-        nombre: String,
-        email: String,
-        provincia: String,
-        direccion: String,
-        telefono: String,
-        especialidad: String,
-        clinica: String
-    ): Int = withContext(Dispatchers.IO) {
-
+    suspend fun createVeterinario(veterinario: Veterinario): Int = withContext(Dispatchers.IO) {
         var nuevoId = -1
         val dbConnection: Connection = Database.connect()
         val statement = dbConnection.prepareStatement(
-            "SELECT insertar_veterinario(?, ?, ?, ?, ?, ?, ?)",
+            "SELECT insertar_veterinario(?, ?, ?, ?, ?, ?, ?)",  // Consulta SQL que invoca la función almacenada
             arrayOf("id_contratado")
         )
 
-        statement.setString(1, nombre)
-        statement.setString(2, email)
-        statement.setString(3, provincia)
-        statement.setString(4, direccion)
-        statement.setString(5, telefono)
-        statement.setString(6, especialidad)
-        statement.setString(7, clinica)
+        statement.setString(1, veterinario.nombre)
+        statement.setString(2, veterinario.email)
+        statement.setString(3, veterinario.provincia)
+        statement.setString(4, veterinario.direccion)
+        statement.setString(5, veterinario.telefono)
+        statement.setString(6, veterinario.especialidad)
+        statement.setString(7, veterinario.clinica)
 
         val resultSet = statement.executeQuery()
 
@@ -163,4 +154,55 @@ object ContratadosDB {
         dbConnection.close()
         nuevoId
     }
+    suspend fun createProveedorAlimentos(proveedorA: ProveedorDeAlimentos): Int = withContext(Dispatchers.IO) {
+        var nuevoId = -1
+        val dbConnection: Connection = Database.connect()
+        val statement = dbConnection.prepareStatement(
+            "SELECT insertar_proveedorA(?, ?, ?, ?, ?,)",  // Consulta SQL que invoca la función almacenada
+            arrayOf("id_contratado")
+        )
+
+        statement.setString(1, proveedorA.nombre)
+        statement.setString(2, proveedorA.email)
+        statement.setString(3, proveedorA.provincia)
+        statement.setString(4, proveedorA.direccion)
+        statement.setString(5, proveedorA.telefono)
+
+        val resultSet = statement.executeQuery()
+
+        if (resultSet.next()) {
+            nuevoId = resultSet.getInt(1)
+        }
+
+        resultSet.close()
+        statement.close()
+        dbConnection.close()
+        nuevoId
+    }
+    suspend fun createTransportista(transportista: Transporte): Int = withContext(Dispatchers.IO) {
+        var nuevoId = -1
+        val dbConnection: Connection = Database.connect()
+        val statement = dbConnection.prepareStatement(
+            "SELECT insertar_transportista(?, ?, ?, ?, ?,)",  // Consulta SQL que invoca la función almacenada
+            arrayOf("id_contratado")
+        )
+
+        statement.setString(1, transportista.nombre)
+        statement.setString(2, transportista.email)
+        statement.setString(3, transportista.provincia)
+        statement.setString(4, transportista.direccion)
+        statement.setString(5, transportista.telefono)
+
+        val resultSet = statement.executeQuery()
+
+        if (resultSet.next()) {
+            nuevoId = resultSet.getInt(1)
+        }
+
+        resultSet.close()
+        statement.close()
+        dbConnection.close()
+        nuevoId
+    }
+
 }

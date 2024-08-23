@@ -1,7 +1,8 @@
 package Views
 
 import Class_DB.ServiciosDB
-import Models.ServVeterinario
+import Models.ServAlimenticio
+import Models.ServTransporte
 import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -21,20 +22,20 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.ui.window.Dialog
 
 @Composable
-fun ServiciosVeterinariosMostrar(colors: RefugioColorPalette, selectedItem: String, selectedSubItem: String) {
+fun ServiciosAlimenticioMostrar(colors: RefugioColorPalette, selectedItem: String, selectedSubItem: String) {
     val coroutineScope = rememberCoroutineScope()
-    var servicios by remember { mutableStateOf<List<ServVeterinario>>(emptyList()) }
+    var servicios by remember { mutableStateOf<List<ServAlimenticio>>(emptyList()) }
     var showDialog by remember { mutableStateOf(false) }
 
     // Estados para los filtros
     var codigo by remember { mutableStateOf<String?>(null) }
     var precioInf by remember { mutableStateOf<Double?>(null) }
     var precioSup by remember { mutableStateOf<Double?>(null) }
-    var modalidad by remember { mutableStateOf<String?>(null) }
+    var tipoAlimento by remember { mutableStateOf<String?>(null) }
 
     // Cargar los datos iniciales
     LaunchedEffect(Unit) {
-        servicios = ServiciosDB.getServiciosVeterinariosFilter(null, null, null, null)
+        servicios = ServiciosDB.getServiciosAlimenticiosFilter(null, null, null, null)
     }
 
     Box(modifier = Modifier.fillMaxSize().background(Color(0xDCFFFFFF)).padding(16.dp)) {
@@ -52,15 +53,15 @@ fun ServiciosVeterinariosMostrar(colors: RefugioColorPalette, selectedItem: Stri
             )
 
             // Componentes de filtrado
-            FilterComponents(
+            FilterComponentsAlimenticio(
                 colors,
                 onFilterApplied = {
                     coroutineScope.launch {
-                        servicios = ServiciosDB.getServiciosVeterinariosFilter(
+                        servicios = ServiciosDB.getServiciosAlimenticiosFilter(
                             codigo?.toIntOrNull(),
                             precioInf,
                             precioSup,
-                            modalidad
+                            tipoAlimento
                         )
                     }
                 },
@@ -70,12 +71,12 @@ fun ServiciosVeterinariosMostrar(colors: RefugioColorPalette, selectedItem: Stri
                 onPrecioInfChange = { precioInf = it },
                 precioSup = precioSup,
                 onPrecioSupChange = { precioSup = it },
-                modalidad = modalidad,
-                onModalidadChange = { modalidad = it }
+                tipoAlimento = tipoAlimento,
+                onTipoAlimentoChange = { tipoAlimento = it }
             )
 
             // Tabla de servicios
-            ServiciosTable(colors, getServiciosTableRows(servicios))
+            ServiciosTableAlimenticio(colors, getServiciosTableRowsAlimenticio(servicios))
         }
 
         // Botón flotante de agregar
@@ -89,13 +90,13 @@ fun ServiciosVeterinariosMostrar(colors: RefugioColorPalette, selectedItem: Stri
         }
 
         if (showDialog) {
-            AddServicioDialog(
+            AddServicioAlimenticioDialog(
                 colors = colors,
                 onDismissRequest = { showDialog = false },
-                onServicioAdded = { newServicioV ->
+                onServicioAdded = { newServicioA ->
                     coroutineScope.launch {
-                        ServiciosDB.createServicioVeterinario(newServicioV)
-                        servicios = ServiciosDB.getServiciosVeterinariosFilter(null, null, null, null)
+                        ServiciosDB.createServicioAlimenticio(newServicioA)
+                        servicios = ServiciosDB.getServiciosAlimenticiosFilter(null, null, null, null)
                         showDialog = false
                     }
                 }
@@ -105,7 +106,7 @@ fun ServiciosVeterinariosMostrar(colors: RefugioColorPalette, selectedItem: Stri
 }
 
 @Composable
-fun FilterComponents(
+fun FilterComponentsAlimenticio(
     colors: RefugioColorPalette,
     onFilterApplied: () -> Unit,
     codigo: String?,
@@ -114,8 +115,8 @@ fun FilterComponents(
     onPrecioInfChange: (Double?) -> Unit,
     precioSup: Double?,
     onPrecioSupChange: (Double?) -> Unit,
-    modalidad: String?,
-    onModalidadChange: (String?) -> Unit
+    tipoAlimento: String?,
+    onTipoAlimentoChange: (String?) -> Unit
 ) {
     Row(
         modifier = Modifier
@@ -147,9 +148,9 @@ fun FilterComponents(
         )
 
         OutlinedTextField(
-            value = modalidad.orEmpty(),
-            onValueChange = { onModalidadChange(if (it.isEmpty()) null else it) },
-            label = { Text("Modalidad") },
+            value = tipoAlimento.orEmpty(),
+            onValueChange = { onTipoAlimentoChange(if (it.isEmpty()) null else it) },
+            label = { Text("Tipo de Alimento") },
             modifier = Modifier.width(160.dp)
         )
         Button(
@@ -162,17 +163,17 @@ fun FilterComponents(
 }
 
 @Composable
-fun ServiciosTable(colors: RefugioColorPalette, data: List<ServicioTableRow>) {
+fun ServiciosTableAlimenticio(colors: RefugioColorPalette, data: List<ServicioTableRowAlimenticio>) {
     LazyColumn {
         items(data) { row ->
-            ServiciosRow(colors, row)
+            ServiciosRowAlimenticio(colors, row)
             Divider(color = colors.primary, thickness = 1.5.dp)
         }
     }
 }
 
 @Composable
-fun ServiciosRow(colors: RefugioColorPalette, row: ServicioTableRow) {
+fun ServiciosRowAlimenticio(colors: RefugioColorPalette, row: ServicioTableRowAlimenticio) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -186,7 +187,7 @@ fun ServiciosRow(colors: RefugioColorPalette, row: ServicioTableRow) {
                 modifier = Modifier.weight(1f)
             ) {
                 Icon(
-                    imageVector = getIconForAttributeSV(key),
+                    imageVector = getIconForAttributeSA(key),
                     contentDescription = null,
                     modifier = Modifier.size(20.dp)
                 )
@@ -210,27 +211,27 @@ fun ServiciosRow(colors: RefugioColorPalette, row: ServicioTableRow) {
 }
 
 // Función para asignar íconos a cada atributo
-fun getIconForAttributeSV(attribute: String): ImageVector {
+fun getIconForAttributeSA(attribute: String): ImageVector {
     return when (attribute) {
         "Código" -> Icons.Default.Badge
-        "Modalidad" -> Icons.Default.Work
+        "Tipo de Alimento" -> Icons.Default.Fastfood
         "Precio" -> Icons.Default.AttachMoney
         else -> Icons.Default.Info
     }
 }
 
-data class ServicioTableRow(
+data class ServicioTableRowAlimenticio(
     val id: String,
     val mainAttributes: Map<String, String>
 )
 
-fun getServiciosTableRows(servicios: List<ServVeterinario>): List<ServicioTableRow> {
+fun getServiciosTableRowsAlimenticio(servicios: List<ServAlimenticio>): List<ServicioTableRowAlimenticio> {
     return servicios.map { servicio ->
-        ServicioTableRow(
+        ServicioTableRowAlimenticio(
             id = servicio.codigo.toString(),
             mainAttributes = mapOf(
                 "Código" to "${servicio.codigo}",
-                "Modalidad" to servicio.modalidad,
+                "Tipo de Alimento" to servicio.tipoAlimento,
                 "Precio" to "\$${servicio.precioUni}"
             )
         )
@@ -238,13 +239,13 @@ fun getServiciosTableRows(servicios: List<ServVeterinario>): List<ServicioTableR
 }
 
 @Composable
-fun AddServicioDialog(
+fun AddServicioAlimenticioDialog(
     colors: RefugioColorPalette,
     onDismissRequest: () -> Unit,
-    onServicioAdded: (ServVeterinario) -> Unit
+    onServicioAdded: (ServAlimenticio) -> Unit
 ) {
     var precio by remember { mutableStateOf(0.0) }
-    var modalidad by remember { mutableStateOf<String>("") }
+    var tipoAlimento by remember { mutableStateOf<String>("") }
 
     Dialog(onDismissRequest = onDismissRequest) {
         Surface(
@@ -253,12 +254,12 @@ fun AddServicioDialog(
             color = colors.menuBackground
         ) {
             Column(modifier = Modifier.padding(16.dp)) {
-                Text("Agregar Servicio Veterinario", style = MaterialTheme.typography.h6)
+                Text("Agregar Servicio Alimenticio", style = MaterialTheme.typography.h6)
 
                 OutlinedTextField(
-                    value = modalidad,
-                    onValueChange = { modalidad = it },
-                    label = { Text("Modalidad") },
+                    value = tipoAlimento,
+                    onValueChange = { tipoAlimento = it },
+                    label = { Text("Tipo de Alimento") },
                     modifier = Modifier.fillMaxWidth()
                 )
 
@@ -281,11 +282,11 @@ fun AddServicioDialog(
                     }
                     Spacer(modifier = Modifier.width(8.dp))
                     Button(onClick = {
-                        if (modalidad.isNotBlank() && precio != 0.0) {
+                        if (tipoAlimento.isNotBlank() && precio != 0.0) {
                             onServicioAdded(
-                                ServVeterinario(
+                                ServAlimenticio(
                                     codigo = 0,
-                                    modalidad = modalidad,
+                                    tipoAlimento = tipoAlimento,
                                     precioUni = precio
                                 )
                             )
@@ -298,3 +299,4 @@ fun AddServicioDialog(
         }
     }
 }
+

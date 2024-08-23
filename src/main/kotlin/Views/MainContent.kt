@@ -66,17 +66,17 @@ fun MainContent(colors: RefugioColorPalette) {
 
                         "Contratados" -> {
                             when (selectedSubItem) {
-                                "Veterinarios" -> Text("VETERINARIOS")
-                                "Transporte" -> Text("TRANSPORTES")
-                                "Proveedor de alimentos" -> Text("PROVEEDOR DE ALIM")
+                                "Veterinarios" -> VeterinariosMostrar(colors, selectedItem, selectedSubItem)
+                                "Transporte" -> TransportistasMostrar(colors, selectedItem, selectedSubItem)
+                                "Proveedor de alimentos" -> ProveedoresDeAlimentosMostrar(colors, selectedItem, selectedSubItem)
                             }
                         }
 
                         "Servicios" -> {
                             when (selectedSubItem) {
                                 "Veterinarios" ->ServiciosVeterinariosMostrar(colors, selectedItem, selectedSubItem)
-                                "Transporte" -> Text("SERVICIOS TRANSPORTE")
-                                "Proveedor de alimentos" -> Text("SERVICIOS PROVEEDOR DE ALIM")
+                                "Transporte" -> ServiciosTransporteMostrar(colors, selectedItem, selectedSubItem)
+                                "Proveedor de alimentos" -> ServiciosAlimenticioMostrar(colors, selectedItem, selectedSubItem)
                             }
                         }
 

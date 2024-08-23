@@ -133,20 +133,75 @@ object ServiciosDB {
 
     //-------------------------------------INSERCCIONES----------------------------------------------------------------
 
-    suspend fun createServicioVeterinario(servicio: ServVeterinario): Boolean = withContext(Dispatchers.IO) {
-        val dbConnection = Database.connect()
+    suspend fun createServicioVeterinario(servicio: ServVeterinario): Int = withContext(Dispatchers.IO) {
+        var nuevoId = -1
+        val dbConnection: Connection = Database.connect()
         val statement = dbConnection.prepareStatement(
-            "INSERT INTO insert_servicio_veterinario(modalidad, precio_uni) VALUES(?,?)"
+            "SELECT insertar_servicioVeterinario(?, ?)",  // Consulta SQL que invoca la función almacenada
+            arrayOf("id_servicio")
         )
 
-        statement.setString(1, servicio.modalidad)
-        statement.setDouble(2, servicio.precioUni)
+        statement.setDouble(1, servicio.precioUni)
+        statement.setString(2, servicio.modalidad)
 
-        val rowsInserted = statement.executeUpdate()
+        val resultSet = statement.executeQuery()
+
+        if (resultSet.next()) {
+            nuevoId = resultSet.getInt(1)
+        }
+
+        resultSet.close()
         statement.close()
         dbConnection.close()
-        rowsInserted > 0
+        nuevoId
     }
+
+    suspend fun createServicioTransporte(servicio: ServTransporte): Int = withContext(Dispatchers.IO) {
+        var nuevoId = -1
+        val dbConnection: Connection = Database.connect()
+        val statement = dbConnection.prepareStatement(
+            "SELECT insertar_servicioTransportacion(?, ?)",
+            arrayOf("id_servicio")
+        )
+
+        statement.setDouble(1, servicio.precioUni)
+        statement.setString(2, servicio.vehiculo)
+
+        val resultSet = statement.executeQuery()
+
+        if (resultSet.next()) {
+            nuevoId = resultSet.getInt(1)
+        }
+
+        resultSet.close()
+        statement.close()
+        dbConnection.close()
+        nuevoId
+    }
+
+    suspend fun createServicioAlimenticio(servicio: ServAlimenticio): Int = withContext(Dispatchers.IO) {
+        var nuevoId = -1
+        val dbConnection: Connection = Database.connect()
+        val statement = dbConnection.prepareStatement(
+            "SELECT insertar_servicioAlimenticio(?, ?)",
+            arrayOf("id_servicio")
+        )
+
+        statement.setDouble(1, servicio.precioUni)
+        statement.setString(2, servicio.tipoAlimento)
+
+        val resultSet = statement.executeQuery()
+
+        if (resultSet.next()) {
+            nuevoId = resultSet.getInt(1)
+        }
+
+        resultSet.close()
+        statement.close()
+        dbConnection.close()
+        nuevoId
+    }
+
 }
 
 
