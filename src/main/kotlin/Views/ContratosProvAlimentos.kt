@@ -4,10 +4,7 @@ package Views
 import Class_DB.ActividadDB
 import Class_DB.AnimalDB
 import Class_DB.ContratoDB
-import Models.Actividad
-import Models.Animal
-import Models.ContratoTransporte
-import Models.ContratoVeterinario
+import Models.*
 import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -42,9 +39,9 @@ import java.util.*
 
 
 @Composable
-fun ContratosTransporteMostrar(colors: RefugioColorPalette, selectedItem: String, selectedSubItem: String) {
+fun ContratosProvAlimentosMostrar(colors: RefugioColorPalette, selectedItem: String, selectedSubItem: String) {
     val coroutineScope = rememberCoroutineScope()
-    var contratos by remember { mutableStateOf<List<ContratoTransporte>>(emptyList()) }
+    var contratos by remember { mutableStateOf<List<ContratoProveedorAlim>>(emptyList()) }
     var showDialog by remember { mutableStateOf(false) }
 
 
@@ -52,8 +49,9 @@ fun ContratosTransporteMostrar(colors: RefugioColorPalette, selectedItem: String
     var codigo by remember { mutableStateOf<String?>(null) }
     var precioLI by remember { mutableStateOf<Double?>(null) }
     var precioLS by remember { mutableStateOf<Double?>(null) }
-    var nombreTrans by remember { mutableStateOf<String?>(null) }
-    var provinciaTrans by remember { mutableStateOf<String?>(null) }
+    var nombreProv by remember { mutableStateOf<String?>(null) }
+    var provinciaProv by remember { mutableStateOf<String?>(null) }
+    var tipoAlimento by remember { mutableStateOf<String?>(null) }
     var fechaInicioLI by remember { mutableStateOf<LocalDate?>(null) }
     var fechaInicioLS by remember { mutableStateOf<LocalDate?>(null) }
     var fechaFinLI by remember { mutableStateOf<LocalDate?>(null) }
@@ -64,7 +62,7 @@ fun ContratosTransporteMostrar(colors: RefugioColorPalette, selectedItem: String
 
     // Cargar los datos iniciales
     LaunchedEffect(Unit) {
-        contratos = ContratoDB.getContratosTransporteFilter(
+        contratos = ContratoDB.getContratosProveedorAlimFilter(
             null,
             null,
             null,
@@ -76,7 +74,8 @@ fun ContratosTransporteMostrar(colors: RefugioColorPalette, selectedItem: String
             null,
             null,
             null,
-          )
+            null,
+        )
     }
 
     Box(modifier = Modifier.fillMaxSize().background(Color(0xDCFFFFFF)).padding(16.dp)) {
@@ -95,17 +94,18 @@ fun ContratosTransporteMostrar(colors: RefugioColorPalette, selectedItem: String
 
 
             // Componentes de filtrado
-            FilterComponentsTransporte(
+            FilterComponentsProvAlimentos(
                 colors,
                 onFilterApplied = {
                     // Convertir los valores de los filtros a los tipos correctos y aplicar el filtro
                     coroutineScope.launch {
-                        contratos = ContratoDB.getContratosTransporteFilter(
+                        contratos = ContratoDB.getContratosProveedorAlimFilter(
                             codigo?.toIntOrNull(),
                             precioLI,
                             precioLS,
-                            nombreTrans,
-                            provinciaTrans,
+                            nombreProv,
+                            provinciaProv,
+                            tipoAlimento,
                             fechaInicioLI?.format(DateTimeFormatter.ISO_DATE),
                             fechaInicioLS?.format(DateTimeFormatter.ISO_DATE),
                             fechaFinLI?.format(DateTimeFormatter.ISO_DATE),
@@ -121,10 +121,12 @@ fun ContratosTransporteMostrar(colors: RefugioColorPalette, selectedItem: String
                 onPrecioLIChange = { precioLI = it },
                 precioLS = precioLS,
                 onPrecioLSChange = { precioLS = it },
-                nombreTrans = nombreTrans,
-                onNombreTransChange = { nombreTrans = it },
-                provinciaTrans = provinciaTrans,
-                onProvinciaTransChange = { provinciaTrans = it },
+                nombreProv = nombreProv,
+                onNombreProvChange = { nombreProv = it },
+                provinciaProv = provinciaProv,
+                onProvinciaProvChange = { provinciaProv = it },
+                tipoAlimento = tipoAlimento,
+                onTipoAlimentoChange = { tipoAlimento = it },
                 fechaInicioLI = fechaInicioLI,
                 onFechaInicioLIChange = { fechaInicioLI = it },
                 fechaInicioLS = fechaInicioLS,
@@ -140,7 +142,7 @@ fun ContratosTransporteMostrar(colors: RefugioColorPalette, selectedItem: String
             )
 
             // Tabla expandible
-            ContratosTransporteExpandableTable(colors, getContratosTransporteTableRows(contratos))
+            ContratosProvAlimentosExpandableTable(colors, getContratosProvAlimentosTableRows(contratos))
         }
 
         // Botón flotante de agregar
@@ -154,7 +156,7 @@ fun ContratosTransporteMostrar(colors: RefugioColorPalette, selectedItem: String
         }
 
         if (showDialog) {
-            AddContratoTransporteDialog(
+            AddContratoProvAlimentosDialog(
                 colors = colors,
                 onDismissRequest = { showDialog = false },
                 onContratoAdded = { newContrato ->
@@ -189,7 +191,7 @@ fun ContratosTransporteMostrar(colors: RefugioColorPalette, selectedItem: String
 
 
 @Composable
-fun FilterComponentsTransporte(
+fun FilterComponentsProvAlimentos(
     colors: RefugioColorPalette,
     onFilterApplied: () -> Unit,
     codigo: String?,
@@ -198,10 +200,12 @@ fun FilterComponentsTransporte(
     onPrecioLIChange: (Double?) -> Unit,
     precioLS: Double?,
     onPrecioLSChange: (Double?) -> Unit,
-    nombreTrans: String?,
-    onNombreTransChange: (String?) -> Unit,
-    provinciaTrans: String?,
-    onProvinciaTransChange: (String?) -> Unit,
+    nombreProv: String?,
+    onNombreProvChange: (String?) -> Unit,
+    provinciaProv: String?,
+    onProvinciaProvChange: (String?) -> Unit,
+    tipoAlimento: String?,
+    onTipoAlimentoChange: (String?) -> Unit,
     fechaInicioLI: LocalDate?,
     onFechaInicioLIChange: (LocalDate?) -> Unit,
     fechaInicioLS: LocalDate?,
@@ -242,15 +246,21 @@ fun FilterComponentsTransporte(
                 step = 0.5
             )
             OutlinedTextField(
-                value = nombreTrans.orEmpty(),
-                onValueChange = { onNombreTransChange(if (it.isEmpty()) null else it) },
+                value = nombreProv.orEmpty(),
+                onValueChange = { onNombreProvChange(if (it.isEmpty()) null else it) },
                 label = { Text("Nombre Trans") },
                 modifier = Modifier.weight(1f)
             )
             OutlinedTextField(
-                value = provinciaTrans.orEmpty(),
-                onValueChange = { onProvinciaTransChange(if (it.isEmpty()) null else it) },
+                value = provinciaProv.orEmpty(),
+                onValueChange = { onProvinciaProvChange(if (it.isEmpty()) null else it) },
                 label = { Text("Provincia") },
+                modifier = Modifier.weight(1f)
+            )
+            OutlinedTextField(
+                value = tipoAlimento.orEmpty(),
+                onValueChange = { onTipoAlimentoChange(if (it.isEmpty()) null else it) },
+                label = { Text("Tipo de alimento") },
                 modifier = Modifier.weight(1f)
             )
             Button(
@@ -312,10 +322,10 @@ fun FilterComponentsTransporte(
 
 
 @Composable
-fun ContratosTransporteExpandableTable(colors: RefugioColorPalette, data: List<ContratoTableRow>) {
+fun ContratosProvAlimentosExpandableTable(colors: RefugioColorPalette, data: List<ContratoTableRow>) {
     LazyColumn {
         items(data) { row ->
-            ContratosTransporteExpandableRow(colors, row)
+            ContratosProvAlimentosExpandableRow(colors, row)
             Divider(color = colors.primary, thickness = 1.5.dp)
         }
     }
@@ -323,7 +333,7 @@ fun ContratosTransporteExpandableTable(colors: RefugioColorPalette, data: List<C
 
 
 @Composable
-fun ContratosTransporteExpandableRow(colors: RefugioColorPalette, row: ContratoTableRow) {
+fun ContratosProvAlimentosExpandableRow(colors: RefugioColorPalette, row: ContratoTableRow) {
     var expanded by remember { mutableStateOf(false) }
     val backgroundColor = if (expanded) colors.menuBackground else Color.Transparent
 
@@ -399,7 +409,7 @@ fun ContratosTransporteExpandableRow(colors: RefugioColorPalette, row: ContratoT
 }
 
 
-fun getContratosTransporteTableRows(contratos: List<ContratoTransporte>): List<ContratoTableRow> {
+fun getContratosProvAlimentosTableRows(contratos: List<ContratoProveedorAlim>): List<ContratoTableRow> {
     val formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy")
     return contratos.map { contrato ->
         ContratoTableRow(
@@ -407,13 +417,13 @@ fun getContratosTransporteTableRows(contratos: List<ContratoTransporte>): List<C
             mainAttributes = mapOf(
                 "Código" to "${contrato.codigo}",
                 "Precio" to "\$${contrato.precio}",
-                "Nombre del Contratado" to contrato.nombreTrans,
+                "Nombre del Contratado" to contrato.nombreProv,
             ),
             expandedAttributes = mapOf(
                 "Descripción" to contrato.descripcion,
-                "Vehículo" to contrato.vehiculo,
-                "Provincia del Contratado" to contrato.provinciaTrans,
-                "Dirección del Contratado" to contrato.direccionTrans,
+                "Tipo de Alimento" to contrato.tipoAlim,
+                "Provincia del Contratado" to contrato.provinciaProv,
+                "Dirección del Contratado" to contrato.direccProv,
                 "Precio Unitario del Servicio" to "${contrato.precioUnit}/km",
                 "Fecha de Inicio" to contrato.fechaInicio.format(formatter),
                 "Fecha de Fin" to contrato.fechaFin.format(formatter),

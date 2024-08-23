@@ -13,7 +13,7 @@ data class ActividadTableRow(
     val expandedAttributes: Map<String, String>
 )
 
-data class ContratoVeterinarioTableRow(
+data class ContratoTableRow(
     val id: String,
     val mainAttributes: Map<String, String>,
     val expandedAttributes: Map<String, String>

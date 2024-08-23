@@ -60,7 +60,7 @@ fun <T> DropdownMenu(
                     selectedText = itemToString(item)
                     onItemSelected(item)
                     expanded = false },
-                    modifier = Modifier.width(350.dp)
+                    modifier = Modifier.width(400.dp)
                 ) {
                     Text(text = itemToString(item))
                 }

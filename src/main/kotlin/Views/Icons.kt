@@ -27,6 +27,8 @@ fun getIconForAttribute(attribute: String): ImageVector {
         "Clínica del Veterinario" -> Icons.Default.LocalHospital
         "Provincia del Contratado" -> Icons.Default.LocationCity
         "Dirección del Contratado" -> Icons.Default.LocationOn
+        "Vehiculo" -> Icons.Default.LocalShipping
+        "Tipo de Alimento" -> Icons.Default.Fastfood
         "Fecha de Inicio" -> Icons.Default.CalendarMonth
         "Fecha de Fin" -> Icons.Default.CalendarMonth
         "Fecha de Conciliación" -> Icons.Default.CalendarMonth

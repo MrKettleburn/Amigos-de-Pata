@@ -144,6 +144,7 @@ fun AddContratoVeterinarioDialog(
     var selectedVet by remember { mutableStateOf<Veterinario?>(null) }
     var selectedServ by remember { mutableStateOf<ServVeterinario?>(null) }
     var descripcion by remember { mutableStateOf("") }
+    var recargo by remember { mutableStateOf<Double>(0.0) }
     var fechaInicio by remember { mutableStateOf<LocalDate?>(null) }
     var fechaFin by remember { mutableStateOf<LocalDate?>(null) }
     var fechaConcil by remember { mutableStateOf<LocalDate?>(null) }
@@ -194,6 +195,14 @@ fun AddContratoVeterinarioDialog(
                     label = { Text("Descripción del Contrato") },
                     modifier = Modifier.fillMaxWidth()
                 )
+                Spacer(modifier = Modifier.width(4.dp))
+                Spinner(
+                    value = recargo,
+                    onValueChange = { recargo = it },
+                    label = { Text("Recargo") },
+                    modifier = Modifier.weight(1f),
+                    step = 0.5
+                )
 
                 Spacer(modifier = Modifier.height(8.dp))
 
@@ -236,7 +245,7 @@ fun AddContratoVeterinarioDialog(
                         if (selectedVet != null && selectedServ != null && descripcion.isNotBlank() && fechaInicio != null && fechaFin != null && fechaConcil != null) {
                             val newContrato = ContratoVeterinario(
                                 codigo = 0,
-                                precio = ChronoUnit.DAYS.between(fechaInicio,fechaFin).toInt() * selectedServ!!.precioUni + selectedServ!!.precioUni,
+                                precio = ChronoUnit.DAYS.between(fechaInicio,fechaFin).toInt() * selectedServ!!.precioUni + selectedServ!!.precioUni +recargo,
                                 descripcion = descripcion,
                                 nombreVet = selectedVet!!.nombre,
                                 clinicaVet = selectedVet!!.clinica,
@@ -277,7 +286,7 @@ fun AddContratoTransporteDialog(
     var selectedServ by remember { mutableStateOf<ServTransporte?>(null) }
     var kilometros by remember { mutableStateOf<Double?>(null) }
     var descripcion by remember { mutableStateOf("") }
-    var recargo by remember { mutableStateOf<Double?>(0.0) }
+    var recargo by remember { mutableStateOf<Double>(0.0) }
     var fechaInicio by remember { mutableStateOf<LocalDate?>(null) }
     var fechaFin by remember { mutableStateOf<LocalDate?>(null) }
     var fechaConcil by remember { mutableStateOf<LocalDate?>(null) }
@@ -333,7 +342,7 @@ fun AddContratoTransporteDialog(
                     Spacer(modifier = Modifier.width(4.dp))
 
                     Spinner(
-                        value = recargo ?: 0.0,
+                        value = recargo,
                         onValueChange = { recargo = it },
                         label = { Text("Recargo") },
                         modifier = Modifier.weight(1f),
@@ -389,8 +398,8 @@ fun AddContratoTransporteDialog(
                         if (selectedTrans != null && selectedServ != null && descripcion.isNotBlank() && kilometros != 0.0 && fechaInicio != null && fechaFin != null && fechaConcil != null) {
                             val newContrato = ContratoTransporte(
                                 codigo = 0,
-                                precio = ChronoUnit.DAYS.between(fechaInicio, fechaFin)
-                                    .toInt() * selectedServ!!.precioUni + selectedServ!!.precioUni,
+                                precio = (ChronoUnit.DAYS.between(fechaInicio, fechaFin)
+                                    .toInt() * (selectedServ!!.precioUni * kilometros!!) ) + (selectedServ!!.precioUni * kilometros!!) + recargo,
                                 descripcion = descripcion,
                                 nombreTrans = selectedTrans!!.nombre,
                                 provinciaTrans = selectedTrans!!.provincia,
@@ -402,6 +411,157 @@ fun AddContratoTransporteDialog(
                                 idTrans = selectedTrans!!.codigo,
                                 idServ = selectedServ!!.codigo,
                                 vehiculo = selectedServ!!.vehiculo
+                            )
+                            onContratoAdded(newContrato)
+                        }
+                    }) {
+                        Text("Agregar")
+                    }
+                }
+            }
+        }
+    }
+}
+
+////////////////////////-------------------------CONTRATO PROV ALIMENTO-------------------/////////////////////////
+
+@Composable
+fun AddContratoProvAlimentosDialog(
+    colors: RefugioColorPalette,
+    onDismissRequest: () -> Unit,
+    onContratoAdded: (ContratoProveedorAlim) -> Unit
+) {
+    val coroutineScope = rememberCoroutineScope()
+
+    // Estados para los campos
+    var selectedProv by remember { mutableStateOf<ProveedorDeAlimentos?>(null) }
+    var selectedServ by remember { mutableStateOf<ServAlimenticio?>(null) }
+    var kilogramos by remember { mutableStateOf<Double?>(null) }
+    var descripcion by remember { mutableStateOf("") }
+    var recargo by remember { mutableStateOf<Double>(0.0) }
+    var fechaInicio by remember { mutableStateOf<LocalDate?>(null) }
+    var fechaFin by remember { mutableStateOf<LocalDate?>(null) }
+    var fechaConcil by remember { mutableStateOf<LocalDate?>(null) }
+
+    // Cargar datos de veterinarios y servicios
+    val proveedores = remember { mutableStateOf<List<ProveedorDeAlimentos>>(emptyList()) }
+    val servicios = remember { mutableStateOf<List<ServAlimenticio>>(emptyList()) }
+
+    LaunchedEffect(Unit) {
+        coroutineScope.launch {
+            proveedores.value = ContratadosDB.getProveedoresAlimForComboBox()
+            servicios.value = ServiciosDB.getServiciosAlimenticiosForComboBox()
+        }
+    }
+
+    Dialog(onDismissRequest = onDismissRequest) {
+        Surface(
+            modifier = Modifier.padding(16.dp).width(800.dp),
+            shape = RoundedCornerShape(8.dp),
+            color = colors.menuBackground
+        ) {
+            Column(modifier = Modifier.padding(16.dp)) {
+                Text("Agregar Contrato de Alimentacion", style = MaterialTheme.typography.h6)
+
+                // ComboBox para seleccionar un veterinario
+                Row(modifier = Modifier.padding(0.dp)) {
+                    DropdownMenu(
+                        label = { Text("Proveedores") },
+                        items = proveedores.value,
+                        selectedItem = selectedProv,
+                        onItemSelected = { selectedProv = it },
+                        modifier = Modifier.weight(1f)
+                    )
+                    Spacer(modifier = Modifier.width(4.dp))
+                    // ComboBox para seleccionar un servicio veterinario
+                    DropdownMenu(
+                        label = { Text("Servicios Alimenticios") },
+                        items = servicios.value,
+                        selectedItem = selectedServ,
+                        onItemSelected = { selectedServ = it },
+                        modifier = Modifier.weight(1f)
+                    )
+                }
+                Spacer(modifier = Modifier.height(8.dp))
+
+                Row {// Campo para la descripción
+                    OutlinedTextField(
+                        value = descripcion,
+                        onValueChange = { descripcion = it },
+                        label = { Text("Descripción del Contrato") },
+                        modifier = Modifier.width(300.dp)
+                    )
+                    Spacer(modifier = Modifier.width(4.dp))
+
+                    Spinner(
+                        value = recargo,
+                        onValueChange = { recargo = it },
+                        label = { Text("Recargo") },
+                        modifier = Modifier.weight(1f),
+                        step = 0.5
+                    )
+                    Spacer(modifier = Modifier.width(4.dp))
+                    Spinner(
+                        value = kilogramos ?: 0.0,
+                        onValueChange = { if (it == 0.0) kilogramos = null else kilogramos = it },
+                        label = { Text("Kg") },
+                        modifier = Modifier.weight(1f),
+                        step = 0.5
+                    )
+                }
+                Spacer(modifier = Modifier.height(8.dp))
+
+                // Campos DatePicker para las fechas
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    DatePicker(
+                        label = { Text("Fecha de Inicio") },
+                        selectedDate = fechaInicio,
+                        onDateChange = { fechaInicio = it },
+                        modifier = Modifier.weight(1f)
+                    )
+                    DatePicker(
+                        label = { Text("Fecha de Fin") },
+                        selectedDate = fechaFin,
+                        onDateChange = { fechaFin = it },
+                        modifier = Modifier.weight(1f)
+                    )
+                    DatePicker(
+                        label = { Text("Fecha de Conciliación") },
+                        selectedDate = fechaConcil,
+                        onDateChange = { fechaConcil = it },
+                        modifier = Modifier.weight(1f)
+                    )
+                }
+
+                Spacer(modifier = Modifier.height(16.dp))
+
+                Row(
+                    horizontalArrangement = Arrangement.End,
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    TextButton(onClick = onDismissRequest) {
+                        Text("Cancelar")
+                    }
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Button(onClick = {
+                        if (selectedProv != null && selectedServ != null && descripcion.isNotBlank() && kilogramos != 0.0 && fechaInicio != null && fechaFin != null && fechaConcil != null) {
+                            val newContrato = ContratoProveedorAlim(
+                                codigo = 0,
+                                precio = ChronoUnit.DAYS.between(fechaInicio, fechaFin).toInt() * (selectedServ!!.precioUni * kilogramos!!) + (selectedServ!!.precioUni * kilogramos!!) + recargo,
+                                descripcion = descripcion,
+                                nombreProv = selectedProv!!.nombre,
+                                provinciaProv = selectedProv!!.provincia,
+                                direccProv = selectedProv!!.direccion,
+                                precioUnit = selectedServ!!.precioUni,
+                                fechaInicio = fechaInicio!!,
+                                fechaFin = fechaFin!!,
+                                fechaConcil = fechaConcil!!,
+                                idProv = selectedProv!!.codigo,
+                                idServ = selectedServ!!.codigo,
+                                tipoAlim = selectedServ!!.tipoAlimento
                             )
                             onContratoAdded(newContrato)
                         }

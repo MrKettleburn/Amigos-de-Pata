@@ -152,8 +152,8 @@ object ContratoDB {
         val contratos = mutableListOf<ContratoProveedorAlim>()
         val dbConnection: Connection = Database.connect()
         val statement= dbConnection.prepareStatement(
-            "SELECT * FROM buscar_contratos_proveedor(?,    ?,       ?,       ?,      ?,     ?,       ?,    ?,    ?,      ?,     ?,     ?)"
-        )//                                              cod   precLI   precLS   nombV   provV  tipoAlim  fILI  fILS   fFLI   fFLS    fCLI   fCLS
+            "SELECT * FROM buscar_contratos_proveedor_alimento(?,    ?,       ?,       ?,      ?,     ?,       ?,    ?,    ?,      ?,     ?,     ?)"
+        )//                                                       cod   precLI   precLS   nombV   provV  tipoAlim  fILI  fILS   fFLI   fFLS    fCLI   fCLS
 
         if (codigo != null) statement.setInt(1, codigo) else statement.setNull(1, java.sql.Types.INTEGER)
         if (precioLI != null) statement.setDouble(2, precioLI) else statement.setNull(2, java.sql.Types.DOUBLE)

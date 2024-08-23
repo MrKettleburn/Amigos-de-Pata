@@ -9,6 +9,6 @@ data class ProveedorDeAlimentos(
     val telefono: String
 ){
     override fun toString(): String {
-        return "C:$codigo P:$provincia"
+        return "C:$codigo N:$nombre P:$provincia"
     }
 }

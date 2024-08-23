@@ -60,7 +60,7 @@ fun MainContent(colors: RefugioColorPalette) {
                             when (selectedSubItem) {
                                 "Veterinarios" -> ContratosVeterinariosMostrar(colors, selectedItem, selectedSubItem)
                                 "Transporte" -> ContratosTransporteMostrar(colors, selectedItem, selectedSubItem)
-                                "Proveedor de alimentos" -> Text("CONTRATOS PROVEEDOR DE ALIM")
+                                "Proveedor de alimentos" -> ContratosProvAlimentosMostrar(colors, selectedItem, selectedSubItem)
                             }
                         }
 

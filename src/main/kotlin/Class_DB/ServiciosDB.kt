@@ -119,7 +119,7 @@ object ServiciosDB {
         val servTransportes = mutableListOf<ServTransporte>()
         val dbConnection: Connection = Database.connect()
         val statement = dbConnection.prepareStatement(
-            "SELECT * FROM servicio s INNER JOIN servicio_transporte st ON s.id_servicio=st.id_servicio ORDER BY s.precio_unitario ASC"
+            "SELECT * FROM servicio s INNER JOIN servicio_transporte st ON s.id_servicio=st.id_servicio ORDER BY st.vehiculo ASC"
         )
 
         val resultSet = statement.executeQuery()
@@ -177,6 +177,30 @@ object ServiciosDB {
         statement.close()
         dbConnection.close()
         servAlimentacion
+    }
+
+    suspend fun getServiciosAlimenticiosForComboBox(): List<ServAlimenticio> = withContext(Dispatchers.IO) {
+        val servicios = mutableListOf<ServAlimenticio>()
+        val dbConnection: Connection = Database.connect()
+        val statement = dbConnection.prepareStatement(
+            "SELECT * FROM servicio s INNER JOIN servicio_alimentacion sa ON s.id_servicio=sa.id_servicio ORDER BY sa.tipo_alimento ASC"
+        )
+
+        val resultSet = statement.executeQuery()
+
+        while (resultSet.next()) {
+            servicios.add(
+                ServAlimenticio(
+                    codigo = resultSet.getInt("id_servicio"),
+                    precioUni = resultSet.getDouble("precio_unitario"),
+                    tipoAlimento = resultSet.getString("tipo_alimento")
+                )
+            )
+        }
+        resultSet.close()
+        statement.close()
+        dbConnection.close()
+        servicios
     }
 
     //-------------------------------------INSERCCIONES----------------------------------------------------------------

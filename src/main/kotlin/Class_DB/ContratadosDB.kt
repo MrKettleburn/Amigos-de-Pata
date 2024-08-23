@@ -185,6 +185,35 @@ object ContratadosDB {
         proveedores
     }
 
+    suspend fun getProveedoresAlimForComboBox(): List<ProveedorDeAlimentos> = withContext(Dispatchers.IO) {
+
+        val proveedores = mutableListOf<ProveedorDeAlimentos>()
+        val dbConnection: Connection = Database.connect()
+        val statement = dbConnection.prepareStatement(
+            "SELECT * FROM contratado c WHERE c.tipo_contratado='Proveedor de Alimentos' ORDER BY c.nombre_contratado ASC"
+        )
+
+        val resultSet = statement.executeQuery()
+
+        while (resultSet.next()) {
+            proveedores.add(
+                ProveedorDeAlimentos(
+                    codigo = resultSet.getInt("id_contratado"),
+                    nombre = resultSet.getString("nombre_contratado"),
+                    email = resultSet.getString("email"),
+                    provincia = resultSet.getString("provincia"),
+                    direccion = resultSet.getString("direccion"),
+                    telefono = resultSet.getString("telefono"),
+                )
+            )
+        }
+
+        resultSet.close()
+        statement.close()
+        dbConnection.close()
+        proveedores
+    }
+
     //-------------------------------------INSERCCIONES----------------------------------------------------------------
 
     suspend fun createVeterinario(veterinario: Veterinario): Int = withContext(Dispatchers.IO) {
