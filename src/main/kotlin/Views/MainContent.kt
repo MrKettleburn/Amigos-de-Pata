@@ -80,7 +80,12 @@ fun MainContent(colors: RefugioColorPalette) {
                             }
                         }
 
-                        "Animales" -> AnimalesMostrar(colors, selectedItem, selectedSubItem)
+                        "Animales" -> {
+                            when (selectedSubItem){
+                                "En Refugio" -> AnimalesEnRefugioMostrar(colors, selectedItem, selectedSubItem)
+                                "En Adopción" -> AnimalesEnAdopcionMostrar(colors, selectedItem, selectedSubItem)
+                            }
+                        }
                     }
                 }
             }

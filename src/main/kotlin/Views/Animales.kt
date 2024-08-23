@@ -37,7 +37,7 @@ import java.time.format.TextStyle
 import java.util.*
 
 @Composable
-fun AnimalesMostrar(colors: RefugioColorPalette, selectedItem: String, selectedSubItem: String) {
+fun AnimalesEnRefugioMostrar(colors: RefugioColorPalette, selectedItem: String, selectedSubItem: String) {
     val coroutineScope = rememberCoroutineScope()
     var animales by remember { mutableStateOf<List<Animal>>(emptyList()) }
     var showDialog by remember { mutableStateOf(false) }
@@ -137,7 +137,6 @@ fun AnimalesMostrar(colors: RefugioColorPalette, selectedItem: String, selectedS
     }
 }
 
-
 @Composable
 fun FilterComponentsAnimals(
     colors: RefugioColorPalette,
@@ -219,9 +218,6 @@ fun FilterComponentsAnimals(
         }
     }
 }
-
-
-
 
 @Composable
 fun AnimalsExpandableTable(colors: RefugioColorPalette, data: List<AnimalTableRow>) {

@@ -47,9 +47,8 @@ fun AnimatedSideMenu(
         ExpandableMenuItem("Contratos", colors, selectedItem, selectedSubItem, onSelectionChanged, Icons.Default.Description)
         ExpandableMenuItem("Contratados", colors, selectedItem, selectedSubItem, onSelectionChanged, Icons.Default.People)
         ExpandableMenuItem("Servicios", colors, selectedItem, selectedSubItem, onSelectionChanged, Icons.Default.Build)
-        MenuItem("Animales", colors, selectedItem, selectedSubItem, Icons.Default.Pets) {
-            onSelectionChanged(it, "")
-        }
+        ExpandableMenuItem("Animales", colors, selectedItem, selectedSubItem, onSelectionChanged, Icons.Default.Pets)
+
 
         Spacer(modifier = Modifier.height(16.dp))
 
@@ -114,9 +113,14 @@ fun ExpandableMenuItem(
 
         AnimatedVisibility(visible = expanded) {
             Column {
-                SubMenuItem("Veterinarios", colors, selectedItem, selectedSubItem, title, Icons.Default.MedicalServices) { onItemSelected(title, it) }
-                SubMenuItem("Transporte", colors, selectedItem, selectedSubItem, title, Icons.Default.LocalShipping) { onItemSelected(title, it) }
-                SubMenuItem("Proveedor de alimentos", colors, selectedItem, selectedSubItem, title, Icons.Default.Fastfood) { onItemSelected(title, it) }
+                if (title == "Animales") {
+                    SubMenuItem("En Refugio", colors, selectedItem, selectedSubItem, title, Icons.Default.Home) { onItemSelected(title, it) }
+                    SubMenuItem("En Adopción", colors, selectedItem, selectedSubItem, title, Icons.Default.Favorite) { onItemSelected(title, it) }
+                } else {
+                    SubMenuItem("Veterinarios", colors, selectedItem, selectedSubItem, title, Icons.Default.MedicalServices) { onItemSelected(title, it) }
+                    SubMenuItem("Transporte", colors, selectedItem, selectedSubItem, title, Icons.Default.LocalShipping) { onItemSelected(title, it) }
+                    SubMenuItem("Proveedor de alimentos", colors, selectedItem, selectedSubItem, title, Icons.Default.Fastfood) { onItemSelected(title, it) }
+                }
             }
         }
     }
