@@ -129,6 +129,114 @@ fun AddAnimalDialog(
     }
 }
 
+@Composable
+fun UpdateAnimalDialog(
+    colors: RefugioColorPalette,
+    codigo: Int,
+    nombreInicial: String,
+    especieInicial: String,
+    razaInicial: String,
+    edadInicial: Int,
+    pesoInicial: Double,
+    fechaIngresoInicial: LocalDate,
+    onDismissRequest: () -> Unit,
+    onAnimalUpdated: (Int, String, String, String, Int, Double, LocalDate) -> Unit
+) {
+    var nombre by remember { mutableStateOf(nombreInicial) }
+    var especie by remember { mutableStateOf(especieInicial) }
+    var raza by remember { mutableStateOf(razaInicial) }
+    var edad by remember { mutableStateOf(edadInicial) }
+    var peso by remember { mutableStateOf(pesoInicial) }
+    var fechaIngreso by remember { mutableStateOf(fechaIngresoInicial) }
+
+    Dialog(onDismissRequest = onDismissRequest) {
+        Surface(
+            modifier = Modifier.padding(16.dp),
+            shape = RoundedCornerShape(8.dp),
+            color = colors.menuBackground
+        ) {
+            Column(modifier = Modifier.padding(16.dp)) {
+                Text("Actualizar Información de $nombreInicial", style = MaterialTheme.typography.h6)
+
+                OutlinedTextField(
+                    value = nombre,
+                    onValueChange = { nombre = it },
+                    label = { Text("Nombre") },
+                    modifier = Modifier.fillMaxWidth()
+                )
+
+                OutlinedTextField(
+                    value = especie,
+                    onValueChange = { especie = it },
+                    label = { Text("Especie") },
+                    modifier = Modifier.fillMaxWidth()
+                )
+
+                OutlinedTextField(
+                    value = raza,
+                    onValueChange = { raza = it },
+                    label = { Text("Raza") },
+                    modifier = Modifier.fillMaxWidth()
+                )
+
+                Row(modifier = Modifier.padding(0.dp)) {
+                    OutlinedTextField(
+                        value = edad.toString(),
+                        onValueChange = { edad = it.toIntOrNull() ?: edad },
+                        label = { Text("Edad") },
+                        modifier = Modifier.weight(1f)
+                    )
+                    Spacer(modifier = Modifier.width(4.dp))
+                    OutlinedTextField(
+                        value = peso.toString(),
+                        onValueChange = { peso = it.toDoubleOrNull() ?: peso },
+                        label = { Text("Peso (kg)") },
+                        modifier = Modifier.weight(1f)
+                    )
+                }
+
+                DatePicker(
+                    label = { Text("Fecha de Ingreso") },
+                    selectedDate = fechaIngreso,
+                    onDateChange = {
+                        if (it != null) {
+                            fechaIngreso = it
+                        }
+                    },
+                    modifier = Modifier.fillMaxWidth()
+                )
+
+                Spacer(modifier = Modifier.height(16.dp))
+
+                Row(
+                    horizontalArrangement = Arrangement.End,
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    TextButton(onClick = onDismissRequest) {
+                        Text("Cancelar")
+                    }
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Button(onClick = {
+                        if (nombre.isNotBlank() && especie.isNotBlank() && raza.isNotBlank() && edad != null && peso != null && fechaIngreso != null) {
+                            onAnimalUpdated(
+                                codigo,
+                                nombre,
+                                especie,
+                                raza,
+                                edad,
+                                peso,
+                                fechaIngreso
+                            )
+                        }
+                    }) {
+                        Text("Actualizar")
+                    }
+                }
+            }
+        }
+    }
+}
+
 
 ///////////////----------------------CONTRATO VETERINARIO------------------///////////////////
 

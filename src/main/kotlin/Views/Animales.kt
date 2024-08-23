@@ -246,8 +246,11 @@ fun ActividadesExpandableTable(colors: RefugioColorPalette, data: List<Actividad
 @Composable
 fun AnimalsExpandableRow(colors: RefugioColorPalette, row: AnimalTableRow) {
     var expanded by remember { mutableStateOf(false) }
+    val coroutineScope = rememberCoroutineScope()
     var showActivityDialog by remember { mutableStateOf(false) }
+    var showUpdateDialog by remember { mutableStateOf(false) }
     val backgroundColor = if (expanded) colors.menuBackground else Color.Transparent
+
 
     Column(
         modifier = Modifier
@@ -287,7 +290,7 @@ fun AnimalsExpandableRow(colors: RefugioColorPalette, row: AnimalTableRow) {
                 ) {
                     Text("Ver Actividades")
                 }
-                IconButton(onClick = { /* TODO: Implementar modificar */ }) {
+                IconButton(onClick = { showUpdateDialog=true }) {
                     Icon(Icons.Default.Edit, contentDescription = "Modificar")
                 }
                 IconButton(onClick = { /* TODO: Implementar eliminar */ }) {
@@ -329,6 +332,27 @@ fun AnimalsExpandableRow(colors: RefugioColorPalette, row: AnimalTableRow) {
                 codigoAnim = row.id.toInt(),
                 nombreAnim = row.nombreAnim,
                 onDismissRequest = { showActivityDialog = false }
+            )
+        }
+        if (showUpdateDialog) {
+            UpdateAnimalDialog(
+                colors = colors,
+                codigo = row.id.toInt(),
+                nombreInicial = row.nombreAnim,
+                especieInicial = row.especie,
+                razaInicial = row.raza,
+                edadInicial = row.edad,
+                pesoInicial = row.peso,
+                fechaIngresoInicial = row.fecha_ingreso,
+                onDismissRequest = { showUpdateDialog = false },
+                onAnimalUpdated = { codigo, nombre, especie, raza, edad, peso, fechaIngreso ->
+                    coroutineScope.launch {
+                        //AnimalDB.updateAnimal(codigo, nombre, especie, raza, edad, peso, fechaIngreso)
+
+                        // Cierra el diálogo
+                        showUpdateDialog = false
+                    }
+                }
             )
         }
     }
@@ -416,6 +440,12 @@ fun getAnimalsTableRows(animales: List<Animal>): List<AnimalTableRow> {
         AnimalTableRow(
             id = animal.codigo.toString(),
             nombreAnim = animal.nombre,
+            especie = animal.especie,
+            raza = animal.raza,
+            edad = animal.edad,
+            peso = animal.peso,
+            cantDias = animal.cantDias,
+            fecha_ingreso = animal.fecha_ingreso,
             mainAttributes = mapOf(
                 "Código" to "${animal.codigo}",
                 "Nombre" to animal.nombre,

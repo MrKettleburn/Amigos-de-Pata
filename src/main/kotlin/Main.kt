@@ -1,3 +1,5 @@
+
+import ReportesPDF.generarReporteContratosVeterinarios
 import Views.LoginScreen
 import Views.RefugioApp
 import Views.RefugioColorPalette
@@ -8,6 +10,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.unit.dp
 import java.awt.GraphicsDevice
 import java.awt.GraphicsEnvironment
+import java.time.LocalDateTime
 
 @Composable
 @Preview
@@ -37,6 +40,9 @@ fun main() = application {
         App(window)
     }
 
+//    LaunchedEffect(Unit) {
+//        generarReporteContratosVeterinarios("C:\\Users\\ruben\\IdeaProjects\\Amigos_de_Pata\\src\\main\\kotlin\\PruebaPDF.pdf", LocalDateTime.now())
+//    }
 }
 
 fun setFullScreen(window: java.awt.Window) {
