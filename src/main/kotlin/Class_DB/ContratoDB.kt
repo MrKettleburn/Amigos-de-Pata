@@ -186,6 +186,8 @@ object ContratoDB {
                     fechaInicio = resultSet.getDate("fecha_inicio").toLocalDate(),
                     fechaFin = resultSet.getDate("fecha_fin").toLocalDate(),
                     fechaConcil = resultSet.getDate("fecha_conciliacion").toLocalDate(),
+                    idProv = resultSet.getInt("id_contratado"),
+                    idServ = resultSet.getInt("id_servicio"),
                 )
             )
         }
@@ -244,6 +246,8 @@ object ContratoDB {
                     fechaInicio = resultSet.getDate("fecha_inicio").toLocalDate(),
                     fechaFin = resultSet.getDate("fecha_fin").toLocalDate(),
                     fechaConcil = resultSet.getDate("fecha_conciliacion").toLocalDate(),
+                    idTrans = resultSet.getInt("id_contratado"),
+                    idServ = resultSet.getInt("id_servicio"),
                 )
             )
         }
