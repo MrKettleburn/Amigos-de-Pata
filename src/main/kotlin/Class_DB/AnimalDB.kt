@@ -14,26 +14,6 @@ import java.time.temporal.ChronoUnit
 
 object AnimalDB {
 
-    suspend fun createAnimal(animal: Animal): Boolean = withContext(Dispatchers.IO) {
-        val dbConnection = Database.connect()
-        val statement = dbConnection.prepareStatement(
-            "INSERT INTO animal (nombre_animal, especie, raza, edad, peso, fecha_ingreso) VALUES(?,?,?,?,?,?)"  // QUITAR LUEGO LOS DIAS
-        )
-
-        statement.setString(1,animal.nombre)
-        statement.setString(2,animal.especie)
-        statement.setString(3,animal.raza)
-        statement.setInt(4,animal.edad)
-        statement.setDouble(5,animal.peso)
-        val sqlDate = Date.valueOf(animal.fecha_ingreso)
-        statement.setDate(6, sqlDate)
-
-        val rowsInserted = statement.executeUpdate()
-        statement.close()
-        dbConnection.close()
-        rowsInserted > 0
-    }
-
 //    suspend fun getAnimales(): List<Animal> = withContext(Dispatchers.IO) {
 //
 //        val animales= mutableListOf<Animal>()
@@ -62,6 +42,7 @@ object AnimalDB {
 //         animales
 //    }
 
+    //-------------------------------------CONSULTAS----------------------------------------------------
      suspend fun getAnimalesFilter(
         codigo: Int?,
         name: String?,
@@ -115,8 +96,8 @@ object AnimalDB {
         especie: String?,
         raza: String?,
         edad: Int?,
-        peso: Double?,
-        cantDias: Int?,
+        fechaIngresoLI: String?,
+        fechaIngresoLS: String?,
         precioAdop: Double?
     ): List<AnimalAdoptado> = withContext(Dispatchers.IO) {
 
@@ -130,8 +111,8 @@ object AnimalDB {
         statement.setString(3, especie)
         statement.setString(4, raza)
         if (edad != null) statement.setInt(5, edad) else statement.setNull(5, java.sql.Types.INTEGER)
-        if (peso != null) statement.setDouble(6, peso) else statement.setNull(6, java.sql.Types.DOUBLE)
-        if (cantDias != null) statement.setInt(7, cantDias) else statement.setNull(7, java.sql.Types.INTEGER)
+        statement.setString(6, fechaIngresoLI)
+        statement.setString(7, fechaIngresoLS)
         if (precioAdop != null) statement.setDouble(8,precioAdop) else statement.setNull(8,java.sql.Types.DOUBLE)
 
         val resultSet = statement.executeQuery()
@@ -146,6 +127,7 @@ object AnimalDB {
                     edad = resultSet.getInt("edad"),
                     peso = resultSet.getDouble("peso"),
                     cantDias = resultSet.getInt("cant_dias"),
+                    fecha_ingreso = resultSet.getDate("fecha_ingreso").toLocalDate(),
                     precioAdop = resultSet.getDouble("precio_adopcion")
                 )
             )
@@ -154,5 +136,47 @@ object AnimalDB {
         statement.close()
         dbConnection.close()
         animalesAdopt
+    }
+
+    //_____________________________________INSERCCIONES____________________________________________
+
+    suspend fun createAnimal(animal: Animal): Boolean = withContext(Dispatchers.IO) {
+        val dbConnection = Database.connect()
+        val statement = dbConnection.prepareStatement(
+            "INSERT INTO animal (nombre_animal, especie, raza, edad, peso, fecha_ingreso) VALUES(?,?,?,?,?,?)"  // QUITAR LUEGO LOS DIAS
+        )
+
+        statement.setString(1,animal.nombre)
+        statement.setString(2,animal.especie)
+        statement.setString(3,animal.raza)
+        statement.setInt(4,animal.edad)
+        statement.setDouble(5,animal.peso)
+        val sqlDate = Date.valueOf(animal.fecha_ingreso)
+        statement.setDate(6, sqlDate)
+
+        val rowsInserted = statement.executeUpdate()
+        statement.close()
+        dbConnection.close()
+        rowsInserted > 0
+    }
+    suspend fun createAnimalAdoptado(animalAdoptado: AnimalAdoptado): Boolean = withContext(Dispatchers.IO) {
+        val dbConnection = Database.connect()
+        val statement = dbConnection.prepareStatement(
+            "INSERT INTO animal_adoptado (nombre_animal, especie, raza, edad, peso, fecha_ingreso, precio) VALUES(?,?,?,?,?,?,?)"
+        )
+
+        statement.setString(1, animalAdoptado.nombre)
+        statement.setString(2, animalAdoptado.especie)
+        statement.setString(3, animalAdoptado.raza)
+        statement.setInt(4, animalAdoptado.edad)
+        statement.setDouble(5, animalAdoptado.peso)
+        val sqlDate = Date.valueOf(animalAdoptado.fecha_ingreso)
+        statement.setDate(6, sqlDate)
+        statement.setDouble(7, animalAdoptado.precioAdop)
+
+        val rowsInserted = statement.executeUpdate()
+        statement.close()
+        dbConnection.close()
+        rowsInserted > 0
     }
 }
