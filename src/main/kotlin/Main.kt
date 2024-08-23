@@ -36,6 +36,7 @@ fun main() = application {
     ) {
         App(window)
     }
+
 }
 
 fun setFullScreen(window: java.awt.Window) {

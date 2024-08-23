@@ -1,15 +1,21 @@
 package Views
 
 import Class_DB.ActividadDB
-import Models.Actividad
-import Models.Animal
+import Class_DB.ContratadosDB
+import Class_DB.ContratoDB
+import Class_DB.ServiciosDB
+import Models.*
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.CalendarToday
 import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.KeyboardArrowDown
+import androidx.compose.material.icons.filled.KeyboardArrowUp
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -20,6 +26,7 @@ import androidx.compose.ui.window.Dialog
 import kotlinx.coroutines.launch
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
+import java.time.temporal.ChronoUnit
 
 
 //-----------------------------ANIMAL-----------------------------
@@ -65,21 +72,22 @@ fun AddAnimalDialog(
                     label = { Text("Raza") },
                     modifier = Modifier.fillMaxWidth()
                 )
-
-                OutlinedTextField(
-                    value = edad?.toString() ?: "",
-                    onValueChange = { edad = it.toIntOrNull() },
-                    label = { Text("Edad") },
-                    modifier = Modifier.fillMaxWidth()
-                )
-
-                OutlinedTextField(
-                    value = peso?.toString() ?: "",
-                    onValueChange = { peso = it.toDoubleOrNull() },
-                    label = { Text("Peso (kg)") },
-                    modifier = Modifier.fillMaxWidth()
-                )
-
+                Row(modifier = Modifier.padding(0.dp))
+                {
+                    OutlinedTextField(
+                        value = edad?.toString() ?: "",
+                        onValueChange = { edad = it.toIntOrNull() },
+                        label = { Text("Edad") },
+                        modifier = Modifier.weight(1f)
+                    )
+                    Spacer(modifier = Modifier.width(4.dp))
+                    OutlinedTextField(
+                        value = peso?.toString() ?: "",
+                        onValueChange = { peso = it.toDoubleOrNull() },
+                        label = { Text("Peso (kg)") },
+                        modifier = Modifier.weight(1f)
+                    )
+                }
                 DatePicker(
                     label = { Text("Fecha de Ingreso") },
                     selectedDate = fechaIngreso,
@@ -122,11 +130,137 @@ fun AddAnimalDialog(
 }
 
 
+///////////////----------------------CONTRATO VETERINARIO------------------///////////////////
 
+@Composable
+fun AddContratoVeterinarioDialog(
+    colors: RefugioColorPalette,
+    onDismissRequest: () -> Unit,
+    onContratoAdded: (ContratoVeterinario) -> Unit
+) {
+    val coroutineScope = rememberCoroutineScope()
 
+    // Estados para los campos
+    var selectedVet by remember { mutableStateOf<Veterinario?>(null) }
+    var selectedServ by remember { mutableStateOf<ServVeterinario?>(null) }
+    var descripcion by remember { mutableStateOf("") }
+    var fechaInicio by remember { mutableStateOf<LocalDate?>(null) }
+    var fechaFin by remember { mutableStateOf<LocalDate?>(null) }
+    var fechaConcil by remember { mutableStateOf<LocalDate?>(null) }
 
+    // Cargar datos de veterinarios y servicios
+    val veterinarios = remember { mutableStateOf<List<Veterinario>>(emptyList()) }
+    val servicios = remember { mutableStateOf<List<ServVeterinario>>(emptyList()) }
 
+    LaunchedEffect(Unit) {
+        coroutineScope.launch {
+            veterinarios.value = ContratadosDB.getVeterinariosForComboBox()
+            servicios.value = ServiciosDB.getServiciosVeterinariosForComboBox()
+        }
+    }
 
+    Dialog(onDismissRequest = onDismissRequest) {
+        Surface(
+            modifier = Modifier.padding(16.dp).width(800.dp),
+            shape = RoundedCornerShape(8.dp),
+            color = colors.menuBackground
+        ) {
+            Column(modifier = Modifier.padding(16.dp)) {
+                Text("Agregar Contrato Veterinario", style = MaterialTheme.typography.h6)
+
+                // ComboBox para seleccionar un veterinario
+                Row(modifier = Modifier.padding(0.dp)) {
+                    DropdownMenu(
+                        label = { Text("Veterinario") },
+                        items = veterinarios.value,
+                        selectedItem = selectedVet,
+                        onItemSelected = { selectedVet = it },
+                        modifier = Modifier.weight(1f)
+                    )
+                    Spacer(modifier = Modifier.width(4.dp))
+                    // ComboBox para seleccionar un servicio veterinario
+                    DropdownMenu(
+                        label = { Text("Servicio Veterinario") },
+                        items = servicios.value,
+                        selectedItem = selectedServ,
+                        onItemSelected = { selectedServ = it },
+                        modifier = Modifier.weight(1f)
+                    )
+                }
+                // Campo para la descripción
+                OutlinedTextField(
+                    value = descripcion,
+                    onValueChange = { descripcion = it },
+                    label = { Text("Descripción del Contrato") },
+                    modifier = Modifier.fillMaxWidth()
+                )
+
+                Spacer(modifier = Modifier.height(8.dp))
+
+                // Campos DatePicker para las fechas
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    DatePicker(
+                        label = { Text("Fecha de Inicio") },
+                        selectedDate = fechaInicio,
+                        onDateChange = { fechaInicio = it },
+                        modifier = Modifier.weight(1f)
+                    )
+                    DatePicker(
+                        label = { Text("Fecha de Fin") },
+                        selectedDate = fechaFin,
+                        onDateChange = { fechaFin = it },
+                        modifier = Modifier.weight(1f)
+                    )
+                    DatePicker(
+                        label = { Text("Fecha de Conciliación") },
+                        selectedDate = fechaConcil,
+                        onDateChange = { fechaConcil = it },
+                        modifier = Modifier.weight(1f)
+                    )
+                }
+
+                Spacer(modifier = Modifier.height(16.dp))
+
+                Row(
+                    horizontalArrangement = Arrangement.End,
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    TextButton(onClick = onDismissRequest) {
+                        Text("Cancelar")
+                    }
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Button(onClick = {
+                        if (selectedVet != null && selectedServ != null && descripcion.isNotBlank() && fechaInicio != null && fechaFin != null && fechaConcil != null) {
+                            val newContrato = ContratoVeterinario(
+                                codigo = 0,
+                                precio = ChronoUnit.DAYS.between(fechaInicio,fechaFin).toInt() * selectedServ!!.precioUni + selectedServ!!.precioUni,
+                                descripcion = descripcion,
+                                nombreVet = selectedVet!!.nombre,
+                                clinicaVet = selectedVet!!.clinica,
+                                provinciaVet = selectedVet!!.provincia,
+                                direccVet = selectedVet!!.direccion,
+                                especialidad = selectedVet!!.especialidad,
+                                modalidadServVet = selectedServ!!.modalidad,
+                                precioUnit = selectedServ!!.precioUni,
+                                fechaInicio = fechaInicio!!,
+                                fechaFin = fechaFin!!,
+                                fechaConcil = fechaConcil!!,
+                                idVet = selectedVet!!.codigo,
+                                idServ = selectedServ!!.codigo
+                            )
+                            onContratoAdded(newContrato)
+                        }
+                    }) {
+                        Text("Agregar")
+                    }
+                }
+            }
+        }
+    }
+}
 
 
 //---------------------------ACTIVIDAD-----------------------------

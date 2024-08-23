@@ -20,7 +20,7 @@ fun <T : Number> Spinner(
     onValueChange: (T) -> Unit,
     label: @Composable () -> Unit,
     modifier: Modifier = Modifier,
-    step: T
+    step: T,
 ) {
     var text by remember { mutableStateOf(value.toString()) }
 

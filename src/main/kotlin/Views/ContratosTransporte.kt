@@ -41,7 +41,7 @@ import java.util.*
 
 
 @Composable
-fun ContratosVeterinariosMostrar(colors: RefugioColorPalette, selectedItem: String, selectedSubItem: String) {
+fun ContratosTransporteMostrar(colors: RefugioColorPalette, selectedItem: String, selectedSubItem: String) {
     val coroutineScope = rememberCoroutineScope()
     var contratos by remember { mutableStateOf<List<ContratoVeterinario>>(emptyList()) }
     var showDialog by remember { mutableStateOf(false) }
@@ -99,7 +99,7 @@ fun ContratosVeterinariosMostrar(colors: RefugioColorPalette, selectedItem: Stri
 
 
             // Componentes de filtrado
-            FilterComponentsVeterinarios(
+            FilterComponentsTransporte(
                 colors,
                 onFilterApplied = {
                     // Convertir los valores de los filtros a los tipos correctos y aplicar el filtro
@@ -153,7 +153,7 @@ fun ContratosVeterinariosMostrar(colors: RefugioColorPalette, selectedItem: Stri
             )
 
             // Tabla expandible
-            ContratosVeterinariosExpandableTable(colors, getContratosVeterinariosTableRows(contratos))
+            ContratosTransporteExpandableTable(colors, getContratosTransporteTableRows(contratos))
         }
 
         // Botón flotante de agregar
@@ -202,7 +202,7 @@ fun ContratosVeterinariosMostrar(colors: RefugioColorPalette, selectedItem: Stri
 
 
 @Composable
-fun FilterComponentsVeterinarios(
+fun FilterComponentsTransporte(
     colors: RefugioColorPalette,
     onFilterApplied: () -> Unit,
     codigo: String?,
@@ -349,10 +349,10 @@ fun FilterComponentsVeterinarios(
 
 
 @Composable
-fun ContratosVeterinariosExpandableTable(colors: RefugioColorPalette, data: List<ContratoVeterinarioTableRow>) {
+fun ContratosTransporteExpandableTable(colors: RefugioColorPalette, data: List<ContratoVeterinarioTableRow>) {
     LazyColumn {
         items(data) { row ->
-            ContratosVeterinariosExpandableRow(colors, row)
+            ContratosTransporteExpandableRow(colors, row)
             Divider(color = colors.primary, thickness = 1.5.dp)
         }
     }
@@ -360,7 +360,7 @@ fun ContratosVeterinariosExpandableTable(colors: RefugioColorPalette, data: List
 
 
 @Composable
-fun ContratosVeterinariosExpandableRow(colors: RefugioColorPalette, row: ContratoVeterinarioTableRow) {
+fun ContratosTransporteExpandableRow(colors: RefugioColorPalette, row: ContratoVeterinarioTableRow) {
     var expanded by remember { mutableStateOf(false) }
     val backgroundColor = if (expanded) colors.menuBackground else Color.Transparent
 
@@ -436,7 +436,7 @@ fun ContratosVeterinariosExpandableRow(colors: RefugioColorPalette, row: Contrat
 }
 
 
-fun getContratosVeterinariosTableRows(contratos: List<ContratoVeterinario>): List<ContratoVeterinarioTableRow> {
+fun getContratosTransporteTableRows(contratos: List<ContratoVeterinario>): List<ContratoVeterinarioTableRow> {
     val formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy")
     return contratos.map { contrato ->
         ContratoVeterinarioTableRow(

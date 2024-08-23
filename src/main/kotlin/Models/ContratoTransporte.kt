@@ -6,9 +6,11 @@ data class ContratoTransporte(
     val codigo: Int,
     val precio: Double,
     val descripcion: String,
+    val idTrans: Int,
     val nombreTrans: String,
     val provinciaTrans: String,
     val direccionTrans: String,
+    val idServ: Int,
     val vehiculo: String,
     val precioUnit: Double,
     val fechaInicio: LocalDate, //TIPO DE DATO FECHA

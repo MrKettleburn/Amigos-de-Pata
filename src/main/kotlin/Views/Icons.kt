@@ -8,6 +8,7 @@ fun getIconForAttribute(attribute: String): ImageVector {
     return when (attribute) {
         "Código" -> Icons.Default.Badge
         "Nombre" -> Icons.Default.Person
+        "Nombre del Veterinario" -> Icons.Default.Person
         "Especie" -> Icons.Default.Pets
         "Raza" -> Icons.Default.Pets
         "Edad" -> Icons.Default.Cake
@@ -19,6 +20,16 @@ fun getIconForAttribute(attribute: String): ImageVector {
         "Hora" -> Icons.Default.Timer
         "Descripción" -> Icons.Default.Textsms
         "Código Contrato" -> Icons.Default.Description
+        "Precio" -> Icons.Default.AttachMoney
+        "Precio Unitario del Servicio" -> Icons.Default.AttachMoney
+        "Modalidad del Servicio" -> Icons.Default.Mode
+        "Especialidad del Veterinario" -> Icons.Default.TypeSpecimen
+        "Clínica del Veterinario" -> Icons.Default.LocalHospital
+        "Provincia del Veterinario" -> Icons.Default.LocationCity
+        "Dirección del Veterinario" -> Icons.Default.MyLocation
+        "Fecha de Inicio" -> Icons.Default.CalendarMonth
+        "Fecha de Fin" -> Icons.Default.CalendarMonth
+        "Fecha de Conciliación" -> Icons.Default.CalendarMonth
         else -> Icons.Default.Info
     }
 }

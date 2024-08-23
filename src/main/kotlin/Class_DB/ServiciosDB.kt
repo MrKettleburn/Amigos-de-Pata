@@ -51,6 +51,30 @@ object ServiciosDB {
         servVeterinarios
     }
 
+    suspend fun getServiciosVeterinariosForComboBox(): List<ServVeterinario> = withContext(Dispatchers.IO) {
+        val servVeterinarios = mutableListOf<ServVeterinario>()
+        val dbConnection: Connection = Database.connect()
+        val statement = dbConnection.prepareStatement(
+            "SELECT * FROM servicio s INNER JOIN servicio_veterinario sv ON s.id_servicio=sv.id_servicio ORDER BY sv.modalidad ASC"
+        )
+
+        val resultSet = statement.executeQuery()
+
+        while (resultSet.next()) {
+            servVeterinarios.add(
+                ServVeterinario(
+                    codigo = resultSet.getInt("id_servicio"),
+                    precioUni = resultSet.getDouble("precio_unitario"),
+                    modalidad = resultSet.getString("modalidad")
+                )
+            )
+        }
+        resultSet.close()
+        statement.close()
+        dbConnection.close()
+        servVeterinarios
+    }
+
     suspend fun getServiciosTransportacionFilter(
         codigo: Int?,
         precioUnitInf: Double?,

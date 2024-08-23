@@ -9,4 +9,8 @@ data class Veterinario (
     val telefono: String,
     val especialidad: String,
     val clinica: String
-)
+){
+    override fun toString(): String {
+        return "C:$codigo E:$especialidad P:$provincia"
+    }
+}
