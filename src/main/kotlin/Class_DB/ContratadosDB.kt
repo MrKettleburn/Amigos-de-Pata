@@ -54,6 +54,37 @@ object ContratadosDB {
         veterinarios
     }
 
+    suspend fun getVeterinariosForComboBox(): List<Veterinario> = withContext(Dispatchers.IO) {
+
+        val veterinarios = mutableListOf<Veterinario>()
+        val dbConnection: Connection = Database.connect()
+        val statement = dbConnection.prepareStatement(
+            "SELECT * FROM contratado c INNER JOIN veterinario v ON c.id_contratado=v.id_contratado ORDER BY v.especialidad ASC"
+        )
+
+        val resultSet = statement.executeQuery()
+
+        while (resultSet.next()) {
+            veterinarios.add(
+                Veterinario(
+                    codigo = resultSet.getInt("id_contratado"),
+                    nombre = resultSet.getString("nombre_contratado"),
+                    email = resultSet.getString("email"),
+                    provincia = resultSet.getString("provincia"),
+                    direccion = resultSet.getString("direccion"),
+                    telefono = resultSet.getString("telefono"),
+                    especialidad = resultSet.getString("especialidad"),
+                    clinica = resultSet.getString("clinica")
+                )
+            )
+        }
+
+        resultSet.close()
+        statement.close()
+        dbConnection.close()
+        veterinarios
+    }
+
  suspend fun getTransportistasFilter(
      codigo: Int?,
      nombre: String?,
@@ -89,6 +120,35 @@ object ContratadosDB {
      dbConnection.close()
      transportistas
  }
+
+    suspend fun getTransportesForComboBox(): List<Transporte> = withContext(Dispatchers.IO) {
+
+        val transportes = mutableListOf<Transporte>()
+        val dbConnection: Connection = Database.connect()
+        val statement = dbConnection.prepareStatement(
+            "SELECT * FROM contratado c WHERE tipo_contratado='Transporte' ORDER BY c.nombre_contratado ASC"
+        )
+
+        val resultSet = statement.executeQuery()
+
+        while (resultSet.next()) {
+            transportes.add(
+                Transporte(
+                    codigo = resultSet.getInt("id_contratado"),
+                    nombre = resultSet.getString("nombre_contratado"),
+                    email = resultSet.getString("email"),
+                    provincia = resultSet.getString("provincia"),
+                    direccion = resultSet.getString("direccion"),
+                    telefono = resultSet.getString("telefono"),
+                )
+            )
+        }
+
+        resultSet.close()
+        statement.close()
+        dbConnection.close()
+        transportes
+    }
 
     suspend fun getProveedoresAlimentosFilter(
         codigo: Int?,

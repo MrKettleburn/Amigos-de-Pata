@@ -444,15 +444,15 @@ fun getContratosVeterinariosTableRows(contratos: List<ContratoVeterinario>): Lis
             mainAttributes = mapOf(
                 "Código" to "${contrato.codigo}",
                 "Precio" to "\$${contrato.precio}",
-                "Nombre del Veterinario" to contrato.nombreVet,
+                "Nombre del Contratado" to contrato.nombreVet,
                 "Modalidad del Servicio" to contrato.modalidadServVet
             ),
             expandedAttributes = mapOf(
                 "Descripción" to contrato.descripcion,
                 "Especialidad del Veterinario" to contrato.especialidad,
                 "Clínica del Veterinario" to contrato.clinicaVet,
-                "Provincia del Veterinario" to contrato.provinciaVet,
-                "Dirección del Veterinario" to contrato.direccVet,
+                "Provincia del Contratado" to contrato.provinciaVet,
+                "Dirección del Contratado" to contrato.direccVet,
                 "Precio Unitario del Servicio" to "${contrato.precioUnit}",
                 "Fecha de Inicio" to contrato.fechaInicio.format(formatter),
                 "Fecha de Fin" to contrato.fechaFin.format(formatter),

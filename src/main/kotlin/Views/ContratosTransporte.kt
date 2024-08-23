@@ -6,6 +6,7 @@ import Class_DB.AnimalDB
 import Class_DB.ContratoDB
 import Models.Actividad
 import Models.Animal
+import Models.ContratoTransporte
 import Models.ContratoVeterinario
 import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
@@ -43,7 +44,7 @@ import java.util.*
 @Composable
 fun ContratosTransporteMostrar(colors: RefugioColorPalette, selectedItem: String, selectedSubItem: String) {
     val coroutineScope = rememberCoroutineScope()
-    var contratos by remember { mutableStateOf<List<ContratoVeterinario>>(emptyList()) }
+    var contratos by remember { mutableStateOf<List<ContratoTransporte>>(emptyList()) }
     var showDialog by remember { mutableStateOf(false) }
 
 
@@ -51,11 +52,8 @@ fun ContratosTransporteMostrar(colors: RefugioColorPalette, selectedItem: String
     var codigo by remember { mutableStateOf<String?>(null) }
     var precioLI by remember { mutableStateOf<Double?>(null) }
     var precioLS by remember { mutableStateOf<Double?>(null) }
-    var nombreVet by remember { mutableStateOf<String?>(null) }
-    var clinicaVet by remember { mutableStateOf<String?>(null) }
-    var provinciaVet by remember { mutableStateOf<String?>(null) }
-    var especialidad by remember { mutableStateOf<String?>(null) }
-    var modalidadServVet by remember { mutableStateOf<String?>(null) }
+    var nombreTrans by remember { mutableStateOf<String?>(null) }
+    var provinciaTrans by remember { mutableStateOf<String?>(null) }
     var fechaInicioLI by remember { mutableStateOf<LocalDate?>(null) }
     var fechaInicioLS by remember { mutableStateOf<LocalDate?>(null) }
     var fechaFinLI by remember { mutableStateOf<LocalDate?>(null) }
@@ -66,7 +64,7 @@ fun ContratosTransporteMostrar(colors: RefugioColorPalette, selectedItem: String
 
     // Cargar los datos iniciales
     LaunchedEffect(Unit) {
-        contratos = ContratoDB.getContratosVeterinariosFilter(
+        contratos = ContratoDB.getContratosTransporteFilter(
             null,
             null,
             null,
@@ -78,9 +76,7 @@ fun ContratosTransporteMostrar(colors: RefugioColorPalette, selectedItem: String
             null,
             null,
             null,
-            null,
-            null,
-            null)
+          )
     }
 
     Box(modifier = Modifier.fillMaxSize().background(Color(0xDCFFFFFF)).padding(16.dp)) {
@@ -104,15 +100,12 @@ fun ContratosTransporteMostrar(colors: RefugioColorPalette, selectedItem: String
                 onFilterApplied = {
                     // Convertir los valores de los filtros a los tipos correctos y aplicar el filtro
                     coroutineScope.launch {
-                        contratos = ContratoDB.getContratosVeterinariosFilter(
+                        contratos = ContratoDB.getContratosTransporteFilter(
                             codigo?.toIntOrNull(),
                             precioLI,
                             precioLS,
-                            nombreVet,
-                            clinicaVet,
-                            provinciaVet,
-                            especialidad,
-                            modalidadServVet,
+                            nombreTrans,
+                            provinciaTrans,
                             fechaInicioLI?.format(DateTimeFormatter.ISO_DATE),
                             fechaInicioLS?.format(DateTimeFormatter.ISO_DATE),
                             fechaFinLI?.format(DateTimeFormatter.ISO_DATE),
@@ -128,16 +121,10 @@ fun ContratosTransporteMostrar(colors: RefugioColorPalette, selectedItem: String
                 onPrecioLIChange = { precioLI = it },
                 precioLS = precioLS,
                 onPrecioLSChange = { precioLS = it },
-                nombreVet = nombreVet,
-                onNombreVetChange = { nombreVet = it },
-                clinicaVet = clinicaVet,
-                onClinicaVetChange = { clinicaVet = it },
-                provinciaVet = provinciaVet,
-                onProvinciaVetChange = { provinciaVet = it },
-                especialidad = especialidad,
-                onEspecialidadChange = { especialidad = it },
-                modalidadServVet = modalidadServVet,
-                onModalidadServVetChange = { modalidadServVet = it },
+                nombreTrans = nombreTrans,
+                onNombreTransChange = { nombreTrans = it },
+                provinciaTrans = provinciaTrans,
+                onProvinciaTransChange = { provinciaTrans = it },
                 fechaInicioLI = fechaInicioLI,
                 onFechaInicioLIChange = { fechaInicioLI = it },
                 fechaInicioLS = fechaInicioLS,
@@ -167,7 +154,7 @@ fun ContratosTransporteMostrar(colors: RefugioColorPalette, selectedItem: String
         }
 
         if (showDialog) {
-            AddContratoVeterinarioDialog(
+            AddContratoTransporteDialog(
                 colors = colors,
                 onDismissRequest = { showDialog = false },
                 onContratoAdded = { newContrato ->
@@ -211,16 +198,10 @@ fun FilterComponentsTransporte(
     onPrecioLIChange: (Double?) -> Unit,
     precioLS: Double?,
     onPrecioLSChange: (Double?) -> Unit,
-    nombreVet: String?,
-    onNombreVetChange: (String?) -> Unit,
-    clinicaVet: String?,
-    onClinicaVetChange: (String?) -> Unit,
-    provinciaVet: String?,
-    onProvinciaVetChange: (String?) -> Unit,
-    especialidad: String?,
-    onEspecialidadChange: (String?) -> Unit,
-    modalidadServVet: String?,
-    onModalidadServVetChange: (String?) -> Unit,
+    nombreTrans: String?,
+    onNombreTransChange: (String?) -> Unit,
+    provinciaTrans: String?,
+    onProvinciaTransChange: (String?) -> Unit,
     fechaInicioLI: LocalDate?,
     onFechaInicioLIChange: (LocalDate?) -> Unit,
     fechaInicioLS: LocalDate?,
@@ -261,33 +242,15 @@ fun FilterComponentsTransporte(
                 step = 0.5
             )
             OutlinedTextField(
-                value = nombreVet.orEmpty(),
-                onValueChange = { onNombreVetChange(if (it.isEmpty()) null else it) },
-                label = { Text("Nombre Vet") },
+                value = nombreTrans.orEmpty(),
+                onValueChange = { onNombreTransChange(if (it.isEmpty()) null else it) },
+                label = { Text("Nombre Trans") },
                 modifier = Modifier.weight(1f)
             )
             OutlinedTextField(
-                value = clinicaVet.orEmpty(),
-                onValueChange = { onClinicaVetChange(if (it.isEmpty()) null else it) },
+                value = provinciaTrans.orEmpty(),
+                onValueChange = { onProvinciaTransChange(if (it.isEmpty()) null else it) },
                 label = { Text("Clínica Vet") },
-                modifier = Modifier.weight(1f)
-            )
-            OutlinedTextField(
-                value = provinciaVet.orEmpty(),
-                onValueChange = { onProvinciaVetChange(if (it.isEmpty()) null else it) },
-                label = { Text("Provincia") },
-                modifier = Modifier.weight(1f)
-            )
-            OutlinedTextField(
-                value = especialidad.orEmpty(),
-                onValueChange = { onEspecialidadChange(if (it.isEmpty()) null else it) },
-                label = { Text("Especialidad") },
-                modifier = Modifier.weight(1f)
-            )
-            OutlinedTextField(
-                value = modalidadServVet.orEmpty(),
-                onValueChange = { onModalidadServVetChange(if (it.isEmpty()) null else it) },
-                label = { Text("Modalidad Servicio") },
                 modifier = Modifier.weight(1f)
             )
             Button(
@@ -436,7 +399,7 @@ fun ContratosTransporteExpandableRow(colors: RefugioColorPalette, row: ContratoV
 }
 
 
-fun getContratosTransporteTableRows(contratos: List<ContratoVeterinario>): List<ContratoVeterinarioTableRow> {
+fun getContratosTransporteTableRows(contratos: List<ContratoTransporte>): List<ContratoVeterinarioTableRow> {
     val formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy")
     return contratos.map { contrato ->
         ContratoVeterinarioTableRow(
@@ -444,16 +407,14 @@ fun getContratosTransporteTableRows(contratos: List<ContratoVeterinario>): List<
             mainAttributes = mapOf(
                 "Código" to "${contrato.codigo}",
                 "Precio" to "\$${contrato.precio}",
-                "Nombre del Veterinario" to contrato.nombreVet,
-                "Modalidad del Servicio" to contrato.modalidadServVet
+                "Nombre del Contratado" to contrato.nombreTrans,
             ),
             expandedAttributes = mapOf(
                 "Descripción" to contrato.descripcion,
-                "Especialidad del Veterinario" to contrato.especialidad,
-                "Clínica del Veterinario" to contrato.clinicaVet,
-                "Provincia del Veterinario" to contrato.provinciaVet,
-                "Dirección del Veterinario" to contrato.direccVet,
-                "Precio Unitario del Servicio" to "${contrato.precioUnit}",
+                "Vehículo" to contrato.vehiculo,
+                "Provincia del Contratado" to contrato.provinciaTrans,
+                "Dirección del Contratado" to contrato.direccionTrans,
+                "Precio Unitario del Servicio" to "${contrato.precioUnit}/km",
                 "Fecha de Inicio" to contrato.fechaInicio.format(formatter),
                 "Fecha de Fin" to contrato.fechaFin.format(formatter),
                 "Fecha de Conciliación" to contrato.fechaConcil.format(formatter),

@@ -157,7 +157,7 @@ object ContratoDB {
 
         if (codigo != null) statement.setInt(1, codigo) else statement.setNull(1, java.sql.Types.INTEGER)
         if (precioLI != null) statement.setDouble(2, precioLI) else statement.setNull(2, java.sql.Types.DOUBLE)
-        if (precioLS != null) statement.setDouble(3, precioLS) else statement.setNull(2, java.sql.Types.DOUBLE)
+        if (precioLS != null) statement.setDouble(3, precioLS) else statement.setNull(3, java.sql.Types.DOUBLE)
         statement.setString(4, nombreProv)
         statement.setString(5, provinciaProv)
         statement.setString(6, tipoAlim)
@@ -215,12 +215,12 @@ object ContratoDB {
         val contratos = mutableListOf<ContratoTransporte>()
         val dbConnection: Connection = Database.connect()
         val statement= dbConnection.prepareStatement(
-            "SELECT * FROM buscar_contratos_transporte(?,    ?,       ?,       ?,      ?,      ?,       ?,    ?,      ?,      ?,     ?,     ?)"
-        )//                                               cod   precLI   precLS   nombV   provV  tipoAlim   fILI  fILS   fFLI   fFLS    fCLI   fCLS
+            "SELECT * FROM buscar_contratos_transporte(?,    ?,       ?,       ?,      ?,     ?,    ?,      ?,      ?,     ?,     ?)"
+        )//                                               cod   precLI   precLS   nombV   provV  fILI  fILS   fFLI   fFLS    fCLI   fCLS
 
         if (codigo != null) statement.setInt(1, codigo) else statement.setNull(1, java.sql.Types.INTEGER)
         if (precioLI != null) statement.setDouble(2, precioLI) else statement.setNull(2, java.sql.Types.DOUBLE)
-        if (precioLS != null) statement.setDouble(3, precioLS) else statement.setNull(2, java.sql.Types.DOUBLE)
+        if (precioLS != null) statement.setDouble(3, precioLS) else statement.setNull(3, java.sql.Types.DOUBLE)
         statement.setString(4, nombreProv)
         statement.setString(5, provinciaProv)
         statement.setString(6, fechaInicioLI)
@@ -241,7 +241,7 @@ object ContratoDB {
                     nombreTrans = resultSet.getString("nombre_contratado"),
                     provinciaTrans = resultSet.getString("provincia"),
                     direccionTrans = resultSet.getString("direccion"),
-                    vehiculo = resultSet.getString("tipo_alimento"),
+                    vehiculo = resultSet.getString("vehiculo"),
                     precioUnit = resultSet.getDouble("precio_unitario"),
                     fechaInicio = resultSet.getDate("fecha_inicio").toLocalDate(),
                     fechaFin = resultSet.getDate("fecha_fin").toLocalDate(),
