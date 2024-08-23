@@ -347,6 +347,7 @@ fun AnimalsExpandableRow(colors: RefugioColorPalette, row: AnimalTableRow) {
 
                         // Cierra el diálogo
                         showUpdateDialog = false
+
                     }
                 }
             )
