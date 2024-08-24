@@ -75,7 +75,13 @@ fun AnimalesEnAdopcionMostrar(colors: RefugioColorPalette, selectedItem: String,
                 style = MaterialTheme.typography.h5,
                 modifier = Modifier.padding(bottom = 4.dp)
             )
-
+            Button(
+                onClick = { coroutineScope.launch {
+                    animales = AnimalDB.getAnimalAdoptFilter(null,null,null,null,null,null,null,null)
+                } },
+            ) {
+                Text("Recargar")
+            }
             // Componentes de filtrado
             FilterComponentsAnimalsAdopted(
                 colors,

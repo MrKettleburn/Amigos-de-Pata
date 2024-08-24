@@ -51,6 +51,13 @@ fun ServiciosTransporteMostrar(colors: RefugioColorPalette, selectedItem: String
                 modifier = Modifier.padding(bottom = 4.dp)
             )
 
+            Button(
+                onClick = { coroutineScope.launch {
+                    servicios = ServiciosDB.getServiciosTransportacionFilter(null,null,null,null)
+                } },
+            ) {
+                Text("Recargar")
+            }
             // Componentes de filtrado
             FilterComponentsTransporte(
                 colors,

@@ -49,6 +49,14 @@ fun TransportistasMostrar(colors: RefugioColorPalette, selectedItem: String, sel
                 modifier = Modifier.padding(bottom = 4.dp)
             )
 
+            Button(
+                onClick = { coroutineScope.launch {
+                    transportistas = ContratadosDB.getTransportistasFilter(null,null,null)
+                } },
+            ) {
+                Text("Recargar")
+            }
+
             FilterComponentsT(
                 colors,
                 onFilterApplied = {

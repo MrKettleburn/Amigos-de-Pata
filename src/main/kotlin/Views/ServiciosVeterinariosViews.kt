@@ -1,5 +1,6 @@
 package Views
 
+import Class_DB.ContratadosDB
 import Class_DB.ServiciosDB
 import Models.ServVeterinario
 import androidx.compose.foundation.*
@@ -50,6 +51,14 @@ fun ServiciosVeterinariosMostrar(colors: RefugioColorPalette, selectedItem: Stri
                 style = MaterialTheme.typography.h5,
                 modifier = Modifier.padding(bottom = 4.dp)
             )
+
+            Button(
+                onClick = { coroutineScope.launch {
+                    servicios = ServiciosDB.getServiciosVeterinariosFilter(null,null,null,null)
+                } },
+            ) {
+                Text("Recargar")
+            }
 
             // Componentes de filtrado
             FilterComponents(

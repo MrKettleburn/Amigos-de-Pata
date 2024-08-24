@@ -70,7 +70,13 @@ fun AnimalesEnRefugioMostrar(colors: RefugioColorPalette, selectedItem: String, 
                 style = MaterialTheme.typography.h5,
                 modifier = Modifier.padding(bottom = 4.dp)
             )
-
+            Button(
+                onClick = { coroutineScope.launch {
+                    animales = AnimalDB.getAnimalesFilter(null,null,null,null,null,null,null,)
+                } },
+            ) {
+                Text("Recargar")
+            }
 
             // Componentes de filtrado
             FilterComponentsAnimals(
@@ -343,7 +349,7 @@ fun AnimalsExpandableRow(colors: RefugioColorPalette, row: AnimalTableRow) {
                 onDismissRequest = { showUpdateDialog = false },
                 onAnimalUpdated = { codigo, nombre, especie, raza, edad, peso, fechaIngreso ->
                     coroutineScope.launch {
-                        //AnimalDB.updateAnimal(codigo, nombre, especie, raza, edad, peso, fechaIngreso)
+                        AnimalDB.updateAnimal(codigo, nombre, especie, raza, edad, peso, fechaIngreso)
 
                         // Cierra el diálogo
                         showUpdateDialog = false

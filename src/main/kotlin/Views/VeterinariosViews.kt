@@ -51,6 +51,14 @@ fun VeterinariosMostrar(colors: RefugioColorPalette, selectedItem: String, selec
                 modifier = Modifier.padding(bottom = 4.dp)
             )
 
+            Button(
+                onClick = { coroutineScope.launch {
+                    veterinarios = ContratadosDB.getVeterinariosFilter(null,null,null,null,null)
+                } },
+            ) {
+                Text("Recargar")
+            }
+
             FilterComponents(
                 colors,
                 onFilterApplied = {

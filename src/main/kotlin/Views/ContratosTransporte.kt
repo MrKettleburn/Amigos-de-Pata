@@ -92,7 +92,13 @@ fun ContratosTransporteMostrar(colors: RefugioColorPalette, selectedItem: String
                 style = MaterialTheme.typography.h5,
                 modifier = Modifier.padding(bottom = 4.dp)
             )
-
+            Button(
+                onClick = { coroutineScope.launch {
+                    contratos = ContratoDB.getContratosTransporteFilter(null,null,null,null,null,null,null,null,null,null,null)
+                } },
+            ) {
+                Text("Recargar")
+            }
 
             // Componentes de filtrado
             FilterComponentsTransporte(

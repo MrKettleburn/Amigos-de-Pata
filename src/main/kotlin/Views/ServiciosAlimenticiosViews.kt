@@ -51,7 +51,13 @@ fun ServiciosAlimenticioMostrar(colors: RefugioColorPalette, selectedItem: Strin
                 style = MaterialTheme.typography.h5,
                 modifier = Modifier.padding(bottom = 4.dp)
             )
-
+            Button(
+                onClick = { coroutineScope.launch {
+                    servicios = ServiciosDB.getServiciosAlimenticiosFilter(null,null,null,null)
+                } },
+            ) {
+                Text("Recargar")
+            }
             // Componentes de filtrado
             FilterComponentsAlimenticio(
                 colors,

@@ -1,6 +1,7 @@
 package Views
 
 import Class_DB.ContratadosDB
+import Class_DB.ContratoDB
 import Models.ProveedorDeAlimentos
 import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
@@ -48,6 +49,13 @@ fun ProveedoresDeAlimentosMostrar(colors: RefugioColorPalette, selectedItem: Str
                 style = MaterialTheme.typography.h5,
                 modifier = Modifier.padding(bottom = 4.dp)
             )
+            Button(
+                onClick = { coroutineScope.launch {
+                    proveedores = ContratadosDB.getProveedoresAlimentosFilter(null,null,null)
+                } },
+            ) {
+                Text("Recargar")
+            }
 
             FilterComponentsPA(
                 colors,
