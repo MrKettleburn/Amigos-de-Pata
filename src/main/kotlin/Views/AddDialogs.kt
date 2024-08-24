@@ -1064,3 +1064,299 @@ fun UpdateServicioVeterinarioDialog(
         }
     }
 }
+
+///////////////----------------------PROV ALIMENTOS------------------------//////////////////
+
+@Composable
+fun AddProveedorDialog(
+    colors: RefugioColorPalette,
+    onDismissRequest: () -> Unit,
+    onProveedorAdded: (ProveedorDeAlimentos) -> Unit
+) {
+    var nombre by remember { mutableStateOf("") }
+    var email by remember { mutableStateOf("") }
+    var provincia by remember { mutableStateOf("") }
+    var direccion by remember { mutableStateOf("") }
+    var telefono by remember { mutableStateOf("") }
+
+    Dialog(onDismissRequest = onDismissRequest) {
+        Surface(
+            modifier = Modifier.padding(16.dp),
+            shape = RoundedCornerShape(8.dp),
+            color = colors.menuBackground
+        ) {
+            Column(modifier = Modifier.padding(16.dp)) {
+                Text("Agregar Proveedor de Alimentos", style = MaterialTheme.typography.h6)
+
+                OutlinedTextField(
+                    value = nombre,
+                    onValueChange = { nombre = it },
+                    label = { Text("Nombre") },
+                    modifier = Modifier.fillMaxWidth()
+                )
+
+                OutlinedTextField(
+                    value = email,
+                    onValueChange = { email = it },
+                    label = { Text("Email") },
+                    modifier = Modifier.fillMaxWidth()
+                )
+
+                OutlinedTextField(
+                    value = provincia,
+                    onValueChange = { provincia = it },
+                    label = { Text("Provincia") },
+                    modifier = Modifier.fillMaxWidth()
+                )
+
+                OutlinedTextField(
+                    value = direccion,
+                    onValueChange = { direccion = it },
+                    label = { Text("Dirección") },
+                    modifier = Modifier.fillMaxWidth()
+                )
+
+                OutlinedTextField(
+                    value = telefono,
+                    onValueChange = { telefono = it },
+                    label = { Text("Teléfono") },
+                    modifier = Modifier.fillMaxWidth()
+                )
+
+                Spacer(modifier = Modifier.height(16.dp))
+
+                Row(
+                    horizontalArrangement = Arrangement.End,
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    TextButton(onClick = onDismissRequest) {
+                        Text("Cancelar")
+                    }
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Button(onClick = {
+                        if (nombre.isNotBlank() && email.isNotBlank() && provincia.isNotBlank() &&
+                            direccion.isNotBlank() && telefono.isNotBlank()
+                        ) {
+                            onProveedorAdded(
+                                ProveedorDeAlimentos(
+                                    codigo = 0, // El código se generará automáticamente en la base de datos
+                                    nombre = nombre,
+                                    email = email,
+                                    provincia = provincia,
+                                    direccion = direccion,
+                                    telefono = telefono
+                                )
+                            )
+                        }
+                    }) {
+                        Text("Agregar")
+                    }
+                }
+            }
+        }
+    }
+}
+
+//////////////////-----------------------TRANSPORTE---------------///////////////////////
+
+@Composable
+fun AddTransportistaDialog(
+    colors: RefugioColorPalette,
+    onDismissRequest: () -> Unit,
+    onTransportistaAdded: (Transporte) -> Unit
+) {
+    var nombre by remember { mutableStateOf("") }
+    var email by remember { mutableStateOf("") }
+    var provincia by remember { mutableStateOf("") }
+    var direccion by remember { mutableStateOf("") }
+    var telefono by remember { mutableStateOf("") }
+
+    Dialog(onDismissRequest = onDismissRequest) {
+        Surface(
+            modifier = Modifier.padding(16.dp),
+            shape = RoundedCornerShape(8.dp),
+            color = colors.menuBackground
+        ) {
+            Column(modifier = Modifier.padding(16.dp)) {
+                Text("Agregar Transportista", style = MaterialTheme.typography.h6)
+
+                OutlinedTextField(
+                    value = nombre,
+                    onValueChange = { nombre = it },
+                    label = { Text("Nombre") },
+                    modifier = Modifier.fillMaxWidth()
+                )
+
+                OutlinedTextField(
+                    value = email,
+                    onValueChange = { email = it },
+                    label = { Text("Email") },
+                    modifier = Modifier.fillMaxWidth()
+                )
+
+                OutlinedTextField(
+                    value = provincia,
+                    onValueChange = { provincia = it },
+                    label = { Text("Provincia") },
+                    modifier = Modifier.fillMaxWidth()
+                )
+
+                OutlinedTextField(
+                    value = direccion,
+                    onValueChange = { direccion = it },
+                    label = { Text("Dirección") },
+                    modifier = Modifier.fillMaxWidth()
+                )
+
+                OutlinedTextField(
+                    value = telefono,
+                    onValueChange = { telefono = it },
+                    label = { Text("Teléfono") },
+                    modifier = Modifier.fillMaxWidth()
+                )
+
+                Spacer(modifier = Modifier.height(16.dp))
+
+                Row(
+                    horizontalArrangement = Arrangement.End,
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    TextButton(onClick = onDismissRequest) {
+                        Text("Cancelar")
+                    }
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Button(onClick = {
+                        if (nombre.isNotBlank() && email.isNotBlank() && provincia.isNotBlank() &&
+                            direccion.isNotBlank() && telefono.isNotBlank()
+                        ) {
+                            onTransportistaAdded(
+                                Transporte(
+                                    codigo = 0, // El código se generará automáticamente en la base de datos
+                                    nombre = nombre,
+                                    email = email,
+                                    provincia = provincia,
+                                    direccion = direccion,
+                                    telefono = telefono
+                                )
+                            )
+                        }
+                    }) {
+                        Text("Agregar")
+                    }
+                }
+            }
+        }
+    }
+}
+
+/////////////////------------------VETERINARIOS---------------------///////////////////////
+
+
+
+@Composable
+fun AddVeterinarioDialog(
+    colors: RefugioColorPalette,
+    onDismissRequest: () -> Unit,
+    onVeterinarioAdded: (Veterinario) -> Unit
+) {
+    var nombre by remember { mutableStateOf("") }
+    var email by remember { mutableStateOf("") }
+    var provincia by remember { mutableStateOf("") }
+    var direccion by remember { mutableStateOf("") }
+    var telefono by remember { mutableStateOf("") }
+    var especialidad by remember { mutableStateOf("") }
+    var clinica by remember { mutableStateOf("") }
+
+    Dialog(onDismissRequest = onDismissRequest) {
+        Surface(
+            modifier = Modifier.padding(16.dp),
+            shape = RoundedCornerShape(8.dp),
+            color = colors.menuBackground
+        ) {
+            Column(modifier = Modifier.padding(16.dp)) {
+                Text("Agregar Veterinario", style = MaterialTheme.typography.h6)
+
+                OutlinedTextField(
+                    value = nombre,
+                    onValueChange = { nombre = it },
+                    label = { Text("Nombre") },
+                    modifier = Modifier.fillMaxWidth()
+                )
+
+                OutlinedTextField(
+                    value = email,
+                    onValueChange = { email = it },
+                    label = { Text("Email") },
+                    modifier = Modifier.fillMaxWidth()
+                )
+
+                OutlinedTextField(
+                    value = provincia,
+                    onValueChange = { provincia = it },
+                    label = { Text("Provincia") },
+                    modifier = Modifier.fillMaxWidth()
+                )
+
+                OutlinedTextField(
+                    value = direccion,
+                    onValueChange = { direccion = it },
+                    label = { Text("Dirección") },
+                    modifier = Modifier.fillMaxWidth()
+                )
+
+                OutlinedTextField(
+                    value = telefono,
+                    onValueChange = { telefono = it },
+                    label = { Text("Teléfono") },
+                    modifier = Modifier.fillMaxWidth()
+                )
+
+                OutlinedTextField(
+                    value = especialidad,
+                    onValueChange = { especialidad = it },
+                    label = { Text("Especialidad") },
+                    modifier = Modifier.fillMaxWidth()
+                )
+
+                OutlinedTextField(
+                    value = clinica,
+                    onValueChange = { clinica = it },
+                    label = { Text("Clínica") },
+                    modifier = Modifier.fillMaxWidth()
+                )
+
+                Spacer(modifier = Modifier.height(16.dp))
+
+                Row(
+                    horizontalArrangement = Arrangement.End,
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    TextButton(onClick = onDismissRequest) {
+                        Text("Cancelar")
+                    }
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Button(onClick = {
+                        if (nombre.isNotBlank() && email.isNotBlank() && provincia.isNotBlank() &&
+                            direccion.isNotBlank() && telefono.isNotBlank() && especialidad.isNotBlank() && clinica.isNotBlank()
+                        ) {
+                            onVeterinarioAdded(
+                                Veterinario(
+                                    codigo = 0, // El código se generará automáticamente en la base de datos
+                                    nombre = nombre,
+                                    email = email,
+                                    provincia = provincia,
+                                    direccion = direccion,
+                                    telefono = telefono,
+                                    especialidad = especialidad,
+                                    clinica = clinica
+                                )
+                            )
+                        }
+                    }) {
+                        Text("Agregar")
+                    }
+                }
+            }
+        }
+    }
+}
