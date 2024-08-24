@@ -293,9 +293,9 @@ fun AnimalsAdoptedExpandableRow(colors: RefugioColorPalette, row: AnimalAdoptado
                 ) {
                     Text("Ver Actividades")
                 }
-                IconButton(onClick = { /* TODO: Implementar modificar */ }) {
-                    Icon(Icons.Default.Edit, contentDescription = "Modificar")
-                }
+//                IconButton(onClick = { /* TODO: Implementar modificar */ }) {
+//                    Icon(Icons.Default.Edit, contentDescription = "Modificar")
+//                }
                 IconButton(onClick = { /* TODO: Implementar eliminar */ }) {
                     Icon(Icons.Default.Delete, contentDescription = "Eliminar")
                 }

@@ -41,6 +41,7 @@ fun AnimalesEnRefugioMostrar(colors: RefugioColorPalette, selectedItem: String, 
     val coroutineScope = rememberCoroutineScope()
     var animales by remember { mutableStateOf<List<Animal>>(emptyList()) }
     var showDialog by remember { mutableStateOf(false) }
+    var showErrorDialog by remember { mutableStateOf(false) }
 
     // Estados para los filtros
     var codigo by remember { mutableStateOf<String?>(null) }
@@ -131,14 +132,46 @@ fun AnimalesEnRefugioMostrar(colors: RefugioColorPalette, selectedItem: String, 
                 onDismissRequest = { showDialog = false },
                 onAnimalAdded = { newAnimal ->
                     coroutineScope.launch {
+                        val success = AnimalDB.createAnimal(newAnimal)
+                        if (success) {
+                            animales = AnimalDB.getAnimalesFilter(null, null, null, null, null, null, null)
+                            showDialog = false
+                        } else {
+                            showErrorDialog=true
 
-                        AnimalDB.createAnimal(newAnimal)
-
-                        animales = AnimalDB.getAnimalesFilter(null, null, null, null, null, null, null)
-                        showDialog = false
+                        }
                     }
                 }
             )
+        }
+
+        if(showErrorDialog)
+        {
+            showErrorDialog(
+                title = "Error",
+                message = "No se insertó el animal. Revise los datos",
+                onDismissRequest = { showErrorDialog = false }
+            )
+        }
+    }
+}
+
+@Composable
+fun showErrorDialog(title: String, message: String, onDismissRequest: () -> Unit) {
+    Dialog(onDismissRequest = onDismissRequest) {
+        Surface(
+            shape = RoundedCornerShape(8.dp),
+            color = MaterialTheme.colors.surface
+        ) {
+            Column(modifier = Modifier.padding(16.dp)) {
+                Text(text = title, style = MaterialTheme.typography.h6)
+                Spacer(modifier = Modifier.height(8.dp))
+                Text(text = message)
+                Spacer(modifier = Modifier.height(16.dp))
+                Button(onClick = onDismissRequest) {
+                    Text("Aceptar")
+                }
+            }
         }
     }
 }

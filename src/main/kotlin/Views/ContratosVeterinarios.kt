@@ -403,9 +403,9 @@ fun ContratosVeterinariosExpandableRow(colors: RefugioColorPalette, row: Contrat
                 }
             }
             Row {
-                IconButton(onClick = { /* TODO: Implementar modificar */ }) {
-                    Icon(Icons.Default.Edit, contentDescription = "Modificar")
-                }
+//                IconButton(onClick = { /* TODO: Implementar modificar */ }) {
+//                    Icon(Icons.Default.Edit, contentDescription = "Modificar")
+//                }
                 IconButton(onClick = { /* TODO: Implementar eliminar */ }) {
                     Icon(Icons.Default.Delete, contentDescription = "Eliminar")
                 }

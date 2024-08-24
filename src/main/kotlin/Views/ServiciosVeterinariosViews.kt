@@ -98,7 +98,7 @@ fun ServiciosVeterinariosMostrar(colors: RefugioColorPalette, selectedItem: Stri
         }
 
         if (showDialog) {
-            AddServicioDialog(
+            AddServicioVeterinarioDialog(
                 colors = colors,
                 onDismissRequest = { showDialog = false },
                 onServicioAdded = { newServicioV ->
@@ -171,17 +171,18 @@ fun FilterComponents(
 }
 
 @Composable
-fun ServiciosTable(colors: RefugioColorPalette, data: List<ServicioTableRow>) {
+fun ServiciosTable(colors: RefugioColorPalette, data: List<ServicioVeterinarioTableRow>) {
     LazyColumn {
         items(data) { row ->
-            ServiciosRow(colors, row)
+            ServiciosVeterinariosRow(colors, row)
             Divider(color = colors.primary, thickness = 1.5.dp)
         }
     }
 }
 
 @Composable
-fun ServiciosRow(colors: RefugioColorPalette, row: ServicioTableRow) {
+fun ServiciosVeterinariosRow(colors: RefugioColorPalette, row: ServicioVeterinarioTableRow) {
+    var showUpdateDialog by remember { mutableStateOf(false) }
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -195,7 +196,7 @@ fun ServiciosRow(colors: RefugioColorPalette, row: ServicioTableRow) {
                 modifier = Modifier.weight(1f)
             ) {
                 Icon(
-                    imageVector = getIconForAttributeSV(key),
+                    imageVector = getIconForAttribute(key),
                     contentDescription = null,
                     modifier = Modifier.size(20.dp)
                 )
@@ -208,102 +209,43 @@ fun ServiciosRow(colors: RefugioColorPalette, row: ServicioTableRow) {
             }
         }
         Row {
-            IconButton(onClick = { /* TODO: Implementar modificar */ }) {
+            IconButton(onClick = { showUpdateDialog= true }) {
                 Icon(Icons.Default.Edit, contentDescription = "Modificar")
             }
             IconButton(onClick = { /* TODO: Implementar eliminar */ }) {
                 Icon(Icons.Default.Delete, contentDescription = "Eliminar")
             }
         }
+
+        if (showUpdateDialog) {
+            UpdateServicioVeterinarioDialog(
+                colors = colors,
+                codigo = row.id.toInt(),
+                precioInicial = row.precioUnit,
+                modalidadInicial = row.modalidad,
+                onDismissRequest = { showUpdateDialog = false },
+                onServicioUpdated = { codigo, modalidad, precio ->
+
+                    //ServiciosDB.updateServicioVeterinario(codigo, modalidad, precio)
+
+                    showUpdateDialog = false
+                }
+            )
+        }
     }
 }
 
-// Función para asignar íconos a cada atributo
-fun getIconForAttributeSV(attribute: String): ImageVector {
-    return when (attribute) {
-        "Código" -> Icons.Default.Badge
-        "Modalidad" -> Icons.Default.Work
-        "Precio" -> Icons.Default.AttachMoney
-        else -> Icons.Default.Info
-    }
-}
-
-data class ServicioTableRow(
-    val id: String,
-    val mainAttributes: Map<String, String>
-)
-
-fun getServiciosTableRows(servicios: List<ServVeterinario>): List<ServicioTableRow> {
+fun getServiciosTableRows(servicios: List<ServVeterinario>): List<ServicioVeterinarioTableRow> {
     return servicios.map { servicio ->
-        ServicioTableRow(
+        ServicioVeterinarioTableRow(
             id = servicio.codigo.toString(),
+            precioUnit = servicio.precioUni,
+            modalidad = servicio.modalidad,
             mainAttributes = mapOf(
                 "Código" to "${servicio.codigo}",
                 "Modalidad" to servicio.modalidad,
                 "Precio" to "\$${servicio.precioUni}"
             )
         )
-    }
-}
-
-@Composable
-fun AddServicioDialog(
-    colors: RefugioColorPalette,
-    onDismissRequest: () -> Unit,
-    onServicioAdded: (ServVeterinario) -> Unit
-) {
-    var precio by remember { mutableStateOf(0.0) }
-    var modalidad by remember { mutableStateOf<String>("") }
-
-    Dialog(onDismissRequest = onDismissRequest) {
-        Surface(
-            modifier = Modifier.padding(16.dp),
-            shape = RoundedCornerShape(8.dp),
-            color = colors.menuBackground
-        ) {
-            Column(modifier = Modifier.padding(16.dp)) {
-                Text("Agregar Servicio Veterinario", style = MaterialTheme.typography.h6)
-
-                OutlinedTextField(
-                    value = modalidad,
-                    onValueChange = { modalidad = it },
-                    label = { Text("Modalidad") },
-                    modifier = Modifier.fillMaxWidth()
-                )
-
-                Spinner(
-                    value = precio,
-                    onValueChange = { precio = it },
-                    label = { Text("Precio") },
-                    modifier = Modifier.fillMaxWidth(),
-                    step = 0.5
-                )
-
-                Spacer(modifier = Modifier.height(16.dp))
-
-                Row(
-                    horizontalArrangement = Arrangement.End,
-                    modifier = Modifier.fillMaxWidth()
-                ) {
-                    TextButton(onClick = onDismissRequest) {
-                        Text("Cancelar")
-                    }
-                    Spacer(modifier = Modifier.width(8.dp))
-                    Button(onClick = {
-                        if (modalidad.isNotBlank() && precio != 0.0) {
-                            onServicioAdded(
-                                ServVeterinario(
-                                    codigo = 0,
-                                    modalidad = modalidad,
-                                    precioUni = precio
-                                )
-                            )
-                        }
-                    }) {
-                        Text("Agregar")
-                    }
-                }
-            }
-        }
     }
 }

@@ -7,6 +7,9 @@ import Models.ServVeterinario
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.sql.Connection
+import java.sql.Date
+import java.time.LocalDate
+
 object ServiciosDB {
 
     //-------------------------------------CONSULTAS----------------------------------------------------------------
@@ -272,6 +275,50 @@ object ServiciosDB {
         statement.close()
         dbConnection.close()
         nuevoId
+    }
+
+    ///////////////------------------ACTUALIZACIONES----------------///////////////////////
+
+    suspend fun updateServicioVeterinario(codigo:Int, precioUnit:Double, modalidad: String): Boolean = withContext(Dispatchers.IO) {
+        val dbConnection = Database.connect()
+        val statement = dbConnection.prepareStatement(
+            "UPDATE animal SET nombre_animal= ?, especie= ?, raza=?, edad=?, peso=?, fecha_ingreso=? WHERE id_animal=?"  // QUITAR LUEGO LOS DIAS
+        )
+
+//        statement.setString(1,nombre)
+//        statement.setString(2,especie)
+//        statement.setString(3,raza)
+//        statement.setInt(4,edad)
+//        statement.setDouble(5,peso)
+//        val sqlDate = Date.valueOf(fechaIngreso)
+//        statement.setDate(6, sqlDate)
+//        statement.setInt(7,codigo)
+
+        val rowsInserted = statement.executeUpdate()
+        statement.close()
+        dbConnection.close()
+        rowsInserted > 0
+    }
+
+    suspend fun updateServicioTransporte(codigo:Int, precioUnit:Double, modalidad: String): Boolean = withContext(Dispatchers.IO) {
+        val dbConnection = Database.connect()
+        val statement = dbConnection.prepareStatement(
+            "UPDATE animal SET nombre_animal= ?, especie= ?, raza=?, edad=?, peso=?, fecha_ingreso=? WHERE id_animal=?"  // QUITAR LUEGO LOS DIAS
+        )
+
+//        statement.setString(1,nombre)
+//        statement.setString(2,especie)
+//        statement.setString(3,raza)
+//        statement.setInt(4,edad)
+//        statement.setDouble(5,peso)
+//        val sqlDate = Date.valueOf(fechaIngreso)
+//        statement.setDate(6, sqlDate)
+//        statement.setInt(7,codigo)
+
+        val rowsInserted = statement.executeUpdate()
+        statement.close()
+        dbConnection.close()
+        rowsInserted > 0
     }
 
 }

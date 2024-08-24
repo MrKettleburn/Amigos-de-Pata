@@ -22,6 +22,7 @@ fun getIconForAttribute(attribute: String): ImageVector {
         "Código Contrato" -> Icons.Default.Description
         "Precio" -> Icons.Default.AttachMoney
         "Precio Unitario del Servicio" -> Icons.Default.AttachMoney
+        "Modalidad" -> Icons.Default.Mode
         "Modalidad del Servicio" -> Icons.Default.Mode
         "Especialidad del Veterinario" -> Icons.Default.TypeSpecimen
         "Clínica del Veterinario" -> Icons.Default.LocalHospital

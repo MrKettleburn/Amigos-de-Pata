@@ -366,9 +366,9 @@ fun ContratosTransporteExpandableRow(colors: RefugioColorPalette, row: ContratoT
                 }
             }
             Row {
-                IconButton(onClick = { /* TODO: Implementar modificar */ }) {
-                    Icon(Icons.Default.Edit, contentDescription = "Modificar")
-                }
+//                IconButton(onClick = { /* TODO: Implementar modificar */ }) {
+//                    Icon(Icons.Default.Edit, contentDescription = "Modificar")
+//                }
                 IconButton(onClick = { /* TODO: Implementar eliminar */ }) {
                     Icon(Icons.Default.Delete, contentDescription = "Eliminar")
                 }

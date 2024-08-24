@@ -26,3 +26,24 @@ data class ContratoTableRow(
     val mainAttributes: Map<String, String>,
     val expandedAttributes: Map<String, String>
 )
+
+data class ServicioTableRowAlimenticio(
+    val id: String,
+    val precioUnit: Double,
+    val tipoAlim: String,
+    val mainAttributes: Map<String, String>
+)
+
+data class ServicioTableRowTransporte(
+    val id: String,
+    val precioUnit: Double,
+    val vehiculo: String,
+    val mainAttributes: Map<String, String>
+)
+
+data class ServicioVeterinarioTableRow(
+    val id: String,
+    val precioUnit: Double,
+    val modalidad: String,
+    val mainAttributes: Map<String, String>
+)

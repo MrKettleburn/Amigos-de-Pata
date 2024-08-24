@@ -180,6 +180,7 @@ fun ServiciosTableTransporte(colors: RefugioColorPalette, data: List<ServicioTab
 
 @Composable
 fun ServiciosRowTransporte(colors: RefugioColorPalette, row: ServicioTableRowTransporte) {
+    var showUpdateDialog by remember { mutableStateOf(false) }
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -193,7 +194,7 @@ fun ServiciosRowTransporte(colors: RefugioColorPalette, row: ServicioTableRowTra
                 modifier = Modifier.weight(1f)
             ) {
                 Icon(
-                    imageVector = getIconForAttributeST(key),
+                    imageVector = getIconForAttribute(key),
                     contentDescription = null,
                     modifier = Modifier.size(20.dp)
                 )
@@ -213,95 +214,38 @@ fun ServiciosRowTransporte(colors: RefugioColorPalette, row: ServicioTableRowTra
                 Icon(Icons.Default.Delete, contentDescription = "Eliminar")
             }
         }
+
+        if (showUpdateDialog) {
+            UpdateServicioTransporteDialog(
+                colors = colors,
+                codigo = row.id.toInt(),
+                precioInicial = row.precioUnit,
+                vehiculoInicial = row.vehiculo,
+                onDismissRequest = { showUpdateDialog = false },
+                onServicioUpdated = { codigo, vehiculo, precio ->
+
+                    //ServiciosDB.updateServicioTransporte(codigo, vehiculo, precio)
+
+                    showUpdateDialog = false
+                }
+            )
+        }
     }
 }
-
-// Función para asignar íconos a cada atributo
-fun getIconForAttributeST(attribute: String): ImageVector {
-    return when (attribute) {
-        "Código" -> Icons.Default.Badge
-        "Vehículo" -> Icons.Default.DirectionsCar
-        "Precio" -> Icons.Default.AttachMoney
-        else -> Icons.Default.Info
-    }
-}
-
-data class ServicioTableRowTransporte(
-    val id: String,
-    val mainAttributes: Map<String, String>
-)
 
 fun getServiciosTableRowsTransporte(servicios: List<ServTransporte>): List<ServicioTableRowTransporte> {
     return servicios.map { servicio ->
         ServicioTableRowTransporte(
             id = servicio.codigo.toString(),
+            precioUnit = servicio.precioUni,
+            vehiculo = servicio.vehiculo,
             mainAttributes = mapOf(
                 "Código" to "${servicio.codigo}",
-                "Vehículo" to servicio.vehiculo,
+                "Vehiculo" to servicio.vehiculo,
                 "Precio" to "\$${servicio.precioUni}"
             )
         )
     }
 }
 
-@Composable
-fun AddServicioTransporteDialog(
-    colors: RefugioColorPalette,
-    onDismissRequest: () -> Unit,
-    onServicioAdded: (ServTransporte) -> Unit
-) {
-    var precio by remember { mutableStateOf(0.0) }
-    var vehiculo by remember { mutableStateOf<String>("") }
 
-    Dialog(onDismissRequest = onDismissRequest) {
-        Surface(
-            modifier = Modifier.padding(16.dp),
-            shape = RoundedCornerShape(8.dp),
-            color = colors.menuBackground
-        ) {
-            Column(modifier = Modifier.padding(16.dp)) {
-                Text("Agregar Servicio de Transporte", style = MaterialTheme.typography.h6)
-
-                OutlinedTextField(
-                    value = vehiculo,
-                    onValueChange = { vehiculo = it },
-                    label = { Text("Vehículo") },
-                    modifier = Modifier.fillMaxWidth()
-                )
-
-                Spinner(
-                    value = precio,
-                    onValueChange = { precio = it },
-                    label = { Text("Precio") },
-                    modifier = Modifier.fillMaxWidth(),
-                    step = 0.5
-                )
-
-                Spacer(modifier = Modifier.height(16.dp))
-
-                Row(
-                    horizontalArrangement = Arrangement.End,
-                    modifier = Modifier.fillMaxWidth()
-                ) {
-                    TextButton(onClick = onDismissRequest) {
-                        Text("Cancelar")
-                    }
-                    Spacer(modifier = Modifier.width(8.dp))
-                    Button(onClick = {
-                        if (vehiculo.isNotBlank() && precio != 0.0) {
-                            onServicioAdded(
-                                ServTransporte(
-                                    codigo = 0,
-                                    vehiculo = vehiculo,
-                                    precioUni = precio
-                                )
-                            )
-                        }
-                    }) {
-                        Text("Agregar")
-                    }
-                }
-            }
-        }
-    }
-}

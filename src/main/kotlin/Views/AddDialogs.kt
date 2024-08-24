@@ -682,5 +682,385 @@ fun AddContratoProvAlimentosDialog(
     }
 }
 
+/////////////////---------------------------SERVICIO ALIMENTICIO-------------//////////////////////
 
-//---------------------------ACTIVIDAD-----------------------------
+
+@Composable
+fun AddServicioAlimenticioDialog(
+    colors: RefugioColorPalette,
+    onDismissRequest: () -> Unit,
+    onServicioAdded: (ServAlimenticio) -> Unit
+) {
+    var precio by remember { mutableStateOf(0.0) }
+    var tipoAlimento by remember { mutableStateOf<String>("") }
+
+    Dialog(onDismissRequest = onDismissRequest) {
+        Surface(
+            modifier = Modifier.padding(16.dp),
+            shape = RoundedCornerShape(8.dp),
+            color = colors.menuBackground
+        ) {
+            Column(modifier = Modifier.padding(16.dp)) {
+                Text("Agregar Servicio Alimenticio", style = MaterialTheme.typography.h6)
+
+                OutlinedTextField(
+                    value = tipoAlimento,
+                    onValueChange = { tipoAlimento = it },
+                    label = { Text("Tipo de Alimento") },
+                    modifier = Modifier.fillMaxWidth()
+                )
+
+                Spinner(
+                    value = precio,
+                    onValueChange = { precio = it },
+                    label = { Text("Precio") },
+                    modifier = Modifier.fillMaxWidth(),
+                    step = 0.5
+                )
+
+                Spacer(modifier = Modifier.height(16.dp))
+
+                Row(
+                    horizontalArrangement = Arrangement.End,
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    TextButton(onClick = onDismissRequest) {
+                        Text("Cancelar")
+                    }
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Button(onClick = {
+                        if (tipoAlimento.isNotBlank() && precio != 0.0) {
+                            onServicioAdded(
+                                ServAlimenticio(
+                                    codigo = 0,
+                                    tipoAlimento = tipoAlimento,
+                                    precioUni = precio
+                                )
+                            )
+                        }
+                    }) {
+                        Text("Agregar")
+                    }
+                }
+            }
+        }
+    }
+}
+
+@Composable
+fun UpdateServicioAlimenticioDialog(
+    colors: RefugioColorPalette,
+    codigo: Int,
+    precioInicial: Double,
+    tipoAlimInicial: String,
+    onDismissRequest: () -> Unit,
+    onServicioUpdated: (Int, String, Double) -> Unit
+) {
+    var precio by remember { mutableStateOf(precioInicial) }
+    var vehiculo by remember { mutableStateOf(tipoAlimInicial) }
+
+    Dialog(onDismissRequest = onDismissRequest) {
+        Surface(
+            modifier = Modifier.padding(16.dp),
+            shape = RoundedCornerShape(8.dp),
+            color = colors.menuBackground
+        ) {
+            Column(modifier = Modifier.padding(16.dp)) {
+                Text("Actualizar Servicio Alimenticio", style = MaterialTheme.typography.h6)
+
+                OutlinedTextField(
+                    value = vehiculo,
+                    onValueChange = { vehiculo = it },
+                    label = { Text("Tipo de Alimento") },
+                    modifier = Modifier.fillMaxWidth()
+                )
+
+                Spinner(
+                    value = precio,
+                    onValueChange = { precio = it },
+                    label = { Text("Precio") },
+                    modifier = Modifier.fillMaxWidth(),
+                    step = 0.5
+                )
+
+                Spacer(modifier = Modifier.height(16.dp))
+
+                Row(
+                    horizontalArrangement = Arrangement.End,
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    TextButton(onClick = onDismissRequest) {
+                        Text("Cancelar")
+                    }
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Button(onClick = {
+                        if (vehiculo.isNotBlank() && precio != 0.0) {
+                            onServicioUpdated(
+                                codigo,
+                                vehiculo,
+                                precio
+                            )
+                        }
+                    }) {
+                        Text("Actualizar")
+                    }
+                }
+            }
+        }
+    }
+}
+
+
+//////////////////---------------------------SERVICIOS TRANSPORTE--------------/////////////////////
+
+@Composable
+fun AddServicioTransporteDialog(
+    colors: RefugioColorPalette,
+    onDismissRequest: () -> Unit,
+    onServicioAdded: (ServTransporte) -> Unit
+) {
+    var precio by remember { mutableStateOf(0.0) }
+    var vehiculo by remember { mutableStateOf<String>("") }
+
+    Dialog(onDismissRequest = onDismissRequest) {
+        Surface(
+            modifier = Modifier.padding(16.dp),
+            shape = RoundedCornerShape(8.dp),
+            color = colors.menuBackground
+        ) {
+            Column(modifier = Modifier.padding(16.dp)) {
+                Text("Agregar Servicio de Transporte", style = MaterialTheme.typography.h6)
+
+                OutlinedTextField(
+                    value = vehiculo,
+                    onValueChange = { vehiculo = it },
+                    label = { Text("Vehículo") },
+                    modifier = Modifier.fillMaxWidth()
+                )
+
+                Spinner(
+                    value = precio,
+                    onValueChange = { precio = it },
+                    label = { Text("Precio") },
+                    modifier = Modifier.fillMaxWidth(),
+                    step = 0.5
+                )
+
+                Spacer(modifier = Modifier.height(16.dp))
+
+                Row(
+                    horizontalArrangement = Arrangement.End,
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    TextButton(onClick = onDismissRequest) {
+                        Text("Cancelar")
+                    }
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Button(onClick = {
+                        if (vehiculo.isNotBlank() && precio != 0.0) {
+                            onServicioAdded(
+                                ServTransporte(
+                                    codigo = 0,
+                                    vehiculo = vehiculo,
+                                    precioUni = precio
+                                )
+                            )
+                        }
+                    }) {
+                        Text("Agregar")
+                    }
+                }
+            }
+        }
+    }
+}
+
+@Composable
+fun UpdateServicioTransporteDialog(
+    colors: RefugioColorPalette,
+    codigo: Int,
+    precioInicial: Double,
+    vehiculoInicial: String,
+    onDismissRequest: () -> Unit,
+    onServicioUpdated: (Int, String, Double) -> Unit
+) {
+    var precio by remember { mutableStateOf(precioInicial) }
+    var vehiculo by remember { mutableStateOf(vehiculoInicial) }
+
+    Dialog(onDismissRequest = onDismissRequest) {
+        Surface(
+            modifier = Modifier.padding(16.dp),
+            shape = RoundedCornerShape(8.dp),
+            color = colors.menuBackground
+        ) {
+            Column(modifier = Modifier.padding(16.dp)) {
+                Text("Actualizar Servicio Veterinario", style = MaterialTheme.typography.h6)
+
+                OutlinedTextField(
+                    value = vehiculo,
+                    onValueChange = { vehiculo = it },
+                    label = { Text("Vehiculo") },
+                    modifier = Modifier.fillMaxWidth()
+                )
+
+                Spinner(
+                    value = precio,
+                    onValueChange = { precio = it },
+                    label = { Text("Precio") },
+                    modifier = Modifier.fillMaxWidth(),
+                    step = 0.5
+                )
+
+                Spacer(modifier = Modifier.height(16.dp))
+
+                Row(
+                    horizontalArrangement = Arrangement.End,
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    TextButton(onClick = onDismissRequest) {
+                        Text("Cancelar")
+                    }
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Button(onClick = {
+                        if (vehiculo.isNotBlank() && precio != 0.0) {
+                            onServicioUpdated(
+                                codigo,
+                                vehiculo,
+                                precio
+                            )
+                        }
+                    }) {
+                        Text("Actualizar")
+                    }
+                }
+            }
+        }
+    }
+}
+
+
+/////////////---------------------SERVICIOS VETERINARIOS--------------------///////////////
+@Composable
+fun AddServicioVeterinarioDialog(
+    colors: RefugioColorPalette,
+    onDismissRequest: () -> Unit,
+    onServicioAdded: (ServVeterinario) -> Unit
+) {
+    var precio by remember { mutableStateOf(0.0) }
+    var modalidad by remember { mutableStateOf<String>("") }
+
+    Dialog(onDismissRequest = onDismissRequest) {
+        Surface(
+            modifier = Modifier.padding(16.dp),
+            shape = RoundedCornerShape(8.dp),
+            color = colors.menuBackground
+        ) {
+            Column(modifier = Modifier.padding(16.dp)) {
+                Text("Agregar Servicio Veterinario", style = MaterialTheme.typography.h6)
+
+                OutlinedTextField(
+                    value = modalidad,
+                    onValueChange = { modalidad = it },
+                    label = { Text("Modalidad") },
+                    modifier = Modifier.fillMaxWidth()
+                )
+
+                Spinner(
+                    value = precio,
+                    onValueChange = { precio = it },
+                    label = { Text("Precio") },
+                    modifier = Modifier.fillMaxWidth(),
+                    step = 0.5
+                )
+
+                Spacer(modifier = Modifier.height(16.dp))
+
+                Row(
+                    horizontalArrangement = Arrangement.End,
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    TextButton(onClick = onDismissRequest) {
+                        Text("Cancelar")
+                    }
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Button(onClick = {
+                        if (modalidad.isNotBlank() && precio != 0.0) {
+                            onServicioAdded(
+                                ServVeterinario(
+                                    codigo = 0,
+                                    modalidad = modalidad,
+                                    precioUni = precio
+                                )
+                            )
+                        }
+                    }) {
+                        Text("Agregar")
+                    }
+                }
+            }
+        }
+    }
+}
+
+@Composable
+fun UpdateServicioVeterinarioDialog(
+    colors: RefugioColorPalette,
+    codigo: Int,
+    precioInicial: Double,
+    modalidadInicial: String,
+    onDismissRequest: () -> Unit,
+    onServicioUpdated: (Int, String, Double) -> Unit
+) {
+    var precio by remember { mutableStateOf(precioInicial) }
+    var modalidad by remember { mutableStateOf(modalidadInicial) }
+
+    Dialog(onDismissRequest = onDismissRequest) {
+        Surface(
+            modifier = Modifier.padding(16.dp),
+            shape = RoundedCornerShape(8.dp),
+            color = colors.menuBackground
+        ) {
+            Column(modifier = Modifier.padding(16.dp)) {
+                Text("Actualizar Servicio Veterinario", style = MaterialTheme.typography.h6)
+
+                OutlinedTextField(
+                    value = modalidad,
+                    onValueChange = { modalidad = it },
+                    label = { Text("Modalidad") },
+                    modifier = Modifier.fillMaxWidth()
+                )
+
+                Spinner(
+                    value = precio,
+                    onValueChange = { precio = it },
+                    label = { Text("Precio") },
+                    modifier = Modifier.fillMaxWidth(),
+                    step = 0.5
+                )
+
+                Spacer(modifier = Modifier.height(16.dp))
+
+                Row(
+                    horizontalArrangement = Arrangement.End,
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    TextButton(onClick = onDismissRequest) {
+                        Text("Cancelar")
+                    }
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Button(onClick = {
+                        if (modalidad.isNotBlank() && precio != 0.0) {
+                            onServicioUpdated(
+                                codigo,
+                                modalidad,
+                                precio
+                            )
+                        }
+                    }) {
+                        Text("Actualizar")
+                    }
+                }
+            }
+        }
+    }
+}
