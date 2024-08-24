@@ -59,7 +59,7 @@ fun VeterinariosMostrar(colors: RefugioColorPalette, selectedItem: String, selec
                 Text("Recargar")
             }
 
-            FilterComponents(
+            FilterComponentsVeterinarios(
                 colors,
                 onFilterApplied = {
                     coroutineScope.launch {
@@ -113,7 +113,7 @@ fun VeterinariosMostrar(colors: RefugioColorPalette, selectedItem: String, selec
 }
 
 @Composable
-fun FilterComponents(
+fun FilterComponentsVeterinarios(
     colors: RefugioColorPalette,
     onFilterApplied: () -> Unit,
     codigo: String?,
