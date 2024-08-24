@@ -51,7 +51,13 @@ fun ServiciosAlimenticioMostrar(colors: RefugioColorPalette, selectedItem: Strin
                 style = MaterialTheme.typography.h5,
                 modifier = Modifier.padding(bottom = 4.dp)
             )
-
+            Button(
+                onClick = { coroutineScope.launch {
+                    servicios = ServiciosDB.getServiciosAlimenticiosFilter(null,null,null,null)
+                } },
+            ) {
+                Text("Recargar")
+            }
             // Componentes de filtrado
             FilterComponentsAlimenticio(
                 colors,
@@ -174,6 +180,7 @@ fun ServiciosTableAlimenticio(colors: RefugioColorPalette, data: List<ServicioTa
 
 @Composable
 fun ServiciosRowAlimenticio(colors: RefugioColorPalette, row: ServicioTableRowAlimenticio) {
+    var showUpdateDialog by remember { mutableStateOf(false) }
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -187,7 +194,7 @@ fun ServiciosRowAlimenticio(colors: RefugioColorPalette, row: ServicioTableRowAl
                 modifier = Modifier.weight(1f)
             ) {
                 Icon(
-                    imageVector = getIconForAttributeSA(key),
+                    imageVector = getIconForAttribute(key),
                     contentDescription = null,
                     modifier = Modifier.size(20.dp)
                 )
@@ -207,96 +214,37 @@ fun ServiciosRowAlimenticio(colors: RefugioColorPalette, row: ServicioTableRowAl
                 Icon(Icons.Default.Delete, contentDescription = "Eliminar")
             }
         }
+
+        if (showUpdateDialog) {
+            UpdateServicioAlimenticioDialog(
+                colors = colors,
+                codigo = row.id.toInt(),
+                precioInicial = row.precioUnit,
+                tipoAlimInicial = row.tipoAlim,
+                onDismissRequest = { showUpdateDialog = false },
+                onServicioUpdated = { codigo, tipoAlim, precio ->
+
+                    //ServiciosDB.updateServicioVeterinario(codigo, tipoAlim, precio)
+
+                    showUpdateDialog = false
+                }
+            )
+        }
     }
 }
-
-// Función para asignar íconos a cada atributo
-fun getIconForAttributeSA(attribute: String): ImageVector {
-    return when (attribute) {
-        "Código" -> Icons.Default.Badge
-        "Tipo de Alimento" -> Icons.Default.Fastfood
-        "Precio" -> Icons.Default.AttachMoney
-        else -> Icons.Default.Info
-    }
-}
-
-data class ServicioTableRowAlimenticio(
-    val id: String,
-    val mainAttributes: Map<String, String>
-)
 
 fun getServiciosTableRowsAlimenticio(servicios: List<ServAlimenticio>): List<ServicioTableRowAlimenticio> {
     return servicios.map { servicio ->
         ServicioTableRowAlimenticio(
             id = servicio.codigo.toString(),
+            precioUnit = servicio.precioUni,
+            tipoAlim = servicio.tipoAlimento,
             mainAttributes = mapOf(
                 "Código" to "${servicio.codigo}",
                 "Tipo de Alimento" to servicio.tipoAlimento,
                 "Precio" to "\$${servicio.precioUni}"
             )
         )
-    }
-}
-
-@Composable
-fun AddServicioAlimenticioDialog(
-    colors: RefugioColorPalette,
-    onDismissRequest: () -> Unit,
-    onServicioAdded: (ServAlimenticio) -> Unit
-) {
-    var precio by remember { mutableStateOf(0.0) }
-    var tipoAlimento by remember { mutableStateOf<String>("") }
-
-    Dialog(onDismissRequest = onDismissRequest) {
-        Surface(
-            modifier = Modifier.padding(16.dp),
-            shape = RoundedCornerShape(8.dp),
-            color = colors.menuBackground
-        ) {
-            Column(modifier = Modifier.padding(16.dp)) {
-                Text("Agregar Servicio Alimenticio", style = MaterialTheme.typography.h6)
-
-                OutlinedTextField(
-                    value = tipoAlimento,
-                    onValueChange = { tipoAlimento = it },
-                    label = { Text("Tipo de Alimento") },
-                    modifier = Modifier.fillMaxWidth()
-                )
-
-                Spinner(
-                    value = precio,
-                    onValueChange = { precio = it },
-                    label = { Text("Precio") },
-                    modifier = Modifier.fillMaxWidth(),
-                    step = 0.5
-                )
-
-                Spacer(modifier = Modifier.height(16.dp))
-
-                Row(
-                    horizontalArrangement = Arrangement.End,
-                    modifier = Modifier.fillMaxWidth()
-                ) {
-                    TextButton(onClick = onDismissRequest) {
-                        Text("Cancelar")
-                    }
-                    Spacer(modifier = Modifier.width(8.dp))
-                    Button(onClick = {
-                        if (tipoAlimento.isNotBlank() && precio != 0.0) {
-                            onServicioAdded(
-                                ServAlimenticio(
-                                    codigo = 0,
-                                    tipoAlimento = tipoAlimento,
-                                    precioUni = precio
-                                )
-                            )
-                        }
-                    }) {
-                        Text("Agregar")
-                    }
-                }
-            }
-        }
     }
 }
 

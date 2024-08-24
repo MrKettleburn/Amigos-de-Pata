@@ -1,6 +1,7 @@
 package Views
 
 import Class_DB.ContratadosDB
+import Class_DB.ContratoDB
 import Models.ProveedorDeAlimentos
 import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
@@ -48,6 +49,13 @@ fun ProveedoresDeAlimentosMostrar(colors: RefugioColorPalette, selectedItem: Str
                 style = MaterialTheme.typography.h5,
                 modifier = Modifier.padding(bottom = 4.dp)
             )
+            Button(
+                onClick = { coroutineScope.launch {
+                    proveedores = ContratadosDB.getProveedoresAlimentosFilter(null,null,null)
+                } },
+            ) {
+                Text("Recargar")
+            }
 
             FilterComponentsPA(
                 colors,
@@ -174,7 +182,7 @@ fun ProveedorExpandableRow(colors: RefugioColorPalette, row: ProveedorTableRow) 
                     modifier = Modifier.weight(1f)
                 ) {
                     Icon(
-                        imageVector = getIconForAttributeProv(key),
+                        imageVector = getIconForAttribute(key),
                         contentDescription = null,
                         modifier = Modifier.size(20.dp)
                     )
@@ -209,7 +217,7 @@ fun ProveedorExpandableRow(colors: RefugioColorPalette, row: ProveedorTableRow) 
                     modifier = Modifier.padding(start = 16.dp, top = 8.dp)
                 ) {
                     Icon(
-                        imageVector = getIconForAttributeProv(key),
+                        imageVector = getIconForAttribute(key),
                         contentDescription = null,
                         modifier = Modifier.size(20.dp)
                     )
@@ -225,28 +233,16 @@ fun ProveedorExpandableRow(colors: RefugioColorPalette, row: ProveedorTableRow) 
     }
 }
 
-fun getIconForAttributeProv(attribute: String): ImageVector {
-    return when (attribute) {
-        "Código" -> Icons.Default.Badge
-        "Nombre" -> Icons.Default.Person
-        "Email" -> Icons.Default.Email
-        "Provincia" -> Icons.Default.LocationOn
-        "Dirección" -> Icons.Default.Home
-        "Teléfono" -> Icons.Default.Phone
-        else -> Icons.Default.Info
-    }
-}
-
-data class ProveedorTableRow(
-    val id: String,
-    val mainAttributes: Map<String, String>,
-    val expandedAttributes: Map<String, String>
-)
 
 fun getProveedoresTableRows(proveedores: List<ProveedorDeAlimentos>): List<ProveedorTableRow> {
     return proveedores.map { proveedor ->
         ProveedorTableRow(
             id = proveedor.codigo.toString(),
+            nombre = proveedor.nombre,
+            email = proveedor.email,
+            provincia = proveedor.provincia,
+            direccion = proveedor.direccion,
+            telefono = proveedor.telefono,
             mainAttributes = mapOf(
                 "Código" to "${proveedor.codigo}",
                 "Nombre" to proveedor.nombre,
@@ -261,92 +257,3 @@ fun getProveedoresTableRows(proveedores: List<ProveedorDeAlimentos>): List<Prove
     }
 }
 
-@Composable
-fun AddProveedorDialog(
-    colors: RefugioColorPalette,
-    onDismissRequest: () -> Unit,
-    onProveedorAdded: (ProveedorDeAlimentos) -> Unit
-) {
-    var nombre by remember { mutableStateOf("") }
-    var email by remember { mutableStateOf("") }
-    var provincia by remember { mutableStateOf("") }
-    var direccion by remember { mutableStateOf("") }
-    var telefono by remember { mutableStateOf("") }
-
-    Dialog(onDismissRequest = onDismissRequest) {
-        Surface(
-            modifier = Modifier.padding(16.dp),
-            shape = RoundedCornerShape(8.dp),
-            color = colors.menuBackground
-        ) {
-            Column(modifier = Modifier.padding(16.dp)) {
-                Text("Agregar Proveedor de Alimentos", style = MaterialTheme.typography.h6)
-
-                OutlinedTextField(
-                    value = nombre,
-                    onValueChange = { nombre = it },
-                    label = { Text("Nombre") },
-                    modifier = Modifier.fillMaxWidth()
-                )
-
-                OutlinedTextField(
-                    value = email,
-                    onValueChange = { email = it },
-                    label = { Text("Email") },
-                    modifier = Modifier.fillMaxWidth()
-                )
-
-                OutlinedTextField(
-                    value = provincia,
-                    onValueChange = { provincia = it },
-                    label = { Text("Provincia") },
-                    modifier = Modifier.fillMaxWidth()
-                )
-
-                OutlinedTextField(
-                    value = direccion,
-                    onValueChange = { direccion = it },
-                    label = { Text("Dirección") },
-                    modifier = Modifier.fillMaxWidth()
-                )
-
-                OutlinedTextField(
-                    value = telefono,
-                    onValueChange = { telefono = it },
-                    label = { Text("Teléfono") },
-                    modifier = Modifier.fillMaxWidth()
-                )
-
-                Spacer(modifier = Modifier.height(16.dp))
-
-                Row(
-                    horizontalArrangement = Arrangement.End,
-                    modifier = Modifier.fillMaxWidth()
-                ) {
-                    TextButton(onClick = onDismissRequest) {
-                        Text("Cancelar")
-                    }
-                    Spacer(modifier = Modifier.width(8.dp))
-                    Button(onClick = {
-                        if (nombre.isNotBlank() && email.isNotBlank() && provincia.isNotBlank() &&
-                            direccion.isNotBlank() && telefono.isNotBlank()
-                        ) {
-                            onProveedorAdded(
-                                ProveedorDeAlimentos(
-                                    codigo = 0, // El código se generará automáticamente en la base de datos
-                                    nombre = nombre,
-                                    email = email,
-                                    provincia = provincia,
-                                    direccion = direccion,
-                                    telefono = telefono
-                                )
-                            )
-                        }
-                    }) {
-                        Text("Agregar")
-                    }
-                }
-            }
-        }
-    }
-}

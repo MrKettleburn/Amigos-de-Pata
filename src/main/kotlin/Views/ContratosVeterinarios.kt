@@ -96,7 +96,13 @@ fun ContratosVeterinariosMostrar(colors: RefugioColorPalette, selectedItem: Stri
                 style = MaterialTheme.typography.h5,
                 modifier = Modifier.padding(bottom = 4.dp)
             )
-
+            Button(
+                onClick = { coroutineScope.launch {
+                    contratos = ContratoDB.getContratosVeterinariosFilter(null,null,null,null,null,null,null,null,null,null,null,null,null,null)
+                } },
+            ) {
+                Text("Recargar")
+            }
 
             // Componentes de filtrado
             FilterComponentsVeterinarios(
@@ -397,9 +403,9 @@ fun ContratosVeterinariosExpandableRow(colors: RefugioColorPalette, row: Contrat
                 }
             }
             Row {
-                IconButton(onClick = { /* TODO: Implementar modificar */ }) {
-                    Icon(Icons.Default.Edit, contentDescription = "Modificar")
-                }
+//                IconButton(onClick = { /* TODO: Implementar modificar */ }) {
+//                    Icon(Icons.Default.Edit, contentDescription = "Modificar")
+//                }
                 IconButton(onClick = { /* TODO: Implementar eliminar */ }) {
                     Icon(Icons.Default.Delete, contentDescription = "Eliminar")
                 }

@@ -92,7 +92,13 @@ fun ContratosTransporteMostrar(colors: RefugioColorPalette, selectedItem: String
                 style = MaterialTheme.typography.h5,
                 modifier = Modifier.padding(bottom = 4.dp)
             )
-
+            Button(
+                onClick = { coroutineScope.launch {
+                    contratos = ContratoDB.getContratosTransporteFilter(null,null,null,null,null,null,null,null,null,null,null)
+                } },
+            ) {
+                Text("Recargar")
+            }
 
             // Componentes de filtrado
             FilterComponentsTransporte(
@@ -360,9 +366,9 @@ fun ContratosTransporteExpandableRow(colors: RefugioColorPalette, row: ContratoT
                 }
             }
             Row {
-                IconButton(onClick = { /* TODO: Implementar modificar */ }) {
-                    Icon(Icons.Default.Edit, contentDescription = "Modificar")
-                }
+//                IconButton(onClick = { /* TODO: Implementar modificar */ }) {
+//                    Icon(Icons.Default.Edit, contentDescription = "Modificar")
+//                }
                 IconButton(onClick = { /* TODO: Implementar eliminar */ }) {
                     Icon(Icons.Default.Delete, contentDescription = "Eliminar")
                 }

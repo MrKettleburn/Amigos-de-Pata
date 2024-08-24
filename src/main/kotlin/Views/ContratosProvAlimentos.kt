@@ -91,7 +91,13 @@ fun ContratosProvAlimentosMostrar(colors: RefugioColorPalette, selectedItem: Str
                 style = MaterialTheme.typography.h5,
                 modifier = Modifier.padding(bottom = 4.dp)
             )
-
+            Button(
+                onClick = { coroutineScope.launch {
+                    contratos = ContratoDB.getContratosProveedorAlimFilter(null,null,null,null,null,null,null,null,null,null,null,null)
+                } },
+            ) {
+                Text("Recargar")
+            }
 
             // Componentes de filtrado
             FilterComponentsProvAlimentos(
@@ -370,9 +376,9 @@ fun ContratosProvAlimentosExpandableRow(colors: RefugioColorPalette, row: Contra
                 }
             }
             Row {
-                IconButton(onClick = { /* TODO: Implementar modificar */ }) {
-                    Icon(Icons.Default.Edit, contentDescription = "Modificar")
-                }
+//                IconButton(onClick = { /* TODO: Implementar modificar */ }) {
+//                    Icon(Icons.Default.Edit, contentDescription = "Modificar")
+//                }
                 IconButton(onClick = { /* TODO: Implementar eliminar */ }) {
                     Icon(Icons.Default.Delete, contentDescription = "Eliminar")
                 }

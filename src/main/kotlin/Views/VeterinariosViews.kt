@@ -51,7 +51,15 @@ fun VeterinariosMostrar(colors: RefugioColorPalette, selectedItem: String, selec
                 modifier = Modifier.padding(bottom = 4.dp)
             )
 
-            FilterComponents(
+            Button(
+                onClick = { coroutineScope.launch {
+                    veterinarios = ContratadosDB.getVeterinariosFilter(null,null,null,null,null)
+                } },
+            ) {
+                Text("Recargar")
+            }
+
+            FilterComponentsVeterinarios(
                 colors,
                 onFilterApplied = {
                     coroutineScope.launch {
@@ -105,7 +113,7 @@ fun VeterinariosMostrar(colors: RefugioColorPalette, selectedItem: String, selec
 }
 
 @Composable
-fun FilterComponents(
+fun FilterComponentsVeterinarios(
     colors: RefugioColorPalette,
     onFilterApplied: () -> Unit,
     codigo: String?,
@@ -198,7 +206,7 @@ fun VeterinarioExpandableRow(colors: RefugioColorPalette, row: VeterinarioTableR
                     modifier = Modifier.weight(1f)
                 ) {
                     Icon(
-                        imageVector = getIconForAttributeVet(key),
+                        imageVector = getIconForAttribute(key),
                         contentDescription = null,
                         modifier = Modifier.size(20.dp)
                     )
@@ -233,7 +241,7 @@ fun VeterinarioExpandableRow(colors: RefugioColorPalette, row: VeterinarioTableR
                     modifier = Modifier.padding(start = 16.dp, top = 8.dp)
                 ) {
                     Icon(
-                        imageVector = getIconForAttributeVet(key),
+                        imageVector = getIconForAttribute(key),
                         contentDescription = null,
                         modifier = Modifier.size(20.dp)
                     )
@@ -249,30 +257,17 @@ fun VeterinarioExpandableRow(colors: RefugioColorPalette, row: VeterinarioTableR
     }
 }
 
-fun getIconForAttributeVet(attribute: String): ImageVector {
-    return when (attribute) {
-        "Código" -> Icons.Default.Badge
-        "Nombre" -> Icons.Default.Person
-        "Email" -> Icons.Default.Email
-        "Provincia" -> Icons.Default.LocationOn
-        "Dirección" -> Icons.Default.Home
-        "Teléfono" -> Icons.Default.Phone
-        "Especialidad" -> Icons.Default.MedicalServices
-        "Clínica" -> Icons.Default.LocalHospital
-        else -> Icons.Default.Info
-    }
-}
-
-data class VeterinarioTableRow(
-    val id: String,
-    val mainAttributes: Map<String, String>,
-    val expandedAttributes: Map<String, String>
-)
-
 fun getVeterinariosTableRows(veterinarios: List<Veterinario>): List<VeterinarioTableRow> {
     return veterinarios.map { veterinario ->
         VeterinarioTableRow(
             id = veterinario.codigo.toString(),
+            nombre = veterinario.nombre,
+            email = veterinario.email,
+            provincia = veterinario.provincia,
+            direccion = veterinario.direccion,
+            telefono = veterinario.telefono,
+            especialidad = veterinario.especialidad,
+            clinica = veterinario.clinica,
             mainAttributes = mapOf(
                 "Código" to "${veterinario.codigo}",
                 "Nombre" to veterinario.nombre,
@@ -286,113 +281,5 @@ fun getVeterinariosTableRows(veterinarios: List<Veterinario>): List<VeterinarioT
                 "Teléfono" to veterinario.telefono
             )
         )
-    }
-}
-
-@Composable
-fun AddVeterinarioDialog(
-    colors: RefugioColorPalette,
-    onDismissRequest: () -> Unit,
-    onVeterinarioAdded: (Veterinario) -> Unit
-) {
-    var nombre by remember { mutableStateOf("") }
-    var email by remember { mutableStateOf("") }
-    var provincia by remember { mutableStateOf("") }
-    var direccion by remember { mutableStateOf("") }
-    var telefono by remember { mutableStateOf("") }
-    var especialidad by remember { mutableStateOf("") }
-    var clinica by remember { mutableStateOf("") }
-
-    Dialog(onDismissRequest = onDismissRequest) {
-        Surface(
-            modifier = Modifier.padding(16.dp),
-            shape = RoundedCornerShape(8.dp),
-            color = colors.menuBackground
-        ) {
-            Column(modifier = Modifier.padding(16.dp)) {
-                Text("Agregar Veterinario", style = MaterialTheme.typography.h6)
-
-                OutlinedTextField(
-                    value = nombre,
-                    onValueChange = { nombre = it },
-                    label = { Text("Nombre") },
-                    modifier = Modifier.fillMaxWidth()
-                )
-
-                OutlinedTextField(
-                    value = email,
-                    onValueChange = { email = it },
-                    label = { Text("Email") },
-                    modifier = Modifier.fillMaxWidth()
-                )
-
-                OutlinedTextField(
-                    value = provincia,
-                    onValueChange = { provincia = it },
-                    label = { Text("Provincia") },
-                    modifier = Modifier.fillMaxWidth()
-                )
-
-                OutlinedTextField(
-                    value = direccion,
-                    onValueChange = { direccion = it },
-                    label = { Text("Dirección") },
-                    modifier = Modifier.fillMaxWidth()
-                )
-
-                OutlinedTextField(
-                    value = telefono,
-                    onValueChange = { telefono = it },
-                    label = { Text("Teléfono") },
-                    modifier = Modifier.fillMaxWidth()
-                )
-
-                OutlinedTextField(
-                    value = especialidad,
-                    onValueChange = { especialidad = it },
-                    label = { Text("Especialidad") },
-                    modifier = Modifier.fillMaxWidth()
-                )
-
-                OutlinedTextField(
-                    value = clinica,
-                    onValueChange = { clinica = it },
-                    label = { Text("Clínica") },
-                    modifier = Modifier.fillMaxWidth()
-                )
-
-                Spacer(modifier = Modifier.height(16.dp))
-
-                Row(
-                    horizontalArrangement = Arrangement.End,
-                    modifier = Modifier.fillMaxWidth()
-                ) {
-                    TextButton(onClick = onDismissRequest) {
-                        Text("Cancelar")
-                    }
-                    Spacer(modifier = Modifier.width(8.dp))
-                    Button(onClick = {
-                        if (nombre.isNotBlank() && email.isNotBlank() && provincia.isNotBlank() &&
-                            direccion.isNotBlank() && telefono.isNotBlank() && especialidad.isNotBlank() && clinica.isNotBlank()
-                        ) {
-                            onVeterinarioAdded(
-                                Veterinario(
-                                    codigo = 0, // El código se generará automáticamente en la base de datos
-                                    nombre = nombre,
-                                    email = email,
-                                    provincia = provincia,
-                                    direccion = direccion,
-                                    telefono = telefono,
-                                    especialidad = especialidad,
-                                    clinica = clinica
-                                )
-                            )
-                        }
-                    }) {
-                        Text("Agregar")
-                    }
-                }
-            }
-        }
     }
 }

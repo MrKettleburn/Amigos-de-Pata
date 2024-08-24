@@ -159,6 +159,7 @@ object AnimalDB {
         dbConnection.close()
         rowsInserted > 0
     }
+
     suspend fun createAnimalAdoptado(animalAdoptado: AnimalAdoptado): Boolean = withContext(Dispatchers.IO) {
         val dbConnection = Database.connect()
         val statement = dbConnection.prepareStatement(
@@ -173,6 +174,29 @@ object AnimalDB {
         val sqlDate = Date.valueOf(animalAdoptado.fecha_ingreso)
         statement.setDate(6, sqlDate)
         statement.setDouble(7, animalAdoptado.precioAdop)
+
+        val rowsInserted = statement.executeUpdate()
+        statement.close()
+        dbConnection.close()
+        rowsInserted > 0
+    }
+
+    ///////////--------------------------ACTUALIZACIONES------------------------////////////////
+
+    suspend fun updateAnimal(codigo:Int, nombre: String, especie: String, raza:String, edad:Int, peso:Double, fechaIngreso:LocalDate): Boolean = withContext(Dispatchers.IO) {
+        val dbConnection = Database.connect()
+        val statement = dbConnection.prepareStatement(
+            "UPDATE animal SET nombre_animal= ?, especie= ?, raza=?, edad=?, peso=?, fecha_ingreso=? WHERE id_animal=?"  // QUITAR LUEGO LOS DIAS
+        )
+
+        statement.setString(1,nombre)
+        statement.setString(2,especie)
+        statement.setString(3,raza)
+        statement.setInt(4,edad)
+        statement.setDouble(5,peso)
+        val sqlDate = Date.valueOf(fechaIngreso)
+        statement.setDate(6, sqlDate)
+        statement.setInt(7,codigo)
 
         val rowsInserted = statement.executeUpdate()
         statement.close()
