@@ -55,11 +55,12 @@ fun AnimalesEnAdopcionMostrar(colors: RefugioColorPalette, selectedItem: String,
     var edad by remember { mutableStateOf<Int?>(null) }
     var fechaLI by remember { mutableStateOf<LocalDate?>(null) }
     var fechaLS by remember { mutableStateOf<LocalDate?>(null) }
-    var precio by remember { mutableStateOf<Double?>(null) }
+    var precioInf by remember { mutableStateOf<Double?>(null) } // Precio inferior
+    var precioSup by remember { mutableStateOf<Double?>(null) } // Precio superior
 
     // Cargar los datos iniciales
     LaunchedEffect(Unit) {
-        animales = AnimalDB.getAnimalAdoptFilter(null, null, null, null, null, null, null, null)
+        animales = AnimalDB.getAnimalAdoptFilter(null, null, null, null, null, null, null, null, null)
     }
 
     Box(modifier = Modifier.fillMaxSize().background(Color(0xDCFFFFFF)).padding(16.dp)) {
@@ -77,7 +78,7 @@ fun AnimalesEnAdopcionMostrar(colors: RefugioColorPalette, selectedItem: String,
             )
             Button(
                 onClick = { coroutineScope.launch {
-                    animales = AnimalDB.getAnimalAdoptFilter(null,null,null,null,null,null,null,null)
+                    animales = AnimalDB.getAnimalAdoptFilter(null,null,null,null,null,null,null,null, null)
                 } },
             ) {
                 Text("Recargar")
@@ -86,7 +87,6 @@ fun AnimalesEnAdopcionMostrar(colors: RefugioColorPalette, selectedItem: String,
             FilterComponentsAnimalsAdopted(
                 colors,
                 onFilterApplied = {
-                    // Convertir los valores de los filtros a los tipos correctos y aplicar el filtro
                     coroutineScope.launch {
                         animales = AnimalDB.getAnimalAdoptFilter(
                             codigo?.toIntOrNull(),
@@ -96,7 +96,8 @@ fun AnimalesEnAdopcionMostrar(colors: RefugioColorPalette, selectedItem: String,
                             edad,
                             fechaLI?.format(DateTimeFormatter.ISO_DATE),
                             fechaLS?.format(DateTimeFormatter.ISO_DATE),
-                            precio
+                            precioInf,
+                            precioSup
                         )
                     }
                 },
@@ -114,8 +115,10 @@ fun AnimalesEnAdopcionMostrar(colors: RefugioColorPalette, selectedItem: String,
                 onFechaLIChange = { fechaLI = it },
                 fechaLS = fechaLS,
                 onFechaLSChange = { fechaLS = it },
-                precio = precio,
-                onPrecioChange = { precio = it }
+                precioInf = precioInf,
+                onPrecioInfChange = { precioInf = it },
+                precioSup = precioSup,
+                onPrecioSupChange = { precioSup = it }
             )
 
             // Tabla expandible
@@ -139,7 +142,7 @@ fun AnimalesEnAdopcionMostrar(colors: RefugioColorPalette, selectedItem: String,
                 onAnimalAdded = { newAnimal ->
                     coroutineScope.launch {
                         AnimalDB.createAnimalAdoptado(newAnimal)
-                        animales = AnimalDB.getAnimalAdoptFilter(null, null, null, null, null, null, null, null)
+                        animales = AnimalDB.getAnimalAdoptFilter(null, null, null, null, null, null, null, null, null)
                         showDialog = false
                     }
                 }
@@ -147,6 +150,7 @@ fun AnimalesEnAdopcionMostrar(colors: RefugioColorPalette, selectedItem: String,
         }
     }
 }
+
 
 @Composable
 fun FilterComponentsAnimalsAdopted(
@@ -166,8 +170,10 @@ fun FilterComponentsAnimalsAdopted(
     onFechaLIChange: (LocalDate?) -> Unit,
     fechaLS: LocalDate?,
     onFechaLSChange: (LocalDate?) -> Unit,
-    precio: Double?,
-    onPrecioChange: (Double?) -> Unit
+    precioInf: Double?,          // Nuevo parámetro para el precio inferior
+    onPrecioInfChange: (Double?) -> Unit,
+    precioSup: Double?,          // Nuevo parámetro para el precio superior
+    onPrecioSupChange: (Double?) -> Unit
 ) {
     Row(
         modifier = Modifier
@@ -224,12 +230,18 @@ fun FilterComponentsAnimalsAdopted(
             modifier = Modifier.width(180.dp)
         )
         Spacer(modifier = Modifier.width(9.dp))
-        Spinner(
-            value = precio ?: 0.0,
-            onValueChange = { onPrecioChange(if (it == 0.0) null else it) },
-            label = { Text("Precio") },
-            modifier = Modifier.width(120.dp),
-            step = 0.5
+        OutlinedTextField(
+            value = precioInf?.toString() ?: "",
+            onValueChange = { onPrecioInfChange(it.toDoubleOrNull()) },
+            label = { Text("Precio Mín.") },
+            modifier = Modifier.width(120.dp)
+        )
+        Spacer(modifier = Modifier.width(9.dp))
+        OutlinedTextField(
+            value = precioSup?.toString() ?: "",
+            onValueChange = { onPrecioSupChange(it.toDoubleOrNull()) },
+            label = { Text("Precio Máx.") },
+            modifier = Modifier.width(120.dp)
         )
         Button(
             onClick = { onFilterApplied() },
@@ -239,6 +251,7 @@ fun FilterComponentsAnimalsAdopted(
         }
     }
 }
+
 
 @Composable
 fun AnimalsAdoptedExpandableTable(colors: RefugioColorPalette, data: List<AnimalAdoptadoTableRow>) {

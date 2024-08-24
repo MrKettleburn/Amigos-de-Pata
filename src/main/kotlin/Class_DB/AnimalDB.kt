@@ -98,13 +98,14 @@ object AnimalDB {
         edad: Int?,
         fechaIngresoLI: String?,
         fechaIngresoLS: String?,
-        precioAdop: Double?
+        precioAdopInf: Double?,
+        precioAdopSup: Double?
     ): List<AnimalAdoptado> = withContext(Dispatchers.IO) {
 
         val animalesAdopt = mutableListOf<AnimalAdoptado>()
         val dbConnection: Connection = Database.connect()
         val statement= dbConnection.prepareStatement(
-            "SELECT * FROM buscar_animales_adoptadoss(?, ?, ?, ?, ?, ?, ?, ?)"
+            "SELECT * FROM buscar_animales_adoptados(?, ?, ?, ?, ?, ?, ?, ?, ?)"
         )
         if (codigo != null) statement.setInt(1, codigo) else statement.setNull(1, java.sql.Types.INTEGER)
         statement.setString(2, nombre)
@@ -113,7 +114,8 @@ object AnimalDB {
         if (edad != null) statement.setInt(5, edad) else statement.setNull(5, java.sql.Types.INTEGER)
         statement.setString(6, fechaIngresoLI)
         statement.setString(7, fechaIngresoLS)
-        if (precioAdop != null) statement.setDouble(8,precioAdop) else statement.setNull(8,java.sql.Types.DOUBLE)
+        if (precioAdopInf != null) statement.setDouble(8,precioAdopInf) else statement.setNull(8,java.sql.Types.DOUBLE)
+        if (precioAdopSup != null) statement.setDouble(9,precioAdopSup) else statement.setNull(9,java.sql.Types.DOUBLE)
 
         val resultSet = statement.executeQuery()
 
