@@ -104,7 +104,7 @@ object AnimalDB {
         val animalesAdopt = mutableListOf<AnimalAdoptado>()
         val dbConnection: Connection = Database.connect()
         val statement= dbConnection.prepareStatement(
-            "SELECT * FROM buscar_animalesAdopt(?, ?, ?, ?, ?, ?, ?, ?)"
+            "SELECT * FROM buscar_animales_adoptadoss(?, ?, ?, ?, ?, ?, ?, ?)"
         )
         if (codigo != null) statement.setInt(1, codigo) else statement.setNull(1, java.sql.Types.INTEGER)
         statement.setString(2, nombre)
