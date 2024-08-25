@@ -17,34 +17,15 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.launch
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.ui.window.Dialog
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
-import Class_DB.ActividadDB
-import Class_DB.ContratadosDB
-import Class_DB.ContratoDB
-import Class_DB.ServiciosDB
-import Models.*
-import androidx.compose.foundation.background
-import androidx.compose.foundation.border
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.*
-import androidx.compose.material.icons.filled.CalendarToday
-import androidx.compose.material.icons.filled.Close
-import androidx.compose.material.icons.filled.KeyboardArrowDown
-import androidx.compose.material.icons.filled.KeyboardArrowUp
-import androidx.compose.runtime.*
-import androidx.compose.ui.graphics.Brush
-import androidx.compose.ui.unit.dp
-import androidx.compose.ui.window.Dialog
-import kotlinx.coroutines.launch
-import java.time.temporal.ChronoUnit
 
 @Composable
-fun AnimalesEnAdopcionMostrar(colors: RefugioColorPalette, selectedItem: String, selectedSubItem: String) {
+fun AnimalesAdoptadosMostrar(colors: RefugioColorPalette, selectedItem: String, selectedSubItem: String) {
     val coroutineScope = rememberCoroutineScope()
-    var animales by remember { mutableStateOf<List<AnimalAdoptado>>(emptyList()) }
+    var animalesAdoptados by remember { mutableStateOf<List<AnimalAdoptado>>(emptyList()) }
     var showDialog by remember { mutableStateOf(false) }
 
     // Estados para los filtros
@@ -52,14 +33,16 @@ fun AnimalesEnAdopcionMostrar(colors: RefugioColorPalette, selectedItem: String,
     var nombre by remember { mutableStateOf<String?>(null) }
     var especie by remember { mutableStateOf<String?>(null) }
     var raza by remember { mutableStateOf<String?>(null) }
-    var edad by remember { mutableStateOf<Int?>(null) }
-    var fechaLI by remember { mutableStateOf<LocalDate?>(null) }
-    var fechaLS by remember { mutableStateOf<LocalDate?>(null) }
-    var precio by remember { mutableStateOf<Double?>(null) }
+    var edad by remember { mutableStateOf<String?>(null) }
+    var fechaInf by remember { mutableStateOf<LocalDate?>(null) }
+    var fechaSup by remember { mutableStateOf<LocalDate?>(null) }
+    var precioInf by remember { mutableStateOf<String?>(null) }
+    var precioSup by remember { mutableStateOf<String?>(null) }
+    var nombreAdoptante by remember { mutableStateOf<String?>(null) }
 
     // Cargar los datos iniciales
     LaunchedEffect(Unit) {
-        animales = AnimalDB.getAnimalAdoptFilter(null, null, null, null, null, null, null, null)
+        animalesAdoptados = AnimalDB.getAnimalAdoptFilter(null, null, null, null, null, null, null, null, null, null)
     }
 
     Box(modifier = Modifier.fillMaxSize().background(Color(0xDCFFFFFF)).padding(16.dp)) {
@@ -67,30 +50,37 @@ fun AnimalesEnAdopcionMostrar(colors: RefugioColorPalette, selectedItem: String,
             modifier = Modifier
                 .fillMaxSize()
                 .padding(1.dp)
-                .background(Color(255,251,242,0))
+                .background(Color(255, 251, 242, 0))
         ) {
-            // Título de la sección
             Text(
                 text = "$selectedItem - $selectedSubItem",
                 style = MaterialTheme.typography.h5,
                 modifier = Modifier.padding(bottom = 4.dp)
             )
 
-            // Componentes de filtrado
-            FilterComponentsAnimalsAdopted(
+            Button(
+                onClick = { coroutineScope.launch {
+                    animalesAdoptados = AnimalDB.getAnimalAdoptFilter(null, null, null, null, null, null, null, null, null, null)
+                } },
+            ) {
+                Text("Recargar")
+            }
+
+            FilterComponentsA(
                 colors,
                 onFilterApplied = {
-                    // Convertir los valores de los filtros a los tipos correctos y aplicar el filtro
                     coroutineScope.launch {
-                        animales = AnimalDB.getAnimalAdoptFilter(
+                        animalesAdoptados = AnimalDB.getAnimalAdoptFilter(
                             codigo?.toIntOrNull(),
                             nombre,
                             especie,
                             raza,
-                            edad,
-                            fechaLI?.format(DateTimeFormatter.ISO_DATE),
-                            fechaLS?.format(DateTimeFormatter.ISO_DATE),
-                            precio
+                            edad?.toIntOrNull(),
+                            fechaInf?.format(DateTimeFormatter.ISO_DATE),
+                            fechaSup?.format(DateTimeFormatter.ISO_DATE),
+                            precioInf?.toDoubleOrNull(),
+                            precioSup?.toDoubleOrNull(),
+                            nombreAdoptante
                         )
                     }
                 },
@@ -104,19 +94,21 @@ fun AnimalesEnAdopcionMostrar(colors: RefugioColorPalette, selectedItem: String,
                 onRazaChange = { raza = it },
                 edad = edad,
                 onEdadChange = { edad = it },
-                fechaLI = fechaLI,
-                onFechaLIChange = { fechaLI = it },
-                fechaLS = fechaLS,
-                onFechaLSChange = { fechaLS = it },
-                precio = precio,
-                onPrecioChange = { precio = it }
+                fechaInf = fechaInf,
+                onFechaInfChange = { fechaInf = it },
+                fechaSup = fechaSup,
+                onFechaSupChange = { fechaSup = it },
+                precioInf = precioInf,
+                onPrecioInfChange = { precioInf = it },
+                precioSup = precioSup,
+                onPrecioSupChange = { precioSup = it },
+                nombreAdoptante = nombreAdoptante,
+                onNombreAdoptanteChange = { nombreAdoptante = it }
             )
 
-            // Tabla expandible
-            AnimalsAdoptedExpandableTable(colors, getAnimalsAdoptedTableRows(animales))
+            AnimalesAdoptadosExpandableTable(colors, getAnimalesAdoptadosTableRows(animalesAdoptados))
         }
 
-        // Botón flotante de agregar
         FloatingActionButton(
             onClick = { showDialog = true },
             modifier = Modifier
@@ -125,25 +117,11 @@ fun AnimalesEnAdopcionMostrar(colors: RefugioColorPalette, selectedItem: String,
         ) {
             Icon(Icons.Default.Add, contentDescription = "Agregar")
         }
-
-        if (showDialog) {
-            AddAnimalAdoptadoDialog(
-                colors = colors,
-                onDismissRequest = { showDialog = false },
-                onAnimalAdded = { newAnimal ->
-                    coroutineScope.launch {
-                        AnimalDB.createAnimalAdoptado(newAnimal)
-                        animales = AnimalDB.getAnimalAdoptFilter(null, null, null, null, null, null, null, null)
-                        showDialog = false
-                    }
-                }
-            )
-        }
     }
 }
 
 @Composable
-fun FilterComponentsAnimalsAdopted(
+fun FilterComponentsA(
     colors: RefugioColorPalette,
     onFilterApplied: () -> Unit,
     codigo: String?,
@@ -154,99 +132,129 @@ fun FilterComponentsAnimalsAdopted(
     onEspecieChange: (String?) -> Unit,
     raza: String?,
     onRazaChange: (String?) -> Unit,
-    edad: Int?,
-    onEdadChange: (Int?) -> Unit,
-    fechaLI: LocalDate?,
-    onFechaLIChange: (LocalDate?) -> Unit,
-    fechaLS: LocalDate?,
-    onFechaLSChange: (LocalDate?) -> Unit,
-    precio: Double?,
-    onPrecioChange: (Double?) -> Unit
+    edad: String?,
+    onEdadChange: (String?) -> Unit,
+    fechaInf: LocalDate?,
+    onFechaInfChange: (LocalDate?) -> Unit,
+    fechaSup: LocalDate?,
+    onFechaSupChange: (LocalDate?) -> Unit,
+    precioInf: String?,
+    onPrecioInfChange: (String?) -> Unit,
+    precioSup: String?,
+    onPrecioSupChange: (String?) -> Unit,
+    nombreAdoptante: String?,
+    onNombreAdoptanteChange: (String?) -> Unit
 ) {
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(vertical = 8.dp),
-        horizontalArrangement = Arrangement.spacedBy(8.dp)
-    ) {
+    Column(modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp)) {
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            OutlinedTextField(
+                value = codigo.orEmpty(),
+                onValueChange = { onCodigoChange(if (it.isEmpty()) null else it) },
+                label = { Text("Código") },
+                modifier = Modifier.weight(1f)
+            )
+            OutlinedTextField(
+                value = nombre.orEmpty(),
+                onValueChange = { onNombreChange(if (it.isEmpty()) null else it) },
+                label = { Text("Nombre") },
+                modifier = Modifier.weight(1f)
+            )
+            OutlinedTextField(
+                value = especie.orEmpty(),
+                onValueChange = { onEspecieChange(if (it.isEmpty()) null else it) },
+                label = { Text("Especie") },
+                modifier = Modifier.weight(1f)
+            )
+        }
+
+        Row(
+            modifier = Modifier.fillMaxWidth().padding(top = 8.dp),
+            horizontalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            OutlinedTextField(
+                value = raza.orEmpty(),
+                onValueChange = { onRazaChange(if (it.isEmpty()) null else it) },
+                label = { Text("Raza") },
+                modifier = Modifier.weight(1f)
+            )
+            Spinner(
+                value = edad?.toIntOrNull() ?: 0,
+                onValueChange = { onEdadChange(it.toString()) },
+                label = { Text("Edad") },
+                step = 1,
+                modifier = Modifier.weight(1f)
+            )
+        }
+
+        Row(
+            modifier = Modifier.fillMaxWidth().padding(top = 8.dp),
+            horizontalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            DatePicker(
+                label = { Text("Fecha Inferior") },
+                selectedDate = fechaInf,
+                onDateChange = onFechaInfChange,
+                modifier = Modifier.weight(1f)
+            )
+            DatePicker(
+                label = { Text("Fecha Superior") },
+                selectedDate = fechaSup,
+                onDateChange = onFechaSupChange,
+                modifier = Modifier.weight(1f)
+            )
+        }
+
+        Row(
+            modifier = Modifier.fillMaxWidth().padding(top = 8.dp),
+            horizontalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            Spinner(
+                value = precioInf?.toDoubleOrNull() ?: 0.0,
+                onValueChange = { onPrecioInfChange(it.toString()) },
+                label = { Text("Precio Inferior") },
+                step = 0.5,
+                modifier = Modifier.weight(1f)
+            )
+            Spinner(
+                value = precioSup?.toDoubleOrNull() ?: 0.0,
+                onValueChange = { onPrecioSupChange(it.toString()) },
+                label = { Text("Precio Superior") },
+                step = 0.5,
+                modifier = Modifier.weight(1f)
+            )
+        }
+
         OutlinedTextField(
-            value = codigo.orEmpty(),
-            onValueChange = { onCodigoChange(if (it.isEmpty()) null else it) },
-            label = { Text("Código") },
-            modifier = Modifier.width(120.dp)
+            value = nombreAdoptante.orEmpty(),
+            onValueChange = { onNombreAdoptanteChange(if (it.isEmpty()) null else it) },
+            label = { Text("Nombre del Adoptante") },
+            modifier = Modifier.fillMaxWidth().padding(top = 8.dp)
         )
-        Spacer(modifier = Modifier.width(9.dp))
-        OutlinedTextField(
-            value = nombre.orEmpty(),
-            onValueChange = { onNombreChange(if (it.isEmpty()) null else it) },
-            label = { Text("Nombre") },
-            modifier = Modifier.width(160.dp)
-        )
-        Spacer(modifier = Modifier.width(9.dp))
-        OutlinedTextField(
-            value = especie.orEmpty(),
-            onValueChange = { onEspecieChange(if (it.isEmpty()) null else it) },
-            label = { Text("Especie") },
-            modifier = Modifier.width(120.dp)
-        )
-        Spacer(modifier = Modifier.width(9.dp))
-        OutlinedTextField(
-            value = raza.orEmpty(),
-            onValueChange = { onRazaChange(if (it.isEmpty()) null else it) },
-            label = { Text("Raza") },
-            modifier = Modifier.width(120.dp)
-        )
-        Spacer(modifier = Modifier.width(9.dp))
-        Spinner(
-            value = edad ?: 0,
-            onValueChange = { onEdadChange(if (it == 0) null else it) },
-            label = { Text("Edad") },
-            modifier = Modifier.width(100.dp),
-            step = 1
-        )
-        Spacer(modifier = Modifier.width(9.dp))
-        DatePicker(
-            label = { Text("Fecha Desde") },
-            selectedDate = fechaLI,
-            onDateChange = { onFechaLIChange(it) },
-            modifier = Modifier.width(180.dp)
-        )
-        DatePicker(
-            label = { Text("Fecha Hasta") },
-            selectedDate = fechaLS,
-            onDateChange = { onFechaLSChange(it) },
-            modifier = Modifier.width(180.dp)
-        )
-        Spacer(modifier = Modifier.width(9.dp))
-        Spinner(
-            value = precio ?: 0.0,
-            onValueChange = { onPrecioChange(if (it == 0.0) null else it) },
-            label = { Text("Precio") },
-            modifier = Modifier.width(120.dp),
-            step = 0.5
-        )
+
         Button(
-            onClick = { onFilterApplied() },
-            modifier = Modifier.align(Alignment.CenterVertically)
+            onClick = onFilterApplied,
+            modifier = Modifier.align(Alignment.End).padding(top = 8.dp)
         ) {
             Text("Filtrar")
         }
     }
 }
-
 @Composable
-fun AnimalsAdoptedExpandableTable(colors: RefugioColorPalette, data: List<AnimalAdoptadoTableRow>) {
+fun AnimalesAdoptadosExpandableTable(colors: RefugioColorPalette, data: List<AnimalAdoptadoTableRow>) {
     LazyColumn {
         items(data) { row ->
-            AnimalsAdoptedExpandableRow(colors, row)
+            AnimalAdoptadoExpandableRow(colors, row)
             Divider(color = colors.primary, thickness = 1.5.dp)
         }
     }
 }
+
 @Composable
-fun AnimalsAdoptedExpandableRow(colors: RefugioColorPalette, row: AnimalAdoptadoTableRow) {
+fun AnimalAdoptadoExpandableRow(colors: RefugioColorPalette, row: AnimalAdoptadoTableRow) {
     var expanded by remember { mutableStateOf(false) }
-    var showActivityDialog by remember { mutableStateOf(false) }
     val backgroundColor = if (expanded) colors.menuBackground else Color.Transparent
 
     Column(
@@ -268,7 +276,7 @@ fun AnimalsAdoptedExpandableRow(colors: RefugioColorPalette, row: AnimalAdoptado
                     modifier = Modifier.weight(1f)
                 ) {
                     Icon(
-                        imageVector = getIconForAttribute(key),
+                        imageVector = getIconForAttributeAA(key),
                         contentDescription = null,
                         modifier = Modifier.size(20.dp)
                     )
@@ -281,15 +289,9 @@ fun AnimalsAdoptedExpandableRow(colors: RefugioColorPalette, row: AnimalAdoptado
                 }
             }
             Row {
-                Button(
-                    onClick = { showActivityDialog = true },
-                    modifier = Modifier.align(Alignment.CenterVertically)
-                ) {
-                    Text("Ver Actividades")
+                IconButton(onClick = { /* TODO: Implementar modificar */ }) {
+                    Icon(Icons.Default.Edit, contentDescription = "Modificar")
                 }
-//                IconButton(onClick = { /* TODO: Implementar modificar */ }) {
-//                    Icon(Icons.Default.Edit, contentDescription = "Modificar")
-//                }
                 IconButton(onClick = { /* TODO: Implementar eliminar */ }) {
                     Icon(Icons.Default.Delete, contentDescription = "Eliminar")
                 }
@@ -322,166 +324,63 @@ fun AnimalsAdoptedExpandableRow(colors: RefugioColorPalette, row: AnimalAdoptado
                 }
             }
         }
-
-        if (showActivityDialog) {
-            ActividadesDialog(
-                colors = colors,
-                codigoAnim = row.id.toInt(),
-                nombreAnim = row.nombreAnim,
-                onDismissRequest = { showActivityDialog = false }
-            )
-        }
     }
 }
 
-fun getAnimalsAdoptedTableRows(animales: List<AnimalAdoptado>): List<AnimalAdoptadoTableRow> {
-    val formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy")
-    return animales.map { animal ->
+fun getAnimalesAdoptadosTableRows(animalesAdoptados: List<AnimalAdoptado>): List<AnimalAdoptadoTableRow> {
+    return animalesAdoptados.map { animalAdoptado ->
         AnimalAdoptadoTableRow(
-            id = animal.codigo.toString(),
-            nombreAnim = animal.nombre,
+            id = animalAdoptado.codigo.toString(),
+            nombre = animalAdoptado.nombre,
+            especie = animalAdoptado.especie,
+            raza = animalAdoptado.raza,
+            edad = animalAdoptado.edad.toString(),
+            peso = animalAdoptado.peso.toString(),
+            fecha_ingreso = animalAdoptado.fecha_ingreso.toString(),
+            precioAdop = animalAdoptado.precioAdop.toString(),
+            nombreAdoptante = animalAdoptado.nombreAdoptante ?: "No adoptado",
             mainAttributes = mapOf(
-                "Código" to "${animal.codigo}",
-                "Nombre" to animal.nombre,
-                "Especie" to animal.especie
+                "Código" to "${animalAdoptado.codigo}",
+                "Nombre" to animalAdoptado.nombre,
+                "Especie" to animalAdoptado.especie
             ),
             expandedAttributes = mapOf(
-                "Raza" to animal.raza,
-                "Edad" to "${animal.edad} años",
-                "Peso" to "${animal.peso} kg",
-                "Fecha de Ingreso" to animal.fecha_ingreso.format(formatter),
-                "Días en Adopción" to animal.cantDias.toString(),
-                "Precio" to "${animal.precioAdop} USD"
+                "Raza" to animalAdoptado.raza,
+                "Edad" to "${animalAdoptado.edad}",
+                "Peso" to "${animalAdoptado.peso}",
+                "Fecha de ingreso" to "${animalAdoptado.fecha_ingreso}",
+                "Precio de adopción" to "${animalAdoptado.precioAdop}",
+                "Nombre del Adoptante" to (animalAdoptado.nombreAdoptante ?: "No adoptado")
             )
         )
     }
 }
-fun getIconForAttributeAA(attribute: String): ImageVector {
-    return when (attribute) {
-        "Código" -> Icons.Default.Badge
-        "Nombre" -> Icons.Default.Person
-        "Especie" -> Icons.Default.Pets
-        "Raza" -> Icons.Default.Pets
-        "Edad" -> Icons.Default.Cake
-        "Peso" -> Icons.Default.FitnessCenter
-        "Días en Adopción" -> Icons.Default.Numbers
-        "Fecha de Ingreso" -> Icons.Default.CalendarToday
-        "Precio" -> Icons.Default.AttachMoney
-        else -> Icons.Default.Info
-    }
-}
 data class AnimalAdoptadoTableRow(
     val id: String,
-    val nombreAnim: String,
+    val nombre: String,
+    val especie: String,
+    val raza: String,
+    val edad: String,
+    val peso: String,
+    val fecha_ingreso: String,
+    val precioAdop: String,
+    val nombreAdoptante: String,
     val mainAttributes: Map<String, String>,
     val expandedAttributes: Map<String, String>
 )
 
-@Composable
-fun AddAnimalAdoptadoDialog(
-    colors: RefugioColorPalette,
-    onDismissRequest: () -> Unit,
-    onAnimalAdded: (AnimalAdoptado) -> Unit
-) {
-    var nombre by remember { mutableStateOf("") }
-    var especie by remember { mutableStateOf("") }
-    var raza by remember { mutableStateOf("") }
-    var edad by remember { mutableStateOf<Int?>(null) }
-    var peso by remember { mutableStateOf<Double?>(null) }
-    var fechaIngreso by remember { mutableStateOf<LocalDate?>(null) }
-    var precio by remember { mutableStateOf<Double?>(null) }
-
-    Dialog(onDismissRequest = onDismissRequest) {
-        Surface(
-            modifier = Modifier.padding(16.dp),
-            shape = RoundedCornerShape(8.dp),
-            color = colors.menuBackground
-        ) {
-            Column(modifier = Modifier.padding(16.dp)) {
-                Text("Agregar Animal en Adopción", style = MaterialTheme.typography.h6)
-
-                OutlinedTextField(
-                    value = nombre,
-                    onValueChange = { nombre = it },
-                    label = { Text("Nombre") },
-                    modifier = Modifier.fillMaxWidth()
-                )
-
-                OutlinedTextField(
-                    value = especie,
-                    onValueChange = { especie = it },
-                    label = { Text("Especie") },
-                    modifier = Modifier.fillMaxWidth()
-                )
-
-                OutlinedTextField(
-                    value = raza,
-                    onValueChange = { raza = it },
-                    label = { Text("Raza") },
-                    modifier = Modifier.fillMaxWidth()
-                )
-                Row(modifier = Modifier.padding(0.dp))
-                {
-                    OutlinedTextField(
-                        value = edad?.toString() ?: "",
-                        onValueChange = { edad = it.toIntOrNull() },
-                        label = { Text("Edad") },
-                        modifier = Modifier.weight(1f)
-                    )
-                    Spacer(modifier = Modifier.width(4.dp))
-                    OutlinedTextField(
-                        value = peso?.toString() ?: "",
-                        onValueChange = { peso = it.toDoubleOrNull() },
-                        label = { Text("Peso (kg)") },
-                        modifier = Modifier.weight(1f)
-                    )
-                }
-                Spacer(modifier = Modifier.height(9.dp))
-                Spinner(
-                    value = precio ?: 0.0,
-                    onValueChange = { precio = it },
-                    label = { Text("Precio (USD)") },
-                    modifier = Modifier.fillMaxWidth(),
-                    step = 0.5
-                )
-                DatePicker(
-                    label = { Text("Fecha de Ingreso") },
-                    selectedDate = fechaIngreso,
-                    onDateChange = { fechaIngreso = it },
-                    modifier = Modifier.fillMaxWidth()
-                )
-
-                Spacer(modifier = Modifier.height(16.dp))
-
-                Row(
-                    horizontalArrangement = Arrangement.End,
-                    modifier = Modifier.fillMaxWidth()
-                ) {
-                    TextButton(onClick = onDismissRequest) {
-                        Text("Cancelar")
-                    }
-                    Spacer(modifier = Modifier.width(8.dp))
-                    Button(onClick = {
-                        if (nombre.isNotBlank() && especie.isNotBlank() && raza.isNotBlank() && edad != null && peso != null && fechaIngreso != null && precio != null) {
-                            onAnimalAdded(
-                                AnimalAdoptado(
-                                    codigo = 0,
-                                    nombre = nombre,
-                                    especie = especie,
-                                    raza = raza,
-                                    edad = edad!!,
-                                    peso = peso!!,
-                                    cantDias = 0,
-                                    fecha_ingreso = fechaIngreso!!,
-                                    precioAdop = precio!!
-                                )
-                            )
-                        }
-                    }) {
-                        Text("Agregar")
-                    }
-                }
-            }
-        }
+fun getIconForAttributeAA(attribute: String): ImageVector {
+    return when (attribute) {
+        "Código" -> Icons.Default.Badge
+        "Nombre" -> Icons.Default.Pets
+        "Especie" -> Icons.Default.Category
+        "Raza" -> Icons.Default.Fingerprint
+        "Edad" -> Icons.Default.Cake
+        "Peso" -> Icons.Default.Scale
+        "Días en adopción" -> Icons.Default.HourglassEmpty
+        "Fecha de ingreso" -> Icons.Default.DateRange
+        "Precio de adopción" -> Icons.Default.AttachMoney
+        "Nombre del Adoptante" -> Icons.Default.Person
+        else -> Icons.Default.Info
     }
 }
