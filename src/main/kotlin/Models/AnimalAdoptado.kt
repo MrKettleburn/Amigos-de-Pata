@@ -9,8 +9,7 @@ data class AnimalAdoptado(
     val raza: String,
     val edad: Int,
     val peso: Double,
-    val cantDias: Int,
     val fecha_ingreso: LocalDate,
-    val precioAdop: Double
-    //DATOS DEL ADOPTANTE TAL VEZ
+    val precioAdop: Double,
+    val nombreAdoptante: String  //DATOS DEL ADOPTANTE TAL VEZ
 )

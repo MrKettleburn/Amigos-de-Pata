@@ -83,7 +83,7 @@ fun MainContent(colors: RefugioColorPalette) {
                         "Animales" -> {
                             when (selectedSubItem){
                                 "En Refugio" -> AnimalesEnRefugioMostrar(colors, selectedItem, selectedSubItem)
-                                "En Adopción" -> AnimalesEnAdopcionMostrar(colors, selectedItem, selectedSubItem)
+                                "En Adopción" -> AnimalesAdoptadosMostrar(colors, selectedItem, selectedSubItem)
                             }
                         }
                     }

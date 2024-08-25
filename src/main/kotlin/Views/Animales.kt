@@ -205,21 +205,21 @@ fun FilterComponentsAnimals(
             value = codigo.orEmpty(),
             onValueChange = { onCodigoChange(if (it.isEmpty()) null else it) },
             label = { Text("Código") },
-            modifier = Modifier.width(120.dp) // Tamaño fijo
+            modifier = Modifier.width(120.dp)
         )
         Spacer(modifier = Modifier.width(9.dp))
         OutlinedTextField(
             value = nombre.orEmpty(),
             onValueChange = { onNombreChange(if (it.isEmpty()) null else it) },
             label = { Text("Nombre") },
-            modifier = Modifier.width(160.dp) // Tamaño fijo
+            modifier = Modifier.width(160.dp)
         )
         Spacer(modifier = Modifier.width(9.dp))
         OutlinedTextField(
             value = especie.orEmpty(),
             onValueChange = { onEspecieChange(if (it.isEmpty()) null else it) },
             label = { Text("Especie") },
-            modifier = Modifier.width(120.dp) // Tamaño fijo
+            modifier = Modifier.width(120.dp)
         )
         Spacer(modifier = Modifier.width(9.dp))
         OutlinedTextField(
