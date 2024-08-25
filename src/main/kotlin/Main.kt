@@ -40,6 +40,7 @@ fun main() = application {
         App(window)
     }
 
+
 //    LaunchedEffect(Unit) {
 //        generarReporteContratosVeterinarios("C:\\Users\\ruben\\IdeaProjects\\Amigos_de_Pata\\src\\main\\kotlin\\PruebaPDF.pdf", LocalDateTime.now())
 //    }
