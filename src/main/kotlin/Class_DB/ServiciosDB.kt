@@ -282,43 +282,76 @@ object ServiciosDB {
     suspend fun updateServicioVeterinario(codigo:Int, precioUnit:Double, modalidad: String): Boolean = withContext(Dispatchers.IO) {
         val dbConnection = Database.connect()
         val statement = dbConnection.prepareStatement(
-            "UPDATE animal SET nombre_animal= ?, especie= ?, raza=?, edad=?, peso=?, fecha_ingreso=? WHERE id_animal=?"  // QUITAR LUEGO LOS DIAS
+            "SELECT actualizar_servicio_veterinario(?,?,?)"
         )
 
-//        statement.setString(1,nombre)
-//        statement.setString(2,especie)
-//        statement.setString(3,raza)
-//        statement.setInt(4,edad)
-//        statement.setDouble(5,peso)
-//        val sqlDate = Date.valueOf(fechaIngreso)
-//        statement.setDate(6, sqlDate)
-//        statement.setInt(7,codigo)
+        statement.setInt(1,codigo)
+        statement.setDouble(2,precioUnit)
+        statement.setString(3,modalidad)
 
-        val rowsInserted = statement.executeUpdate()
-        statement.close()
+        var retorno: Boolean = true
+        val resultSet = statement.executeQuery()
+
+        if (resultSet.next()) {
+            val resultado: Boolean = resultSet.getBoolean(1)
+            if (!resultado) {
+                println("Error al actualizar el servicio. Intente nuevamente.")
+                retorno=false
+            }
+        }
+
         dbConnection.close()
-        rowsInserted > 0
+        retorno
     }
 
-    suspend fun updateServicioTransporte(codigo:Int, precioUnit:Double, modalidad: String): Boolean = withContext(Dispatchers.IO) {
+    suspend fun updateServicioTransporte(codigo:Int, precioUnit:Double, vehiculo: String): Boolean = withContext(Dispatchers.IO) {
         val dbConnection = Database.connect()
         val statement = dbConnection.prepareStatement(
-            "UPDATE animal SET nombre_animal= ?, especie= ?, raza=?, edad=?, peso=?, fecha_ingreso=? WHERE id_animal=?"  // QUITAR LUEGO LOS DIAS
+            "SELECT actualizar_servicio_transporte(?,?,?)"
         )
 
-//        statement.setString(1,nombre)
-//        statement.setString(2,especie)
-//        statement.setString(3,raza)
-//        statement.setInt(4,edad)
-//        statement.setDouble(5,peso)
-//        val sqlDate = Date.valueOf(fechaIngreso)
-//        statement.setDate(6, sqlDate)
-//        statement.setInt(7,codigo)
+        statement.setInt(1,codigo)
+        statement.setDouble(2,precioUnit)
+        statement.setString(3,vehiculo)
 
-        val rowsInserted = statement.executeUpdate()
-        statement.close()
+        var retorno: Boolean = true
+        val resultSet = statement.executeQuery()
+
+        if (resultSet.next()) {
+            val resultado: Boolean = resultSet.getBoolean(1)
+            if (!resultado) {
+                println("Error al actualizar el servicio. Intente nuevamente.")
+                retorno=false
+            }
+        }
+
         dbConnection.close()
-        rowsInserted > 0
+        retorno
+    }
+
+    suspend fun updateServicioAlimenticio(codigo:Int, precioUnit:Double, tipoAlim: String): Boolean = withContext(Dispatchers.IO) {
+        val dbConnection = Database.connect()
+        val statement = dbConnection.prepareStatement(
+            "SELECT actualizar_servicio_alimenticio(?,?,?)"
+        )
+
+        statement.setInt(1,codigo)
+        statement.setDouble(2,precioUnit)
+        statement.setString(3,tipoAlim)
+
+        var retorno: Boolean = true
+        val resultSet = statement.executeQuery()
+
+        if (resultSet.next()) {
+            val resultado: Boolean = resultSet.getBoolean(1)
+            if (!resultado) {
+                println("Error al actualizar el servicio. Intente nuevamente.")
+                retorno=false
+            }
+        }
+
+        dbConnection.close()
+        retorno
     }
 
 }

@@ -2,6 +2,7 @@ package Views
 
 import Class_DB.ContratadosDB
 import Class_DB.ContratoDB
+import Class_DB.ServiciosDB
 import Models.ProveedorDeAlimentos
 import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
@@ -49,13 +50,6 @@ fun ProveedoresDeAlimentosMostrar(colors: RefugioColorPalette, selectedItem: Str
                 style = MaterialTheme.typography.h5,
                 modifier = Modifier.padding(bottom = 4.dp)
             )
-            Button(
-                onClick = { coroutineScope.launch {
-                    proveedores = ContratadosDB.getProveedoresAlimentosFilter(null,null,null)
-                } },
-            ) {
-                Text("Recargar")
-            }
 
             FilterComponentsPA(
                 colors,
@@ -79,13 +73,24 @@ fun ProveedoresDeAlimentosMostrar(colors: RefugioColorPalette, selectedItem: Str
             ProveedoresExpandableTable(colors, getProveedoresTableRows(proveedores))
         }
 
-        FloatingActionButton(
-            onClick = { showDialog = true },
+        Column(
             modifier = Modifier
-                .align(Alignment.BottomEnd)
-                .padding(16.dp)
+                .fillMaxSize()
+                .padding(16.dp),
+            verticalArrangement = Arrangement.Bottom,
+            horizontalAlignment = Alignment.End
         ) {
-            Icon(Icons.Default.Add, contentDescription = "Agregar")
+            FloatingActionButton(
+                onClick = { coroutineScope.launch { proveedores = ContratadosDB.getProveedoresAlimentosFilter(null, null, null)}}
+            ) {
+                Icon(Icons.Default.ArrowCircleDown, contentDescription = "Recargar")
+            }
+
+            FloatingActionButton(
+                onClick = { showDialog = true },
+            ) {
+                Icon(Icons.Default.Add, contentDescription = "Agregar")
+            }
         }
 
         if (showDialog) {
@@ -162,6 +167,8 @@ fun ProveedoresExpandableTable(colors: RefugioColorPalette, data: List<Proveedor
 fun ProveedorExpandableRow(colors: RefugioColorPalette, row: ProveedorTableRow) {
     var expanded by remember { mutableStateOf(false) }
     val backgroundColor = if (expanded) colors.menuBackground else Color.Transparent
+    val coroutineScope = rememberCoroutineScope()
+    var showUpdateDialog by remember { mutableStateOf(false) }
 
     Column(
         modifier = Modifier
@@ -195,7 +202,7 @@ fun ProveedorExpandableRow(colors: RefugioColorPalette, row: ProveedorTableRow) 
                 }
             }
             Row {
-                IconButton(onClick = { /* TODO: Implementar modificar */ }) {
+                IconButton(onClick = { showUpdateDialog=true }) {
                     Icon(Icons.Default.Edit, contentDescription = "Modificar")
                 }
                 IconButton(onClick = { /* TODO: Implementar eliminar */ }) {
@@ -229,6 +236,27 @@ fun ProveedorExpandableRow(colors: RefugioColorPalette, row: ProveedorTableRow) 
                     Text(text = value)
                 }
             }
+        }
+
+        if (showUpdateDialog) {
+            UpdateProveedorAlimDialog(
+                colors = colors,
+                codigo = row.id.toInt(),
+                nombreInicial = row.nombre,
+                emailInicial = row.email,
+                provinciaInicial = row.provincia,
+                direccionInicial = row.direccion,
+                telefonoInicial = row.telefono,
+                onDismissRequest = { showUpdateDialog = false },
+                onProveedorUpdated = { codigo, nombre, email, provincia, direccion, telefono ->
+                    coroutineScope.launch {
+                        if(ContratadosDB.updateProveedorAlim(codigo, nombre, email, provincia, direccion, telefono))
+                            showUpdateDialog = false
+                        else
+                            println("Revise los datos")
+                    }
+                }
+            )
         }
     }
 }

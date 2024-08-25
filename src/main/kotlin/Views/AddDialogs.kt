@@ -544,7 +544,7 @@ fun AddContratoProvAlimentosDialog(
     // Estados para los campos
     var selectedProv by remember { mutableStateOf<ProveedorDeAlimentos?>(null) }
     var selectedServ by remember { mutableStateOf<ServAlimenticio?>(null) }
-    var kilogramos by remember { mutableStateOf<Double?>(null) }
+    var kilogramos by remember { mutableStateOf<Double>(0.0) }
     var descripcion by remember { mutableStateOf("") }
     var recargo by remember { mutableStateOf<Double>(0.0) }
     var fechaInicio by remember { mutableStateOf<LocalDate?>(null) }
@@ -610,8 +610,8 @@ fun AddContratoProvAlimentosDialog(
                     )
                     Spacer(modifier = Modifier.width(4.dp))
                     Spinner(
-                        value = kilogramos ?: 0.0,
-                        onValueChange = { if (it == 0.0) kilogramos = null else kilogramos = it },
+                        value = kilogramos?:0.0,
+                        onValueChange = { kilogramos = it },
                         label = { Text("Kg") },
                         modifier = Modifier.weight(1f),
                         step = 0.5
@@ -655,10 +655,10 @@ fun AddContratoProvAlimentosDialog(
                     }
                     Spacer(modifier = Modifier.width(8.dp))
                     Button(onClick = {
-                        if (selectedProv != null && selectedServ != null && descripcion.isNotBlank() && kilogramos != 0.0 && fechaInicio != null && fechaFin != null && fechaConcil != null) {
+                        if (selectedProv != null && selectedServ != null && descripcion.isNotBlank() && kilogramos > 0.0 && fechaInicio != null && fechaFin != null && fechaConcil != null && recargo>0.0) {
                             val newContrato = ContratoProveedorAlim(
                                 codigo = 0,
-                                precio = ChronoUnit.DAYS.between(fechaInicio, fechaFin).toInt() * (selectedServ!!.precioUni * kilogramos!!) + (selectedServ!!.precioUni * kilogramos!!) + recargo,
+                                precio = ChronoUnit.DAYS.between(fechaInicio, fechaFin).toInt() * (selectedServ!!.precioUni * kilogramos) + (selectedServ!!.precioUni * kilogramos) + recargo,
                                 descripcion = descripcion,
                                 nombreProv = selectedProv!!.nombre,
                                 provinciaProv = selectedProv!!.provincia,
@@ -672,6 +672,9 @@ fun AddContratoProvAlimentosDialog(
                                 tipoAlim = selectedServ!!.tipoAlimento
                             )
                             onContratoAdded(newContrato)
+                        }
+                        else{
+                            print("ERROR")
                         }
                     }) {
                         Text("Agregar")
@@ -729,7 +732,7 @@ fun AddServicioAlimenticioDialog(
                     }
                     Spacer(modifier = Modifier.width(8.dp))
                     Button(onClick = {
-                        if (tipoAlimento.isNotBlank() && precio != 0.0) {
+                        if (tipoAlimento.isNotBlank() && precio > 0.0) {
                             onServicioAdded(
                                 ServAlimenticio(
                                     codigo = 0,
@@ -737,6 +740,9 @@ fun AddServicioAlimenticioDialog(
                                     precioUni = precio
                                 )
                             )
+                        }
+                        else{
+                            print("ERROR")
                         }
                     }) {
                         Text("Agregar")
@@ -794,12 +800,15 @@ fun UpdateServicioAlimenticioDialog(
                     }
                     Spacer(modifier = Modifier.width(8.dp))
                     Button(onClick = {
-                        if (vehiculo.isNotBlank() && precio != 0.0) {
+                        if (vehiculo.isNotBlank() && precio > 0.0) {
                             onServicioUpdated(
                                 codigo,
                                 vehiculo,
                                 precio
                             )
+                        }
+                        else{
+                            print("ERROR")
                         }
                     }) {
                         Text("Actualizar")
@@ -857,7 +866,7 @@ fun AddServicioTransporteDialog(
                     }
                     Spacer(modifier = Modifier.width(8.dp))
                     Button(onClick = {
-                        if (vehiculo.isNotBlank() && precio != 0.0) {
+                        if (vehiculo.isNotBlank() && precio > 0.0) {
                             onServicioAdded(
                                 ServTransporte(
                                     codigo = 0,
@@ -865,6 +874,9 @@ fun AddServicioTransporteDialog(
                                     precioUni = precio
                                 )
                             )
+                        }
+                        else{
+                            print("ERROR")
                         }
                     }) {
                         Text("Agregar")
@@ -922,12 +934,15 @@ fun UpdateServicioTransporteDialog(
                     }
                     Spacer(modifier = Modifier.width(8.dp))
                     Button(onClick = {
-                        if (vehiculo.isNotBlank() && precio != 0.0) {
+                        if (vehiculo.isNotBlank() && precio > 0.0) {
                             onServicioUpdated(
                                 codigo,
                                 vehiculo,
                                 precio
                             )
+                        }
+                        else{
+                            print("ERROR")
                         }
                     }) {
                         Text("Actualizar")
@@ -984,7 +999,7 @@ fun AddServicioVeterinarioDialog(
                     }
                     Spacer(modifier = Modifier.width(8.dp))
                     Button(onClick = {
-                        if (modalidad.isNotBlank() && precio != 0.0) {
+                        if (modalidad.isNotBlank() && precio > 0.0) {
                             onServicioAdded(
                                 ServVeterinario(
                                     codigo = 0,
@@ -992,6 +1007,9 @@ fun AddServicioVeterinarioDialog(
                                     precioUni = precio
                                 )
                             )
+                        }
+                        else{
+                            print("ERROR")
                         }
                     }) {
                         Text("Agregar")
@@ -1049,12 +1067,15 @@ fun UpdateServicioVeterinarioDialog(
                     }
                     Spacer(modifier = Modifier.width(8.dp))
                     Button(onClick = {
-                        if (modalidad.isNotBlank() && precio != 0.0) {
+                        if (modalidad.isNotBlank() && precio > 0.0) {
                             onServicioUpdated(
                                 codigo,
                                 modalidad,
                                 precio
                             )
+                        }
+                        else{
+                            print("ERROR")
                         }
                     }) {
                         Text("Actualizar")
@@ -1148,8 +1169,109 @@ fun AddProveedorDialog(
                                 )
                             )
                         }
+                        else{
+                            print("ERROR")
+                        }
                     }) {
                         Text("Agregar")
+                    }
+                }
+            }
+        }
+    }
+}
+
+
+@Composable
+fun UpdateProveedorAlimDialog(
+    colors: RefugioColorPalette,
+    codigo: Int,
+    nombreInicial: String,
+    emailInicial: String,
+    provinciaInicial: String,
+    direccionInicial: String,
+    telefonoInicial: String,
+    onDismissRequest: () -> Unit,
+    onProveedorUpdated: (Int, String, String, String, String, String) -> Unit
+) {
+    var nombre by remember { mutableStateOf(nombreInicial) }
+    var email by remember { mutableStateOf(emailInicial) }
+    var provincia by remember { mutableStateOf(provinciaInicial) }
+    var direccion by remember { mutableStateOf(direccionInicial) }
+    var telefono by remember { mutableStateOf(telefonoInicial) }
+
+    Dialog(onDismissRequest = onDismissRequest) {
+        Surface(
+            modifier = Modifier.padding(16.dp),
+            shape = RoundedCornerShape(8.dp),
+            color = colors.menuBackground
+        ) {
+            Column(modifier = Modifier.padding(16.dp)) {
+                Text("Actualizar Proveedor de Alimentos", style = MaterialTheme.typography.h6)
+
+                OutlinedTextField(
+                    value = nombre,
+                    onValueChange = { nombre = it },
+                    label = { Text("Nombre") },
+                    modifier = Modifier.fillMaxWidth()
+                )
+
+                OutlinedTextField(
+                    value = email,
+                    onValueChange = { email = it },
+                    label = { Text("Email") },
+                    modifier = Modifier.fillMaxWidth()
+                )
+
+                OutlinedTextField(
+                    value = provincia,
+                    onValueChange = { provincia = it },
+                    label = { Text("Provincia") },
+                    modifier = Modifier.fillMaxWidth()
+                )
+
+                OutlinedTextField(
+                    value = direccion,
+                    onValueChange = { direccion = it },
+                    label = { Text("Dirección") },
+                    modifier = Modifier.fillMaxWidth()
+                )
+
+                OutlinedTextField(
+                    value = telefono,
+                    onValueChange = { telefono = it },
+                    label = { Text("Teléfono") },
+                    modifier = Modifier.fillMaxWidth()
+                )
+
+                Spacer(modifier = Modifier.height(16.dp))
+
+                Row(
+                    horizontalArrangement = Arrangement.End,
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    TextButton(onClick = onDismissRequest) {
+                        Text("Cancelar")
+                    }
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Button(onClick = {
+                        if (nombre.isNotBlank() && email.isNotBlank() && provincia.isNotBlank() &&
+                            direccion.isNotBlank() && telefono.isNotBlank()
+                        ) {
+                            onProveedorUpdated(
+                                codigo, // Se usa el código existente para la actualización
+                                nombre,
+                                email,
+                                provincia,
+                                direccion,
+                                telefono,
+                            )
+                        }
+                        else{
+                            print("ERROR")
+                        }
+                    }) {
+                        Text("Actualizar")
                     }
                 }
             }
@@ -1240,8 +1362,109 @@ fun AddTransportistaDialog(
                                 )
                             )
                         }
+                        else{
+                            print("ERROR")
+                        }
                     }) {
                         Text("Agregar")
+                    }
+                }
+            }
+        }
+    }
+}
+
+
+@Composable
+fun UpdateTransporteDialog(
+    colors: RefugioColorPalette,
+    codigo: Int,
+    nombreInicial: String,
+    emailInicial: String,
+    provinciaInicial: String,
+    direccionInicial: String,
+    telefonoInicial: String,
+    onDismissRequest: () -> Unit,
+    onTransporteUpdated: (Int, String, String, String, String, String) -> Unit
+) {
+    var nombre by remember { mutableStateOf(nombreInicial) }
+    var email by remember { mutableStateOf(emailInicial) }
+    var provincia by remember { mutableStateOf(provinciaInicial) }
+    var direccion by remember { mutableStateOf(direccionInicial) }
+    var telefono by remember { mutableStateOf(telefonoInicial) }
+
+    Dialog(onDismissRequest = onDismissRequest) {
+        Surface(
+            modifier = Modifier.padding(16.dp),
+            shape = RoundedCornerShape(8.dp),
+            color = colors.menuBackground
+        ) {
+            Column(modifier = Modifier.padding(16.dp)) {
+                Text("Actualizar Transporte", style = MaterialTheme.typography.h6)
+
+                OutlinedTextField(
+                    value = nombre,
+                    onValueChange = { nombre = it },
+                    label = { Text("Nombre") },
+                    modifier = Modifier.fillMaxWidth()
+                )
+
+                OutlinedTextField(
+                    value = email,
+                    onValueChange = { email = it },
+                    label = { Text("Email") },
+                    modifier = Modifier.fillMaxWidth()
+                )
+
+                OutlinedTextField(
+                    value = provincia,
+                    onValueChange = { provincia = it },
+                    label = { Text("Provincia") },
+                    modifier = Modifier.fillMaxWidth()
+                )
+
+                OutlinedTextField(
+                    value = direccion,
+                    onValueChange = { direccion = it },
+                    label = { Text("Dirección") },
+                    modifier = Modifier.fillMaxWidth()
+                )
+
+                OutlinedTextField(
+                    value = telefono,
+                    onValueChange = { telefono = it },
+                    label = { Text("Teléfono") },
+                    modifier = Modifier.fillMaxWidth()
+                )
+
+                Spacer(modifier = Modifier.height(16.dp))
+
+                Row(
+                    horizontalArrangement = Arrangement.End,
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    TextButton(onClick = onDismissRequest) {
+                        Text("Cancelar")
+                    }
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Button(onClick = {
+                        if (nombre.isNotBlank() && email.isNotBlank() && provincia.isNotBlank() &&
+                            direccion.isNotBlank() && telefono.isNotBlank()
+                        ) {
+                            onTransporteUpdated(
+                                codigo, // Se usa el código existente para la actualización
+                                nombre,
+                                email,
+                                provincia,
+                                direccion,
+                                telefono,
+                            )
+                        }
+                        else{
+                            print("ERROR")
+                        }
+                    }) {
+                        Text("Actualizar")
                     }
                 }
             }
@@ -1352,8 +1575,128 @@ fun AddVeterinarioDialog(
                                 )
                             )
                         }
+                        else{
+                            print("ERROR")
+                        }
                     }) {
                         Text("Agregar")
+                    }
+                }
+            }
+        }
+    }
+}
+
+@Composable
+fun UpdateVeterinarioDialog(
+    colors: RefugioColorPalette,
+    codigo: Int,
+    nombreInicial: String,
+    emailInicial: String,
+    provinciaInicial: String,
+    direccionInicial: String,
+    telefonoInicial: String,
+    especialidadInicial: String,
+    clinicaInicial: String,
+    onDismissRequest: () -> Unit,
+    onVeterinarioUpdated: (Int, String, String, String, String, String, String, String) -> Unit
+) {
+    var nombre by remember { mutableStateOf(nombreInicial) }
+    var email by remember { mutableStateOf(emailInicial) }
+    var provincia by remember { mutableStateOf(provinciaInicial) }
+    var direccion by remember { mutableStateOf(direccionInicial) }
+    var telefono by remember { mutableStateOf(telefonoInicial) }
+    var especialidad by remember { mutableStateOf(especialidadInicial) }
+    var clinica by remember { mutableStateOf(clinicaInicial) }
+
+    Dialog(onDismissRequest = onDismissRequest) {
+        Surface(
+            modifier = Modifier.padding(16.dp),
+            shape = RoundedCornerShape(8.dp),
+            color = colors.menuBackground
+        ) {
+            Column(modifier = Modifier.padding(16.dp)) {
+                Text("Actualizar Veterinario", style = MaterialTheme.typography.h6)
+
+                OutlinedTextField(
+                    value = nombre,
+                    onValueChange = { nombre = it },
+                    label = { Text("Nombre") },
+                    modifier = Modifier.fillMaxWidth()
+                )
+
+                OutlinedTextField(
+                    value = email,
+                    onValueChange = { email = it },
+                    label = { Text("Email") },
+                    modifier = Modifier.fillMaxWidth()
+                )
+
+                OutlinedTextField(
+                    value = provincia,
+                    onValueChange = { provincia = it },
+                    label = { Text("Provincia") },
+                    modifier = Modifier.fillMaxWidth()
+                )
+
+                OutlinedTextField(
+                    value = direccion,
+                    onValueChange = { direccion = it },
+                    label = { Text("Dirección") },
+                    modifier = Modifier.fillMaxWidth()
+                )
+
+                OutlinedTextField(
+                    value = telefono,
+                    onValueChange = { telefono = it },
+                    label = { Text("Teléfono") },
+                    modifier = Modifier.fillMaxWidth()
+                )
+
+                OutlinedTextField(
+                    value = especialidad,
+                    onValueChange = { especialidad = it },
+                    label = { Text("Especialidad") },
+                    modifier = Modifier.fillMaxWidth()
+                )
+
+                OutlinedTextField(
+                    value = clinica,
+                    onValueChange = { clinica = it },
+                    label = { Text("Clínica") },
+                    modifier = Modifier.fillMaxWidth()
+                )
+
+                Spacer(modifier = Modifier.height(16.dp))
+
+                Row(
+                    horizontalArrangement = Arrangement.End,
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    TextButton(onClick = onDismissRequest) {
+                        Text("Cancelar")
+                    }
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Button(onClick = {
+                        if (nombre.isNotBlank() && email.isNotBlank() && provincia.isNotBlank() &&
+                            direccion.isNotBlank() && telefono.isNotBlank() && especialidad.isNotBlank() && clinica.isNotBlank()
+                        ) {
+                            onVeterinarioUpdated(
+                                    codigo, // Se usa el código existente para la actualización
+                                    nombre,
+                                    email,
+                                    provincia,
+                                    direccion,
+                                    telefono,
+                                    especialidad,
+                                    clinica
+                                )
+                        }
+                        else{
+                            print("ERROR")
+                        }
+                    }) {
+                        Text("Actualizar")
                     }
                 }
             }

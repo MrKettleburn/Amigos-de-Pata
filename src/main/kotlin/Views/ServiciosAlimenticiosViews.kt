@@ -1,5 +1,6 @@
 package Views
 
+import Class_DB.ContratadosDB
 import Class_DB.ServiciosDB
 import Models.ServAlimenticio
 import Models.ServTransporte
@@ -51,13 +52,7 @@ fun ServiciosAlimenticioMostrar(colors: RefugioColorPalette, selectedItem: Strin
                 style = MaterialTheme.typography.h5,
                 modifier = Modifier.padding(bottom = 4.dp)
             )
-            Button(
-                onClick = { coroutineScope.launch {
-                    servicios = ServiciosDB.getServiciosAlimenticiosFilter(null,null,null,null)
-                } },
-            ) {
-                Text("Recargar")
-            }
+
             // Componentes de filtrado
             FilterComponentsAlimenticio(
                 colors,
@@ -85,14 +80,24 @@ fun ServiciosAlimenticioMostrar(colors: RefugioColorPalette, selectedItem: Strin
             ServiciosTableAlimenticio(colors, getServiciosTableRowsAlimenticio(servicios))
         }
 
-        // Botón flotante de agregar
-        FloatingActionButton(
-            onClick = { showDialog = true },
+        Column(
             modifier = Modifier
-                .align(Alignment.BottomEnd)
-                .padding(16.dp)
+                .fillMaxSize()
+                .padding(16.dp),
+            verticalArrangement = Arrangement.Bottom,
+            horizontalAlignment = Alignment.End
         ) {
-            Icon(Icons.Default.Add, contentDescription = "Agregar")
+            FloatingActionButton(
+                onClick = { coroutineScope.launch { servicios = ServiciosDB.getServiciosAlimenticiosFilter(null, null, null, null)}}
+            ) {
+                Icon(Icons.Default.ArrowCircleDown, contentDescription = "Recargar")
+            }
+
+            FloatingActionButton(
+                onClick = { showDialog = true },
+            ) {
+                Icon(Icons.Default.Add, contentDescription = "Agregar")
+            }
         }
 
         if (showDialog) {
@@ -180,6 +185,7 @@ fun ServiciosTableAlimenticio(colors: RefugioColorPalette, data: List<ServicioTa
 
 @Composable
 fun ServiciosRowAlimenticio(colors: RefugioColorPalette, row: ServicioTableRowAlimenticio) {
+    val coroutineScope = rememberCoroutineScope()
     var showUpdateDialog by remember { mutableStateOf(false) }
     Row(
         modifier = Modifier
@@ -207,7 +213,7 @@ fun ServiciosRowAlimenticio(colors: RefugioColorPalette, row: ServicioTableRowAl
             }
         }
         Row {
-            IconButton(onClick = { /* TODO: Implementar modificar */ }) {
+            IconButton(onClick = { showUpdateDialog=true }) {
                 Icon(Icons.Default.Edit, contentDescription = "Modificar")
             }
             IconButton(onClick = { /* TODO: Implementar eliminar */ }) {
@@ -223,10 +229,12 @@ fun ServiciosRowAlimenticio(colors: RefugioColorPalette, row: ServicioTableRowAl
                 tipoAlimInicial = row.tipoAlim,
                 onDismissRequest = { showUpdateDialog = false },
                 onServicioUpdated = { codigo, tipoAlim, precio ->
-
-                    //ServiciosDB.updateServicioVeterinario(codigo, tipoAlim, precio)
-
-                    showUpdateDialog = false
+                    coroutineScope.launch {
+                        if(ServiciosDB.updateServicioVeterinario(codigo, precio, tipoAlim))
+                            showUpdateDialog = false
+                        else
+                            println("Revise los datos")
+                    }
                 }
             )
         }

@@ -1,6 +1,7 @@
 package Views
 
 import Class_DB.ContratadosDB
+import Class_DB.ServiciosDB
 import Models.Transporte
 import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
@@ -49,14 +50,6 @@ fun TransportistasMostrar(colors: RefugioColorPalette, selectedItem: String, sel
                 modifier = Modifier.padding(bottom = 4.dp)
             )
 
-            Button(
-                onClick = { coroutineScope.launch {
-                    transportistas = ContratadosDB.getTransportistasFilter(null,null,null)
-                } },
-            ) {
-                Text("Recargar")
-            }
-
             FilterComponentsT(
                 colors,
                 onFilterApplied = {
@@ -79,13 +72,24 @@ fun TransportistasMostrar(colors: RefugioColorPalette, selectedItem: String, sel
             TransportistasExpandableTable(colors, getTransportistasTableRows(transportistas))
         }
 
-        FloatingActionButton(
-            onClick = { showDialog = true },
+        Column(
             modifier = Modifier
-                .align(Alignment.BottomEnd)
-                .padding(16.dp)
+                .fillMaxSize()
+                .padding(16.dp),
+            verticalArrangement = Arrangement.Bottom,
+            horizontalAlignment = Alignment.End
         ) {
-            Icon(Icons.Default.Add, contentDescription = "Agregar")
+            FloatingActionButton(
+                onClick = { coroutineScope.launch { transportistas = ContratadosDB.getTransportistasFilter(null, null, null)}}
+            ) {
+                Icon(Icons.Default.ArrowCircleDown, contentDescription = "Recargar")
+            }
+
+            FloatingActionButton(
+                onClick = { showDialog = true },
+            ) {
+                Icon(Icons.Default.Add, contentDescription = "Agregar")
+            }
         }
 
         if (showDialog) {
@@ -161,7 +165,8 @@ fun TransportistasExpandableTable(colors: RefugioColorPalette, data: List<Transp
 fun TransportistaExpandableRow(colors: RefugioColorPalette, row: TransportistaTableRow) {
     var expanded by remember { mutableStateOf(false) }
     val backgroundColor = if (expanded) colors.menuBackground else Color.Transparent
-
+    val coroutineScope = rememberCoroutineScope()
+    var showUpdateDialog by remember { mutableStateOf(false) }
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -194,7 +199,7 @@ fun TransportistaExpandableRow(colors: RefugioColorPalette, row: TransportistaTa
                 }
             }
             Row {
-                IconButton(onClick = { /* TODO: Implementar modificar */ }) {
+                IconButton(onClick = { showUpdateDialog=true}) {
                     Icon(Icons.Default.Edit, contentDescription = "Modificar")
                 }
                 IconButton(onClick = { /* TODO: Implementar eliminar */ }) {
@@ -228,6 +233,27 @@ fun TransportistaExpandableRow(colors: RefugioColorPalette, row: TransportistaTa
                     Text(text = value)
                 }
             }
+        }
+
+        if (showUpdateDialog) {
+            UpdateTransporteDialog(
+                colors = colors,
+                codigo = row.id.toInt(),
+                nombreInicial = row.nombre,
+                emailInicial = row.email,
+                provinciaInicial = row.provincia,
+                direccionInicial = row.direccion,
+                telefonoInicial = row.telefono,
+                onDismissRequest = { showUpdateDialog = false },
+                onTransporteUpdated = { codigo, nombre, email, provincia,  direccion, telefono->
+                    coroutineScope.launch {
+                        if(ContratadosDB.updateTransporte(codigo, nombre, email, provincia,  direccion, telefono))
+                            showUpdateDialog = false
+                        else
+                            println("Revise los datos")
+                    }
+                }
+            )
         }
     }
 }

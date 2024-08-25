@@ -52,13 +52,6 @@ fun ServiciosVeterinariosMostrar(colors: RefugioColorPalette, selectedItem: Stri
                 modifier = Modifier.padding(bottom = 4.dp)
             )
 
-            Button(
-                onClick = { coroutineScope.launch {
-                    servicios = ServiciosDB.getServiciosVeterinariosFilter(null,null,null,null)
-                } },
-            ) {
-                Text("Recargar")
-            }
 
             // Componentes de filtrado
             FilterComponents(
@@ -87,14 +80,24 @@ fun ServiciosVeterinariosMostrar(colors: RefugioColorPalette, selectedItem: Stri
             ServiciosTable(colors, getServiciosTableRows(servicios))
         }
 
-        // Botón flotante de agregar
-        FloatingActionButton(
-            onClick = { showDialog = true },
+        Column(
             modifier = Modifier
-                .align(Alignment.BottomEnd)
-                .padding(16.dp)
+                .fillMaxSize()
+                .padding(16.dp),
+            verticalArrangement = Arrangement.Bottom,
+            horizontalAlignment = Alignment.End
         ) {
-            Icon(Icons.Default.Add, contentDescription = "Agregar")
+            FloatingActionButton(
+                onClick = { coroutineScope.launch { servicios = ServiciosDB.getServiciosVeterinariosFilter(null, null, null, null)}}
+            ) {
+                Icon(Icons.Default.ArrowCircleDown, contentDescription = "Recargar")
+            }
+
+            FloatingActionButton(
+                onClick = { showDialog = true },
+            ) {
+                Icon(Icons.Default.Add, contentDescription = "Agregar")
+            }
         }
 
         if (showDialog) {
@@ -182,6 +185,7 @@ fun ServiciosTable(colors: RefugioColorPalette, data: List<ServicioVeterinarioTa
 
 @Composable
 fun ServiciosVeterinariosRow(colors: RefugioColorPalette, row: ServicioVeterinarioTableRow) {
+    val coroutineScope = rememberCoroutineScope()
     var showUpdateDialog by remember { mutableStateOf(false) }
     Row(
         modifier = Modifier
@@ -224,11 +228,13 @@ fun ServiciosVeterinariosRow(colors: RefugioColorPalette, row: ServicioVeterinar
                 precioInicial = row.precioUnit,
                 modalidadInicial = row.modalidad,
                 onDismissRequest = { showUpdateDialog = false },
-                onServicioUpdated = { codigo, modalidad, precio ->
-
-                    //ServiciosDB.updateServicioVeterinario(codigo, modalidad, precio)
-
-                    showUpdateDialog = false
+                onServicioUpdated = { codigo, modalidad, precio  ->
+                    coroutineScope.launch {
+                        if(ServiciosDB.updateServicioVeterinario(codigo, precio, modalidad))
+                            showUpdateDialog = false
+                        else
+                            println("Revise los datos")
+                    }
                 }
             )
         }

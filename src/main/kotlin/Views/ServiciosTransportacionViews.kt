@@ -51,13 +51,6 @@ fun ServiciosTransporteMostrar(colors: RefugioColorPalette, selectedItem: String
                 modifier = Modifier.padding(bottom = 4.dp)
             )
 
-            Button(
-                onClick = { coroutineScope.launch {
-                    servicios = ServiciosDB.getServiciosTransportacionFilter(null,null,null,null)
-                } },
-            ) {
-                Text("Recargar")
-            }
             // Componentes de filtrado
             FilterComponentsTransporte(
                 colors,
@@ -85,14 +78,24 @@ fun ServiciosTransporteMostrar(colors: RefugioColorPalette, selectedItem: String
             ServiciosTableTransporte(colors, getServiciosTableRowsTransporte(servicios))
         }
 
-        // Botón flotante de agregar
-        FloatingActionButton(
-            onClick = { showDialog = true },
+        Column(
             modifier = Modifier
-                .align(Alignment.BottomEnd)
-                .padding(16.dp)
+                .fillMaxSize()
+                .padding(16.dp),
+            verticalArrangement = Arrangement.Bottom,
+            horizontalAlignment = Alignment.End
         ) {
-            Icon(Icons.Default.Add, contentDescription = "Agregar")
+            FloatingActionButton(
+                onClick = { coroutineScope.launch { servicios = ServiciosDB.getServiciosTransportacionFilter(null, null, null, null)}}
+            ) {
+                Icon(Icons.Default.ArrowCircleDown, contentDescription = "Recargar")
+            }
+
+            FloatingActionButton(
+                onClick = { showDialog = true },
+            ) {
+                Icon(Icons.Default.Add, contentDescription = "Agregar")
+            }
         }
 
         if (showDialog) {
@@ -180,6 +183,7 @@ fun ServiciosTableTransporte(colors: RefugioColorPalette, data: List<ServicioTab
 
 @Composable
 fun ServiciosRowTransporte(colors: RefugioColorPalette, row: ServicioTableRowTransporte) {
+    val coroutineScope = rememberCoroutineScope()
     var showUpdateDialog by remember { mutableStateOf(false) }
     Row(
         modifier = Modifier
@@ -207,7 +211,7 @@ fun ServiciosRowTransporte(colors: RefugioColorPalette, row: ServicioTableRowTra
             }
         }
         Row {
-            IconButton(onClick = { /* TODO: Implementar modificar */ }) {
+            IconButton(onClick = { showUpdateDialog=true }) {
                 Icon(Icons.Default.Edit, contentDescription = "Modificar")
             }
             IconButton(onClick = { /* TODO: Implementar eliminar */ }) {
@@ -223,10 +227,12 @@ fun ServiciosRowTransporte(colors: RefugioColorPalette, row: ServicioTableRowTra
                 vehiculoInicial = row.vehiculo,
                 onDismissRequest = { showUpdateDialog = false },
                 onServicioUpdated = { codigo, vehiculo, precio ->
-
-                    //ServiciosDB.updateServicioTransporte(codigo, vehiculo, precio)
-
-                    showUpdateDialog = false
+                    coroutineScope.launch {
+                        if(ServiciosDB.updateServicioTransporte(codigo, precio, vehiculo))
+                            showUpdateDialog = false
+                        else
+                            println("Revise los datos")
+                    }
                 }
             )
         }

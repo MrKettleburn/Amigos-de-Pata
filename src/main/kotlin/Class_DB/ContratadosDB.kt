@@ -294,4 +294,91 @@ object ContratadosDB {
         nuevoId
     }
 
+    ///////////////////------------------------ACTUALIZACIONES-------------/////////////////////
+
+    suspend fun updateVeterinario(codigo:Int, nombre:String, email:String, provincia:String, direccion:String, telefono:String, especialidad:String, clinica:String): Boolean = withContext(Dispatchers.IO){
+        val dbConnection = Database.connect()
+        val statement = dbConnection.prepareStatement(
+            "SELECT  actualizar_veterinario(?,?,?,?,?,?,?,?)"
+        )
+
+        statement.setInt(1,codigo)
+        statement.setString(2,nombre)
+        statement.setString(3,email)
+        statement.setString(4,provincia)
+        statement.setString(5,direccion)
+        statement.setString(6,telefono)
+        statement.setString(7,especialidad)
+        statement.setString(8,clinica)
+
+        var retorno: Boolean = true
+        val resultSet = statement.executeQuery()
+
+        if (resultSet.next()) {
+            val resultado: Boolean = resultSet.getBoolean(1)
+            if (!resultado) {
+                println("Error al actualizar el servicio. Intente nuevamente.")
+                retorno=false
+            }
+        }
+
+        dbConnection.close()
+        retorno
+    }
+
+    suspend fun updateTransporte(codigo:Int, nombre:String, email:String, provincia:String, direccion:String, telefono:String): Boolean = withContext(Dispatchers.IO){
+        val dbConnection = Database.connect()
+        val statement = dbConnection.prepareStatement(
+            "SELECT  actualizar_transporte(?,?,?,?,?,?)"
+        )
+
+        statement.setInt(1,codigo)
+        statement.setString(2,nombre)
+        statement.setString(3,email)
+        statement.setString(4,provincia)
+        statement.setString(5,direccion)
+        statement.setString(6,telefono)
+
+        var retorno: Boolean = true
+        val resultSet = statement.executeQuery()
+
+        if (resultSet.next()) {
+            val resultado: Boolean = resultSet.getBoolean(1)
+            if (!resultado) {
+                println("Error al actualizar el servicio. Intente nuevamente.")
+                retorno=false
+            }
+        }
+
+        dbConnection.close()
+        retorno
+    }
+
+    suspend fun updateProveedorAlim(codigo:Int, nombre:String, email:String, provincia:String, direccion:String, telefono:String): Boolean = withContext(Dispatchers.IO){
+        val dbConnection = Database.connect()
+        val statement = dbConnection.prepareStatement(
+            "SELECT  actualizar_proveedoresalim(?,?,?,?,?,?)"
+        )
+
+        statement.setInt(1,codigo)
+        statement.setString(2,nombre)
+        statement.setString(3,email)
+        statement.setString(4,provincia)
+        statement.setString(5,direccion)
+        statement.setString(6,telefono)
+
+        var retorno: Boolean = true
+        val resultSet = statement.executeQuery()
+
+        if (resultSet.next()) {
+            val resultado: Boolean = resultSet.getBoolean(1)
+            if (!resultado) {
+                println("Error al actualizar el servicio. Intente nuevamente.")
+                retorno=false
+            }
+        }
+
+        dbConnection.close()
+        retorno
+    }
 }

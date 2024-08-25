@@ -96,13 +96,6 @@ fun ContratosVeterinariosMostrar(colors: RefugioColorPalette, selectedItem: Stri
                 style = MaterialTheme.typography.h5,
                 modifier = Modifier.padding(bottom = 4.dp)
             )
-            Button(
-                onClick = { coroutineScope.launch {
-                    contratos = ContratoDB.getContratosVeterinariosFilter(null,null,null,null,null,null,null,null,null,null,null,null,null,null)
-                } },
-            ) {
-                Text("Recargar")
-            }
 
             // Componentes de filtrado
             FilterComponentsVeterinarios(
@@ -162,14 +155,39 @@ fun ContratosVeterinariosMostrar(colors: RefugioColorPalette, selectedItem: Stri
             ContratosVeterinariosExpandableTable(colors, getContratosVeterinariosTableRows(contratos))
         }
 
-        // Botón flotante de agregar
-        FloatingActionButton(
-            onClick = {  showDialog = true  },
+        Column(
             modifier = Modifier
-                .align(Alignment.BottomEnd)
-                .padding(16.dp)
+                .fillMaxSize()
+                .padding(16.dp),
+            verticalArrangement = Arrangement.Bottom,
+            horizontalAlignment = Alignment.End
         ) {
-            Icon(Icons.Default.Add, contentDescription = "Agregar")
+            FloatingActionButton(
+                onClick = { coroutineScope.launch { contratos = ContratoDB.getContratosVeterinariosFilter(
+                    null,
+                    null,
+                    null,
+                    null,
+                    null,
+                    null,
+                    null,
+                    null,
+                    null,
+                    null,
+                    null,
+                    null,
+                    null,
+                    null) } },
+                modifier = Modifier.padding(bottom = 16.dp)
+            ) {
+                Icon(Icons.Default.ArrowCircleDown, contentDescription = "Recargar")
+            }
+
+            FloatingActionButton(
+                onClick = { showDialog = true },
+            ) {
+                Icon(Icons.Default.Add, contentDescription = "Agregar")
+            }
         }
 
         if (showDialog) {

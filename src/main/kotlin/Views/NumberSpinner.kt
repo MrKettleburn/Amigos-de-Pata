@@ -13,7 +13,6 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-
 @Composable
 fun <T : Number> Spinner(
     value: T,
@@ -32,10 +31,8 @@ fun <T : Number> Spinner(
             value = text,
             onValueChange = {
                 text = it
-                val numberValue: T? = parseNumber(it, value)
-                if (numberValue != null) {
-                    onValueChange(numberValue)
-                }
+                val numberValue: T = parseNumber(it, value) ?: getDefaultNumber(value)
+                onValueChange(numberValue)
             },
             label = label,
             modifier = Modifier.weight(1f)
@@ -44,12 +41,10 @@ fun <T : Number> Spinner(
         Column {
             IconButton(
                 onClick = {
-                    val numberValue: T? = parseNumber(text, value)
-                    if (numberValue != null) {
-                        val newValue = increment(numberValue, step)
-                        text = newValue.toString()
-                        onValueChange(newValue)
-                    }
+                    val numberValue: T = parseNumber(text, value) ?: getDefaultNumber(value)
+                    val newValue = increment(numberValue, step)
+                    text = newValue.toString()
+                    onValueChange(newValue)
                 },
                 modifier = Modifier.size(24.dp) // Tamaño pequeño
             ) {
@@ -57,13 +52,11 @@ fun <T : Number> Spinner(
             }
             IconButton(
                 onClick = {
-                    val numberValue: T? = parseNumber(text, value)
-                    if (numberValue != null) {
-                        val newValue = decrement(numberValue, step)
-                        if (newValue.toDouble() >= 0) {
-                            text = newValue.toString()
-                            onValueChange(newValue)
-                        }
+                    val numberValue: T = parseNumber(text, value) ?: getDefaultNumber(value)
+                    val newValue = decrement(numberValue, step)
+                    if (newValue.toDouble() >= 0) {
+                        text = newValue.toString()
+                        onValueChange(newValue)
                     }
                 },
                 modifier = Modifier.size(24.dp) // Tamaño pequeño
@@ -79,6 +72,14 @@ private fun <T : Number> parseNumber(input: String, defaultValue: T): T? {
         is Int -> input.toIntOrNull() as? T
         is Double -> input.toDoubleOrNull() as? T
         else -> null
+    }
+}
+
+private fun <T : Number> getDefaultNumber(value: T): T {
+    return when (value) {
+        is Int -> 0 as T
+        is Double -> 0.0 as T
+        else -> value
     }
 }
 

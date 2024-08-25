@@ -51,13 +51,6 @@ fun VeterinariosMostrar(colors: RefugioColorPalette, selectedItem: String, selec
                 modifier = Modifier.padding(bottom = 4.dp)
             )
 
-            Button(
-                onClick = { coroutineScope.launch {
-                    veterinarios = ContratadosDB.getVeterinariosFilter(null,null,null,null,null)
-                } },
-            ) {
-                Text("Recargar")
-            }
 
             FilterComponentsVeterinarios(
                 colors,
@@ -87,13 +80,24 @@ fun VeterinariosMostrar(colors: RefugioColorPalette, selectedItem: String, selec
             VeterinariosExpandableTable(colors, getVeterinariosTableRows(veterinarios))
         }
 
-        FloatingActionButton(
-            onClick = { showDialog = true },
+        Column(
             modifier = Modifier
-                .align(Alignment.BottomEnd)
-                .padding(16.dp)
+                .fillMaxSize()
+                .padding(16.dp),
+            verticalArrangement = Arrangement.Bottom,
+            horizontalAlignment = Alignment.End
         ) {
-            Icon(Icons.Default.Add, contentDescription = "Agregar")
+            FloatingActionButton(
+                onClick = { coroutineScope.launch { veterinarios = ContratadosDB.getVeterinariosFilter(null, null, null, null, null)}}
+            ) {
+                Icon(Icons.Default.ArrowCircleDown, contentDescription = "Recargar")
+            }
+
+            FloatingActionButton(
+                onClick = { showDialog = true },
+            ) {
+                Icon(Icons.Default.Add, contentDescription = "Agregar")
+            }
         }
 
         if (showDialog) {
@@ -186,6 +190,8 @@ fun VeterinariosExpandableTable(colors: RefugioColorPalette, data: List<Veterina
 fun VeterinarioExpandableRow(colors: RefugioColorPalette, row: VeterinarioTableRow) {
     var expanded by remember { mutableStateOf(false) }
     val backgroundColor = if (expanded) colors.menuBackground else Color.Transparent
+    var showUpdateDialog by remember { mutableStateOf(false) }
+    val coroutineScope = rememberCoroutineScope()
 
     Column(
         modifier = Modifier
@@ -219,7 +225,7 @@ fun VeterinarioExpandableRow(colors: RefugioColorPalette, row: VeterinarioTableR
                 }
             }
             Row {
-                IconButton(onClick = { /* TODO: Implementar modificar */ }) {
+                IconButton(onClick = { showUpdateDialog=true }) {
                     Icon(Icons.Default.Edit, contentDescription = "Modificar")
                 }
                 IconButton(onClick = { /* TODO: Implementar eliminar */ }) {
@@ -253,6 +259,32 @@ fun VeterinarioExpandableRow(colors: RefugioColorPalette, row: VeterinarioTableR
                     Text(text = value)
                 }
             }
+        }
+
+        if (showUpdateDialog) {
+            UpdateVeterinarioDialog(
+                colors = colors,
+                codigo = row.id.toInt(),
+                nombreInicial = row.nombre,
+                emailInicial = row.email,
+                provinciaInicial = row.provincia,
+                direccionInicial = row.direccion,
+                telefonoInicial = row.telefono,
+                especialidadInicial = row.especialidad,
+                clinicaInicial = row.clinica,
+                onDismissRequest = { showUpdateDialog = false },
+                onVeterinarioUpdated = { codigo, nombre, email, provincia, direccion, telefono, especialidad, clinica ->
+                    coroutineScope.launch {
+
+                        val success = ContratadosDB.updateVeterinario(codigo, nombre, email, provincia, direccion, telefono, especialidad, clinica)
+                        if (success) {
+                            showUpdateDialog = false
+                        } else {
+                            print("ERROR")
+                        }
+                    }
+                }
+            )
         }
     }
 }
