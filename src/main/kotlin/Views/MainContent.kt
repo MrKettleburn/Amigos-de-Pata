@@ -26,18 +26,17 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 
-
 @Composable
-fun MainContent(colors: RefugioColorPalette) {
+fun MainContent(colors: RefugioColorPalette, onLogout: () -> Unit) {
     var selectedItem by remember { mutableStateOf("") }
     var selectedSubItem by remember { mutableStateOf("") }
 
     Row(modifier = Modifier.fillMaxSize()) {
         // Sidebar con el menú expandible
-        AnimatedSideMenu(colors, selectedItem, selectedSubItem) { item, subItem ->
+        AnimatedSideMenu(colors, selectedItem, selectedSubItem, onSelectionChanged = { item, subItem ->
             selectedItem = item
             selectedSubItem = subItem
-        }
+        }, onLogout = onLogout)
 
         // Main Content del Dashboard
         Box(

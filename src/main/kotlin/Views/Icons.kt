@@ -10,6 +10,7 @@ fun getIconForAttribute(attribute: String): ImageVector {
         "Clínica del Veterinario" -> Icons.Default.LocalHospital
         "Código" -> Icons.Default.Badge
         "Código Contrato" -> Icons.Default.Description
+        "Contraseña" -> Icons.Default.Lock
         "Descripción" -> Icons.Default.Textsms
         "Días en Refugio" -> Icons.Default.Numbers
         "Dirección" -> Icons.Default.LocationOn

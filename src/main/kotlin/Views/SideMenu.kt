@@ -24,7 +24,8 @@ fun AnimatedSideMenu(
     colors: RefugioColorPalette,
     selectedItem: String,
     selectedSubItem: String,
-    onSelectionChanged: (String, String) -> Unit
+    onSelectionChanged: (String, String) -> Unit,
+    onLogout: () -> Unit // Agregamos un callback para manejar el logout
 ) {
     val scrollState = rememberScrollState()
 
@@ -36,6 +37,7 @@ fun AnimatedSideMenu(
             .verticalScroll(scrollState)
             .padding(16.dp)
     ) {
+        // Secciones anteriores
         Text(
             "Gestión",
             style = MaterialTheme.typography.h6,
@@ -48,7 +50,6 @@ fun AnimatedSideMenu(
         ExpandableMenuItem("Contratados", colors, selectedItem, selectedSubItem, onSelectionChanged, Icons.Default.People)
         ExpandableMenuItem("Servicios", colors, selectedItem, selectedSubItem, onSelectionChanged, Icons.Default.Build)
         ExpandableMenuItem("Animales", colors, selectedItem, selectedSubItem, onSelectionChanged, Icons.Default.Pets)
-
 
         Spacer(modifier = Modifier.height(16.dp))
 
@@ -65,8 +66,23 @@ fun AnimatedSideMenu(
                 onSelectionChanged(it, "")
             }
         }
+
+        Spacer(modifier = Modifier.weight(1f))
+
+        // Botón de Logout al final
+        Button(
+            onClick = onLogout,
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(vertical = 8.dp)
+        ) {
+            Icon(Icons.Default.ExitToApp, contentDescription = "Log Out")
+            Spacer(modifier = Modifier.width(8.dp))
+            Text("Log Out")
+        }
     }
 }
+
 
 @Composable
 fun ExpandableMenuItem(

@@ -3,6 +3,7 @@ package Views
 import androidx.compose.animation.core.*
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
@@ -30,6 +31,7 @@ fun LoginScreen(colors: RefugioColorPalette, onLoginSuccess: () -> Unit) {
     var username by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
     var errorMessage by remember { mutableStateOf("") }
+    var showDialog by remember { mutableStateOf(false) }
 
     Box(
         modifier = Modifier
@@ -40,10 +42,8 @@ fun LoginScreen(colors: RefugioColorPalette, onLoginSuccess: () -> Unit) {
                 )
             )
     ) {
-        // Fondo de ondas
         KotlinWavePatternLogin(colors, Modifier.fillMaxSize())
 
-        // Contenido principal
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center,
@@ -53,7 +53,7 @@ fun LoginScreen(colors: RefugioColorPalette, onLoginSuccess: () -> Unit) {
         ) {
             AnimatedLogo(colors)
 
-            Spacer(modifier = Modifier.height(32.dp))
+            Spacer(modifier = Modifier.height(16.dp))
 
             Text(
                 "Amigos de la Pata",
@@ -62,7 +62,7 @@ fun LoginScreen(colors: RefugioColorPalette, onLoginSuccess: () -> Unit) {
                 color = Color.White
             )
 
-            Spacer(modifier = Modifier.height(48.dp))
+            Spacer(modifier = Modifier.height(32.dp))
 
             Card(
                 modifier = Modifier
@@ -79,8 +79,13 @@ fun LoginScreen(colors: RefugioColorPalette, onLoginSuccess: () -> Unit) {
                         value = username,
                         onValueChange = { username = it },
                         label = { Text("Usuario") },
-                        leadingIcon = { Icon(Icons.Default.Person, contentDescription = null) },
-                        modifier = Modifier.fillMaxWidth()
+                        leadingIcon = { Icon(getIconForAttribute("Nombre"), contentDescription = null) },
+                        modifier = Modifier.fillMaxWidth(),
+                        colors = TextFieldDefaults.outlinedTextFieldColors(
+                            focusedBorderColor = colors.primary,
+                            unfocusedBorderColor = colors.menuItemSelected,
+                            cursorColor = colors.primary
+                        )
                     )
 
                     Spacer(modifier = Modifier.height(16.dp))
@@ -89,9 +94,14 @@ fun LoginScreen(colors: RefugioColorPalette, onLoginSuccess: () -> Unit) {
                         value = password,
                         onValueChange = { password = it },
                         label = { Text("Contraseña") },
-                        leadingIcon = { Icon(Icons.Default.Lock, contentDescription = null) },
+                        leadingIcon = { Icon(getIconForAttribute("Contraseña"), contentDescription = null) },
                         modifier = Modifier.fillMaxWidth(),
-                        visualTransformation = PasswordVisualTransformation()
+                        visualTransformation = PasswordVisualTransformation(),
+                        colors = TextFieldDefaults.outlinedTextFieldColors(
+                            focusedBorderColor = colors.primary,
+                            unfocusedBorderColor = colors.menuItemSelected,
+                            cursorColor = colors.primary
+                        )
                     )
 
                     Spacer(modifier = Modifier.height(24.dp))
@@ -107,15 +117,84 @@ fun LoginScreen(colors: RefugioColorPalette, onLoginSuccess: () -> Unit) {
                         modifier = Modifier.fillMaxWidth(),
                         colors = ButtonDefaults.buttonColors(backgroundColor = colors.secondary)
                     ) {
-                        Text("Iniciar Sesión", color = Color.White)
+                        Text("Iniciar Sesión", color = colors.onMenuItemSelected)
                     }
 
                     if (errorMessage.isNotEmpty()) {
                         Spacer(modifier = Modifier.height(8.dp))
                         Text(text = errorMessage, color = MaterialTheme.colors.error)
                     }
+
+                    Spacer(modifier = Modifier.height(16.dp))
+
+                    Text(
+                        text = "Loguearse Aquí :D",
+                        color = colors.secondary,
+                        modifier = Modifier.clickable { showDialog = true }
+                    )
                 }
             }
+        }
+
+        if (showDialog) {
+            AlertDialog(
+                onDismissRequest = { showDialog = false },
+                title = {
+                    Text(
+                        text = "Introducir Datos",
+                        style = MaterialTheme.typography.h6.copy(fontWeight = FontWeight.Bold) // Más negrito y marcado
+                    )
+                },
+                text = {
+                    Column {
+                        OutlinedTextField(
+                            value = username,
+                            onValueChange = { username = it },
+                            label = { Text("Usuario") },
+                            leadingIcon = { Icon(getIconForAttribute("Nombre"), contentDescription = null) },
+                            colors = TextFieldDefaults.outlinedTextFieldColors(
+                                focusedBorderColor = colors.primary,
+                                unfocusedBorderColor = colors.menuItemSelected,
+                                cursorColor = colors.primary
+                            )
+                        )
+                        Spacer(modifier = Modifier.height(8.dp))
+                        OutlinedTextField(
+                            value = password,
+                            onValueChange = { password = it },
+                            label = { Text("Contraseña") },
+                            leadingIcon = { Icon(getIconForAttribute("Contraseña"), contentDescription = null) },
+                            visualTransformation = PasswordVisualTransformation(),
+                            colors = TextFieldDefaults.outlinedTextFieldColors(
+                                focusedBorderColor = colors.primary,
+                                unfocusedBorderColor = colors.menuItemSelected,
+                                cursorColor = colors.primary
+                            )
+                        )
+                    }
+                },
+                confirmButton = {
+                    Button(
+                        onClick = {
+                            showDialog = false
+                            if (username == "admin" && password == "password") {
+                                onLoginSuccess()
+                            } else {
+                                errorMessage = "Usuario o contraseña inválidos"
+                            }
+                        },
+                        colors = ButtonDefaults.buttonColors(backgroundColor = colors.primary)
+                    ) {
+                        Text("Aceptar", color = colors.onMenuItemSelected)
+                    }
+                },
+                dismissButton = {
+                    TextButton(onClick = { showDialog = false }) {
+                        Text("Cancelar", color = colors.primary)
+                    }
+                },
+                backgroundColor = colors.background
+            )
         }
     }
 }

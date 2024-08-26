@@ -9,18 +9,30 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 
 @Composable
-fun RefugioApp() {
+fun RefugioApp(
+    isLoggedIn: Boolean,
+    onLogout: () -> Unit,
+    onLoginSuccess: () -> Unit
+) {
     val colorPalette = RefugioColorPalette()
 
     MaterialTheme(
         colors = colorPalette.toMaterialColors()
     ) {
-        Box(modifier = Modifier.fillMaxSize().background(colorPalette.background)) {
-            Column {
-                Header(colorPalette)
-                MainContent(colorPalette)
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(colorPalette.background)
+        ) {
+            if (isLoggedIn) {
+                Column {
+                    Header(colorPalette)
+                    MainContent(colors = colorPalette, onLogout = onLogout)
+                }
+                AnimatedPawPrints(colorPalette)
+            } else {
+                LoginScreen(colors = colorPalette, onLoginSuccess = onLoginSuccess)
             }
-            AnimatedPawPrints(colorPalette)
         }
     }
 }
