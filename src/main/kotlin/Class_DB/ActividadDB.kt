@@ -2,6 +2,7 @@ package Class_DB
 
 import Database.Database
 import Models.Actividad
+import Models.ActividadReporte
 import Models.Animal
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -53,6 +54,43 @@ object ActividadDB {
                     tipo = resultSet.getString("tipo_actividad"),
                     codigoContr = resultSet.getInt("id_contrato"),
                     tipoContrato = resultSet.getString("tipo_contrato"),
+                    descrip = resultSet.getString("descrip_act"),
+                    costo = resultSet.getDouble("costo")
+                )
+            )
+        }
+        resultSet.close()
+        statement.close()
+        dbConnection.close()
+        actividades
+        //PROBAR INTERFAZ
+    }
+
+    suspend fun getActividadesReport(
+        codigoAnim: Int,
+    ): List<ActividadReporte>  = withContext(Dispatchers.IO) {
+
+        val actividades = mutableListOf<ActividadReporte>()
+        val dbConnection: Connection = Database.connect()
+        val statement = dbConnection.prepareStatement(
+            "SELECT * FROM reporte_actividades_animal(?)"
+        )
+
+        statement.setInt(1, codigoAnim)
+
+        val resultSet = statement.executeQuery()
+
+
+        while (resultSet.next()) {
+            actividades.add(
+                ActividadReporte(
+                    codigo = resultSet.getInt("id_actividad"),
+                    codigoAnim = resultSet.getInt("id_animal"),
+                    fecha = resultSet.getDate("fecha").toLocalDate(),
+                    hora = resultSet.getTime("hora").toLocalTime(),
+                    tipo = resultSet.getString("tipo_actividad"),
+                    codigoContr = resultSet.getInt("id_contrato"),
+                    detalles = resultSet.getString("detalles"),
                     descrip = resultSet.getString("descrip_act"),
                     costo = resultSet.getDouble("costo")
                 )

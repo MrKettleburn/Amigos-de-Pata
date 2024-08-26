@@ -110,26 +110,3 @@ fun createPdfContratosVeterinarios(destination: String, contratos: List<Contrato
     // Cerrar el documento
     document.close()
 }
-
-suspend fun generarReporteContratosVeterinarios(destination: String, fechaYhora: LocalDateTime) {
-    // Obtener los contratos desde la base de datos
-    val contratos = getContratosVeterinariosFilter(
-        codigo = null,
-        precioLI = null,
-        precioLS = null,
-        nombreVet = null,
-        clinicaVet = null,
-        provinciaVet = null,
-        especialidad = null,
-        modalidadServVet = null,
-        fechaInicioLI = null,
-        fechaInicioLS = null,
-        fechaFinLI = null,
-        fechaFinLS = null,
-        fechaConcilLI = null,
-        fechaConcilLS = null
-    )
-
-    // Crear el PDF con los contratos obtenidos
-    createPdfContratosVeterinarios(destination, contratos, fechaYhora)
-}
