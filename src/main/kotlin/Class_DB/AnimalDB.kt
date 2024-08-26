@@ -90,6 +90,24 @@ object AnimalDB {
         //PROBAR INTERFAZ
     }
 
+    suspend fun totalDeAnimales(): Int = withContext(Dispatchers.IO){
+        val dbConnection: Connection = Database.connect()
+        val statement = dbConnection.prepareStatement(
+            "SELECT COUNT(*) FROM animal"
+        )
+        var retorno = 0
+        val resultSet = statement.executeQuery()
+        if(resultSet.next())
+        {
+            retorno = resultSet.getInt(1)
+        }
+
+        resultSet.close()
+        statement.close()
+        dbConnection.close()
+        retorno
+    }
+
     suspend fun getAnimalAdoptFilter(
         codigo: Int?,
         nombre: String?,

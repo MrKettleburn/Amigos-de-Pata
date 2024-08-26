@@ -530,6 +530,7 @@ fun ActividadesDialog(
     onDismissRequest: () -> Unit
 ) {
     val coroutineScope = rememberCoroutineScope()
+    var showAddDialog by remember { mutableStateOf(false) }
     var actividades by remember { mutableStateOf<List<Actividad>>(emptyList()) }
     var codigoActividad by remember { mutableStateOf<String?>(null) }
     var tipo by remember { mutableStateOf<String?>(null) }
@@ -629,7 +630,7 @@ fun ActividadesDialog(
                     Spacer(modifier = Modifier.width(30.dp))
                     Button(
                         onClick = {
-                            /* AddActividadDialog()*/
+                            showAddDialog = true
                         },
                         modifier = Modifier.align(Alignment.CenterVertically)
                     ) {
@@ -642,6 +643,22 @@ fun ActividadesDialog(
                 // Tabla de actividades
                 ActividadesExpandableTable(colors, getActividadesTableRows(actividades))
             }
+            if(showAddDialog)
+            {
+                AddActividadDialog(
+                    colors = colors,
+                    animalId = codigoAnim,
+                    onDismissRequest = {showAddDialog=false},
+                    onActividadAdded = {newActividad ->
+                        coroutineScope.launch {
+                            ActividadDB.createActividad(newActividad)
+                            showAddDialog=false
+                            actividades = ActividadDB.getActividadesFilter(codigoAnim, null, null, null, null, null)
+                        }
+                    }
+                )
+            }
+
         }
     }
 }

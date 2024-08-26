@@ -183,24 +183,21 @@ fun ContratosTransporteMostrar(colors: RefugioColorPalette, selectedItem: String
                     coroutineScope.launch {
 
                         print(newContrato)
-//                        ContratoDB.createContratoVeterinario(newContrato)
-//
-//                        contratos = ContratoDB.getContratosVeterinariosFilter(
-//                            null,
-//                            null,
-//                            null,
-//                            null,
-//                            null,
-//                            null,
-//                            null,
-//                            null,
-//                            null,
-//                            null,
-//                            null,
-//                            null,
-//                            null,
-//                            null
-//                        )
+                        ContratoDB.createContratoTransporte(newContrato)
+
+                        contratos = ContratoDB.getContratosTransporteFilter(
+                            null,
+                            null,
+                            null,
+                            null,
+                            null,
+                            null,
+                            null,
+                            null,
+                            null,
+                            null,
+                            null,
+                        )
                         showDialog = false
                     }
                 }

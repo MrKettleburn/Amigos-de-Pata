@@ -15,7 +15,7 @@ object ContratoDB {
     suspend fun createContratoVeterinario(contrato: ContratoVeterinario): Boolean  = withContext(Dispatchers.IO){
     val dbConnection = Database.connect()
     val statement = dbConnection.prepareStatement(
-        "INSERT INTO contrato(tipo_contrato, descrip, precio_contrato, id_contratado, id_servicio, fecha_inicio, fecha_fin, fecha_conciliacion) VALUES(?,?,?,?,?,?,?,?)"  // QUITAR LUEGO LOS DIAS
+        "INSERT INTO contrato(tipo_contrato, descrip, precio_contrato, id_contratado, id_servicio, fecha_inicio, fecha_fin, fecha_conciliacion, costo_unitario) VALUES(?,?,?,?,?,?,?,?,?)"
     )
 
     statement.setString(1,"Veterinario")
@@ -29,12 +29,63 @@ object ContratoDB {
     statement.setDate(7, sqlDateF)
     val sqlDateC = Date.valueOf(contrato.fechaConcil)
     statement.setDate(8, sqlDateC)
+    statement.setDouble(9,contrato.costoUnit)
 
     val rowsInserted = statement.executeUpdate()
     statement.close()
     dbConnection.close()
     rowsInserted > 0
 }
+
+    suspend fun createContratoTransporte(contrato: ContratoTransporte): Boolean  = withContext(Dispatchers.IO){
+        val dbConnection = Database.connect()
+        val statement = dbConnection.prepareStatement(
+            "INSERT INTO contrato(tipo_contrato, descrip, precio_contrato, id_contratado, id_servicio, fecha_inicio, fecha_fin, fecha_conciliacion, costo_unitario) VALUES(?,?,?,?,?,?,?,?,?)"
+        )
+
+        statement.setString(1,"Transporte")
+        statement.setString(2,contrato.descripcion)
+        statement.setDouble(3,contrato.precio)
+        statement.setInt(4,contrato.idTrans)
+        statement.setInt(5,contrato.idServ)
+        val sqlDateI = Date.valueOf(contrato.fechaInicio)
+        statement.setDate(6, sqlDateI)
+        val sqlDateF = Date.valueOf(contrato.fechaFin)
+        statement.setDate(7, sqlDateF)
+        val sqlDateC = Date.valueOf(contrato.fechaConcil)
+        statement.setDate(8, sqlDateC)
+        statement.setDouble(9,contrato.costoUnit)
+
+        val rowsInserted = statement.executeUpdate()
+        statement.close()
+        dbConnection.close()
+        rowsInserted > 0
+    }
+
+    suspend fun createContratoProveedorAlim(contrato: ContratoProveedorAlim): Boolean  = withContext(Dispatchers.IO){
+        val dbConnection = Database.connect()
+        val statement = dbConnection.prepareStatement(
+            "INSERT INTO contrato(tipo_contrato, descrip, precio_contrato, id_contratado, id_servicio, fecha_inicio, fecha_fin, fecha_conciliacion, costo_unitario) VALUES(?,?,?,?,?,?,?,?,?)"
+        )
+
+        statement.setString(1,"Proveedor de alimentos")
+        statement.setString(2,contrato.descripcion)
+        statement.setDouble(3,contrato.precio)
+        statement.setInt(4,contrato.idProv)
+        statement.setInt(5,contrato.idServ)
+        val sqlDateI = Date.valueOf(contrato.fechaInicio)
+        statement.setDate(6, sqlDateI)
+        val sqlDateF = Date.valueOf(contrato.fechaFin)
+        statement.setDate(7, sqlDateF)
+        val sqlDateC = Date.valueOf(contrato.fechaConcil)
+        statement.setDate(8, sqlDateC)
+        statement.setDouble(9,contrato.costoUnit)
+
+        val rowsInserted = statement.executeUpdate()
+        statement.close()
+        dbConnection.close()
+        rowsInserted > 0
+    }
 
 //    suspend fun getContratos(): List<Animal> = withContext(Dispatchers.IO) {
 //
@@ -111,6 +162,7 @@ object ContratoDB {
                 ContratoVeterinario(
                     codigo = resultSet.getInt("id_contrato"),
                     precio = resultSet.getDouble("precio_contrato"),
+                    costoUnit = resultSet.getDouble("costo_unitario"),
                     descripcion = resultSet.getString("descrip"),
                     idVet = resultSet.getInt("id_contratado"),
                     nombreVet = resultSet.getString("nombre_contratado"),
@@ -177,6 +229,7 @@ object ContratoDB {
                 ContratoProveedorAlim(
                     codigo = resultSet.getInt("id_contrato"),
                     precio = resultSet.getDouble("precio_contrato"),
+                    costoUnit = resultSet.getDouble("costo_unitario"),
                     descripcion = resultSet.getString("descrip"),
                     nombreProv = resultSet.getString("nombre_contratado"),
                     provinciaProv = resultSet.getString("provincia"),
@@ -237,6 +290,7 @@ object ContratoDB {
                 ContratoTransporte(
                     codigo = resultSet.getInt("id_contrato"),
                     precio = resultSet.getDouble("precio_contrato"),
+                    costoUnit = resultSet.getDouble("costo_unitario"),
                     descripcion = resultSet.getString("descrip"),
                     nombreTrans = resultSet.getString("nombre_contratado"),
                     provinciaTrans = resultSet.getString("provincia"),
@@ -256,5 +310,112 @@ object ContratoDB {
         dbConnection.close()
         contratos
         //PROBAR INTERFAZ
+    }
+
+    suspend fun getContratosVeterinariosForComboBox(): List<ContratoVeterinario> = withContext(Dispatchers.IO) {
+        val contratos = mutableListOf<ContratoVeterinario>()
+        val dbConnection: Connection = Database.connect()
+        val statement = dbConnection.prepareStatement(
+            "SELECT * FROM contrato c INNER JOIN contratado con ON c.id_contratado=con.id_contratado INNER JOIN veterinario v ON con.id_contratado=v.id_contratado INNER JOIN servicio s ON c.id_servicio=s.id_servicio INNER JOIN servicio_veterinario sv ON s.id_servicio=sv.id_servicio WHERE c.tipo_contrato='Veterinario' ORDER BY sv.modalidad ASC"
+        )
+
+        val resultSet = statement.executeQuery()
+
+        while (resultSet.next()) {
+            contratos.add(
+                ContratoVeterinario(
+                    codigo = resultSet.getInt("id_contrato"),
+                    precio = resultSet.getDouble("precio_contrato"),
+                    costoUnit = resultSet.getDouble("costo_unitario"),
+                    descripcion = resultSet.getString("descrip"),
+                    idVet = resultSet.getInt("id_contratado"),
+                    nombreVet = resultSet.getString("nombre_contratado"),
+                    clinicaVet = resultSet.getString("clinica"),
+                    provinciaVet = resultSet.getString("provincia"),
+                    direccVet = resultSet.getString("direccion"),
+                    especialidad = resultSet.getString("especialidad"),
+                    idServ = resultSet.getInt("id_servicio"),
+                    modalidadServVet= resultSet.getString("modalidad"),
+                    precioUnit = resultSet.getDouble("precio_unitario"),
+                    fechaInicio = resultSet.getDate("fecha_inicio").toLocalDate(),
+                    fechaFin = resultSet.getDate("fecha_fin").toLocalDate(),
+                    fechaConcil = resultSet.getDate("fecha_conciliacion").toLocalDate()
+                )
+            )
+        }
+        resultSet.close()
+        statement.close()
+        dbConnection.close()
+        contratos
+    }
+
+    suspend fun getContratosProveedoresAlimentosForComboBox(): List<ContratoProveedorAlim> = withContext(Dispatchers.IO) {
+        val contratos = mutableListOf<ContratoProveedorAlim>()
+        val dbConnection: Connection = Database.connect()
+        val statement = dbConnection.prepareStatement(
+            "SELECT * FROM contrato c INNER JOIN contratado con ON c.id_contratado=con.id_contratado INNER JOIN servicio s ON c.id_servicio=s.id_servicio INNER JOIN servicio_alimentacion sa ON s.id_servicio=sa.id_servicio WHERE c.tipo_contrato='Proveedor de alimentos' ORDER BY sa.tipo_alimento ASC"
+        )
+
+        val resultSet = statement.executeQuery()
+
+        while (resultSet.next()) {
+            contratos.add(
+                ContratoProveedorAlim(
+                    codigo = resultSet.getInt("id_contrato"),
+                    precio = resultSet.getDouble("precio_contrato"),
+                    costoUnit = resultSet.getDouble("costo_unitario"),
+                    descripcion = resultSet.getString("descrip"),
+                    nombreProv = resultSet.getString("nombre_contratado"),
+                    provinciaProv = resultSet.getString("provincia"),
+                    direccProv = resultSet.getString("direccion"),
+                    tipoAlim= resultSet.getString("tipo_alimento"),
+                    precioUnit = resultSet.getDouble("precio_unitario"),
+                    fechaInicio = resultSet.getDate("fecha_inicio").toLocalDate(),
+                    fechaFin = resultSet.getDate("fecha_fin").toLocalDate(),
+                    fechaConcil = resultSet.getDate("fecha_conciliacion").toLocalDate(),
+                    idProv = resultSet.getInt("id_contratado"),
+                    idServ = resultSet.getInt("id_servicio"),
+                )
+            )
+        }
+        resultSet.close()
+        statement.close()
+        dbConnection.close()
+        contratos
+    }
+
+    suspend fun getContratosTransporteForComboBox(): List<ContratoTransporte> = withContext(Dispatchers.IO) {
+        val contratos = mutableListOf<ContratoTransporte>()
+        val dbConnection: Connection = Database.connect()
+        val statement = dbConnection.prepareStatement(
+            "SELECT * FROM contrato c INNER JOIN contratado con ON c.id_contratado=con.id_contratado INNER JOIN servicio s ON c.id_servicio=s.id_servicio INNER JOIN servicio_transporte st ON s.id_servicio=st.id_servicio WHERE c.tipo_contrato='Transporte' ORDER BY st.vehiculo ASC"
+        )
+
+        val resultSet = statement.executeQuery()
+
+        while (resultSet.next()) {
+            contratos.add(
+                ContratoTransporte(
+                    codigo = resultSet.getInt("id_contrato"),
+                    precio = resultSet.getDouble("precio_contrato"),
+                    costoUnit = resultSet.getDouble("costo_unitario"),
+                    descripcion = resultSet.getString("descrip"),
+                    nombreTrans = resultSet.getString("nombre_contratado"),
+                    provinciaTrans = resultSet.getString("provincia"),
+                    direccionTrans = resultSet.getString("direccion"),
+                    vehiculo = resultSet.getString("vehiculo"),
+                    precioUnit = resultSet.getDouble("precio_unitario"),
+                    fechaInicio = resultSet.getDate("fecha_inicio").toLocalDate(),
+                    fechaFin = resultSet.getDate("fecha_fin").toLocalDate(),
+                    fechaConcil = resultSet.getDate("fecha_conciliacion").toLocalDate(),
+                    idTrans = resultSet.getInt("id_contratado"),
+                    idServ = resultSet.getInt("id_servicio"),
+                )
+            )
+        }
+        resultSet.close()
+        statement.close()
+        dbConnection.close()
+        contratos
     }
 }

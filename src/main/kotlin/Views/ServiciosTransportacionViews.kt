@@ -247,7 +247,7 @@ fun getServiciosTableRowsTransporte(servicios: List<ServTransporte>): List<Servi
             vehiculo = servicio.vehiculo,
             mainAttributes = mapOf(
                 "Código" to "${servicio.codigo}",
-                "Vehiculo" to servicio.vehiculo,
+                "Vehículo" to servicio.vehiculo,
                 "Precio" to "\$${servicio.precioUni}"
             )
         )

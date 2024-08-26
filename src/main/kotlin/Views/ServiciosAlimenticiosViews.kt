@@ -230,7 +230,7 @@ fun ServiciosRowAlimenticio(colors: RefugioColorPalette, row: ServicioTableRowAl
                 onDismissRequest = { showUpdateDialog = false },
                 onServicioUpdated = { codigo, tipoAlim, precio ->
                     coroutineScope.launch {
-                        if(ServiciosDB.updateServicioVeterinario(codigo, precio, tipoAlim))
+                        if(ServiciosDB.updateServicioAlimenticio(codigo, precio, tipoAlim))
                             showUpdateDialog = false
                         else
                             println("Revise los datos")

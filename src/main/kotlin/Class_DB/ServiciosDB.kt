@@ -332,7 +332,7 @@ object ServiciosDB {
     suspend fun updateServicioAlimenticio(codigo:Int, precioUnit:Double, tipoAlim: String): Boolean = withContext(Dispatchers.IO) {
         val dbConnection = Database.connect()
         val statement = dbConnection.prepareStatement(
-            "SELECT actualizar_servicio_alimenticio(?,?,?)"
+            "SELECT actualizar_servicio_alimentacion(?,?,?)"
         )
 
         statement.setInt(1,codigo)

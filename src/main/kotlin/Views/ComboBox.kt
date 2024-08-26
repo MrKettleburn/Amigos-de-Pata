@@ -20,6 +20,7 @@ fun <T> DropdownMenu(
     selectedItem: T?,
     onItemSelected: (T) -> Unit,
     modifier: Modifier = Modifier,
+    enabled: Boolean = true,
     itemToString: (T) -> String = { it.toString() }
 ) {
     var expanded by remember { mutableStateOf(false) }
@@ -39,6 +40,7 @@ fun <T> DropdownMenu(
             trailingIcon = {
                 IconButton(
                     onClick = { expanded = !expanded },
+                    enabled = enabled,
                 ) {
                     Icon(
                         if (expanded) Icons.Default.KeyboardArrowUp else Icons.Default.KeyboardArrowDown,

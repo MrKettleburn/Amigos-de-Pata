@@ -1,9 +1,6 @@
 package Views
 
-import Class_DB.ActividadDB
-import Class_DB.ContratadosDB
-import Class_DB.ContratoDB
-import Class_DB.ServiciosDB
+import Class_DB.*
 import Models.*
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -25,6 +22,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import kotlinx.coroutines.launch
 import java.time.LocalDate
+import java.time.LocalTime
 import java.time.format.DateTimeFormatter
 import java.time.temporal.ChronoUnit
 
@@ -237,6 +235,221 @@ fun UpdateAnimalDialog(
     }
 }
 
+///////////////----------------------ACTIVIDAD-------------------------////////////////////////
+
+@Composable
+fun AddActividadDialog(
+    colors: RefugioColorPalette,
+    onDismissRequest: () -> Unit,
+    onActividadAdded: (Actividad) -> Unit,
+    animalId: Int // ID del animal para la actividad
+) {
+    val coroutineScope = rememberCoroutineScope()
+
+    // Estados para los campos
+    var tipoActividad by remember { mutableStateOf<String?>(null) }
+    var selectedContratoVet by remember { mutableStateOf<ContratoVeterinario?>(null) }
+    var selectedContratoProveedor by remember { mutableStateOf<ContratoProveedorAlim?>(null) }
+    var selectedContratoTransporte by remember { mutableStateOf<ContratoTransporte?>(null) }
+    var fechaActividad by remember { mutableStateOf<LocalDate?>(null) }
+    var horaActividad by remember { mutableStateOf<LocalTime?>(null) }
+    var descripcion by remember { mutableStateOf("") }
+
+    // Tipos de actividad disponibles
+    val tiposActividad = listOf("Atención Médica", "Socialización y Entrenamiento", "Alimentación")
+
+    // Cargar contratos dependiendo del tipo de actividad seleccionado
+    val contratosVet = remember { mutableStateOf<List<ContratoVeterinario>>(emptyList()) }
+    val contratosProveedor = remember { mutableStateOf<List<ContratoProveedorAlim>>(emptyList()) }
+    val contratosTransporte = remember { mutableStateOf<List<ContratoTransporte>>(emptyList()) }
+
+    LaunchedEffect(tipoActividad) {
+        if (tipoActividad != null) {
+            coroutineScope.launch {
+                when (tipoActividad) {
+                    "Atención Médica" -> {
+                        contratosVet.value = ContratoDB.getContratosVeterinariosForComboBox()
+                        selectedContratoVet = null
+                        selectedContratoTransporte = null
+                        selectedContratoProveedor = null
+                    }
+                    "Socialización y Entrenamiento" -> {
+                        contratosTransporte.value = ContratoDB.getContratosTransporteForComboBox()
+                        selectedContratoVet = null
+                        selectedContratoTransporte = null
+                        selectedContratoProveedor = null
+                    }
+                    "Alimentación" -> {
+                        contratosProveedor.value = ContratoDB.getContratosProveedoresAlimentosForComboBox()
+                        selectedContratoVet = null
+                        selectedContratoTransporte = null
+                        selectedContratoProveedor = null
+                    }
+                }
+            }
+        }
+    }
+
+    Dialog(onDismissRequest = onDismissRequest) {
+        Surface(
+            modifier = Modifier.padding(16.dp).width(800.dp),
+            shape = RoundedCornerShape(8.dp),
+            color = colors.menuBackground
+        ) {
+            Column(modifier = Modifier.padding(16.dp)) {
+                Text("Agregar Actividad", style = MaterialTheme.typography.h6)
+
+                // ComboBox para seleccionar el tipo de actividad
+                DropdownMenu(
+                    label = { Text("Tipo de Actividad") },
+                    items = tiposActividad,
+                    selectedItem = tipoActividad,
+                    onItemSelected = { tipoActividad = it },
+                    modifier = Modifier.fillMaxWidth()
+                )
+
+                Spacer(modifier = Modifier.height(8.dp))
+
+                // ComboBox para seleccionar el contrato (habilitado solo si se seleccionó un tipo de actividad)
+                when (tipoActividad) {
+                    "Atención Médica" -> {
+                        DropdownMenu(
+                            label = { Text("Contrato Veterinario") },
+                            items = contratosVet.value,
+                            selectedItem = selectedContratoVet,
+                            onItemSelected = { selectedContratoVet = it },
+                            modifier = Modifier.fillMaxWidth(),
+                        )
+                    }
+                    "Socialización y Entrenamiento" -> {
+                        DropdownMenu(
+                            label = { Text("Contrato de Transporte") },
+                            items = contratosTransporte.value,
+                            selectedItem = selectedContratoTransporte,
+                            onItemSelected = { selectedContratoTransporte = it },
+                            modifier = Modifier.fillMaxWidth(),
+                        )
+                    }
+                    "Alimentación" -> {
+                        DropdownMenu(
+                            label = { Text("Contrato de Proveedor de Alimentos") },
+                            items = contratosProveedor.value,
+                            selectedItem = selectedContratoProveedor,
+                            onItemSelected = { selectedContratoProveedor = it },
+                            modifier = Modifier.fillMaxWidth(),
+                        )
+                    }
+                }
+                Spacer(modifier = Modifier.height(8.dp))
+                Row(modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                ){
+                    OutlinedTextField(
+                        value = descripcion,
+                        onValueChange = { descripcion = it },
+                        label = { Text("Descripción de la Actividad") },
+                        modifier = Modifier.fillMaxWidth()
+                    )
+                }
+
+                Spacer(modifier = Modifier.height(8.dp))
+                Row (modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                ){
+                    // Campo DatePicker para la fecha de la actividad
+                    DatePicker(
+                        label = { Text("Fecha de la Actividad") },
+                        selectedDate = fechaActividad,
+                        onDateChange = { fechaActividad = it },
+                        modifier = Modifier.weight(1f)
+                    )
+
+                    // Campo TimePicker para la hora de la actividad
+                    TimePicker(
+                        label = { Text("Hora de la Actividad") },
+                        selectedTime = horaActividad,
+                        onTimeChange = { horaActividad = it },
+                        modifier = Modifier.weight(1f)
+                    )
+                }
+
+                Spacer(modifier = Modifier.height(16.dp))
+
+                // Botones de acción
+                Row(
+                    horizontalArrangement = Arrangement.End,
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    TextButton(onClick = onDismissRequest) {
+                        Text("Cancelar")
+                    }
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Button(onClick = {
+                        if (tipoActividad != null && fechaActividad != null && horaActividad != null && descripcion.isNotBlank()) {
+                            val nuevaActividad = when (tipoActividad) {
+                                "Atención Médica" -> {
+                                    if (selectedContratoVet != null) {
+                                        Actividad(
+                                            codigo = 0,
+                                            tipo = tipoActividad!!,
+                                            codigoContr = selectedContratoVet!!.codigo,
+                                            fecha = fechaActividad!!,
+                                            hora = horaActividad!!,
+                                            codigoAnim = animalId,
+                                            costo = selectedContratoVet!!.costoUnit,
+                                            descrip = descripcion,
+                                            tipoContrato = "Veterinario"
+                                        )
+                                    } else null
+                                }
+                                "Socialización y Entrenamiento" -> {
+                                    if (selectedContratoTransporte != null) {
+                                        Actividad(
+                                            codigo = 0,
+                                            tipo = tipoActividad!!,
+                                            codigoContr = selectedContratoTransporte!!.codigo,
+                                            fecha = fechaActividad!!,
+                                            hora = horaActividad!!,
+                                            codigoAnim = animalId,
+                                            costo = selectedContratoTransporte!!.costoUnit,
+                                            descrip = descripcion,
+                                            tipoContrato = "Transporte"
+                                        )
+                                    } else null
+                                }
+                                "Alimentación" -> {
+                                    if (selectedContratoProveedor != null) {
+                                        Actividad(
+                                            codigo = 0,
+                                            tipo = tipoActividad!!,
+                                            codigoContr = selectedContratoProveedor!!.codigo,
+                                            fecha = fechaActividad!!,
+                                            hora = horaActividad!!,
+                                            codigoAnim = animalId,
+                                            costo = selectedContratoProveedor!!.costoUnit,
+                                            descrip = descripcion,
+                                            tipoContrato = "Proveedor de alimentos"
+                                        )
+                                    } else null
+                                }
+                                else -> null
+                            }
+                            if (nuevaActividad != null) {
+                                onActividadAdded(nuevaActividad)
+                            }
+                        }
+                        else
+                        {
+                            println("ERROR")
+                        }
+                    }) {
+                        Text("Agregar")
+                    }
+                }
+            }
+        }
+    }
+}
 
 ///////////////----------------------CONTRATO VETERINARIO------------------///////////////////
 
@@ -297,21 +510,22 @@ fun AddContratoVeterinarioDialog(
                     )
                 }
                 // Campo para la descripción
-                OutlinedTextField(
-                    value = descripcion,
-                    onValueChange = { descripcion = it },
-                    label = { Text("Descripción del Contrato") },
-                    modifier = Modifier.fillMaxWidth()
-                )
-                Spacer(modifier = Modifier.width(4.dp))
-                Spinner(
-                    value = recargo,
-                    onValueChange = { recargo = it },
-                    label = { Text("Recargo") },
-                    modifier = Modifier.weight(1f),
-                    step = 0.5
-                )
-
+                Row() {
+                    OutlinedTextField(
+                        value = descripcion,
+                        onValueChange = { descripcion = it },
+                        label = { Text("Descripción del Contrato") },
+                        modifier = Modifier.width(300.dp)
+                    )
+                    Spacer(modifier = Modifier.width(4.dp))
+                    Spinner(
+                        value = recargo,
+                        onValueChange = { recargo = it },
+                        label = { Text("Recargo") },
+                        modifier = Modifier.weight(1f),
+                        step = 0.5
+                    )
+                }
                 Spacer(modifier = Modifier.height(8.dp))
 
                 // Campos DatePicker para las fechas
@@ -354,6 +568,7 @@ fun AddContratoVeterinarioDialog(
                             val newContrato = ContratoVeterinario(
                                 codigo = 0,
                                 precio = ChronoUnit.DAYS.between(fechaInicio,fechaFin).toInt() * selectedServ!!.precioUni + selectedServ!!.precioUni +recargo,
+                                costoUnit = selectedServ!!.precioUni,
                                 descripcion = descripcion,
                                 nombreVet = selectedVet!!.nombre,
                                 clinicaVet = selectedVet!!.clinica,
@@ -369,6 +584,10 @@ fun AddContratoVeterinarioDialog(
                                 idServ = selectedServ!!.codigo
                             )
                             onContratoAdded(newContrato)
+                        }
+                        else
+                        {
+                            println("ERROR")
                         }
                     }) {
                         Text("Agregar")
@@ -504,23 +723,28 @@ fun AddContratoTransporteDialog(
                     Spacer(modifier = Modifier.width(8.dp))
                     Button(onClick = {
                         if (selectedTrans != null && selectedServ != null && descripcion.isNotBlank() && kilometros != 0.0 && fechaInicio != null && fechaFin != null && fechaConcil != null) {
-                            val newContrato = ContratoTransporte(
-                                codigo = 0,
-                                precio = (ChronoUnit.DAYS.between(fechaInicio, fechaFin)
-                                    .toInt() * (selectedServ!!.precioUni * kilometros!!) ) + (selectedServ!!.precioUni * kilometros!!) + recargo,
-                                descripcion = descripcion,
-                                nombreTrans = selectedTrans!!.nombre,
-                                provinciaTrans = selectedTrans!!.provincia,
-                                direccionTrans = selectedTrans!!.direccion,
-                                precioUnit = selectedServ!!.precioUni,
-                                fechaInicio = fechaInicio!!,
-                                fechaFin = fechaFin!!,
-                                fechaConcil = fechaConcil!!,
-                                idTrans = selectedTrans!!.codigo,
-                                idServ = selectedServ!!.codigo,
-                                vehiculo = selectedServ!!.vehiculo
-                            )
-                            onContratoAdded(newContrato)
+                            coroutineScope.launch {
+                                val totalAnimales = AnimalDB.totalDeAnimales()
+
+                                val newContrato = ContratoTransporte(
+                                    codigo = 0,
+                                    precio = (ChronoUnit.DAYS.between(fechaInicio, fechaFin)
+                                        .toInt() * (selectedServ!!.precioUni * kilometros!!)) + (selectedServ!!.precioUni * kilometros!!) + recargo,
+                                    costoUnit = (selectedServ!!.precioUni * kilometros!!) / totalAnimales,
+                                    descripcion = descripcion,
+                                    nombreTrans = selectedTrans!!.nombre,
+                                    provinciaTrans = selectedTrans!!.provincia,
+                                    direccionTrans = selectedTrans!!.direccion,
+                                    precioUnit = selectedServ!!.precioUni,
+                                    fechaInicio = fechaInicio!!,
+                                    fechaFin = fechaFin!!,
+                                    fechaConcil = fechaConcil!!,
+                                    idTrans = selectedTrans!!.codigo,
+                                    idServ = selectedServ!!.codigo,
+                                    vehiculo = selectedServ!!.vehiculo
+                                )
+                                onContratoAdded(newContrato)
+                            }
                         }
                     }) {
                         Text("Agregar")
@@ -656,22 +880,27 @@ fun AddContratoProvAlimentosDialog(
                     Spacer(modifier = Modifier.width(8.dp))
                     Button(onClick = {
                         if (selectedProv != null && selectedServ != null && descripcion.isNotBlank() && kilogramos > 0.0 && fechaInicio != null && fechaFin != null && fechaConcil != null && recargo>0.0) {
-                            val newContrato = ContratoProveedorAlim(
-                                codigo = 0,
-                                precio = ChronoUnit.DAYS.between(fechaInicio, fechaFin).toInt() * (selectedServ!!.precioUni * kilogramos) + (selectedServ!!.precioUni * kilogramos) + recargo,
-                                descripcion = descripcion,
-                                nombreProv = selectedProv!!.nombre,
-                                provinciaProv = selectedProv!!.provincia,
-                                direccProv = selectedProv!!.direccion,
-                                precioUnit = selectedServ!!.precioUni,
-                                fechaInicio = fechaInicio!!,
-                                fechaFin = fechaFin!!,
-                                fechaConcil = fechaConcil!!,
-                                idProv = selectedProv!!.codigo,
-                                idServ = selectedServ!!.codigo,
-                                tipoAlim = selectedServ!!.tipoAlimento
-                            )
-                            onContratoAdded(newContrato)
+                            coroutineScope.launch {
+                                val totalAnimales = AnimalDB.totalDeAnimales()
+                                val newContrato = ContratoProveedorAlim(
+                                    codigo = 0,
+                                    precio = ChronoUnit.DAYS.between(fechaInicio, fechaFin)
+                                        .toInt() * (selectedServ!!.precioUni * kilogramos) + (selectedServ!!.precioUni * kilogramos) + recargo,
+                                    costoUnit = (selectedServ!!.precioUni * kilogramos) /totalAnimales,
+                                    descripcion = descripcion,
+                                    nombreProv = selectedProv!!.nombre,
+                                    provinciaProv = selectedProv!!.provincia,
+                                    direccProv = selectedProv!!.direccion,
+                                    precioUnit = selectedServ!!.precioUni,
+                                    fechaInicio = fechaInicio!!,
+                                    fechaFin = fechaFin!!,
+                                    fechaConcil = fechaConcil!!,
+                                    idProv = selectedProv!!.codigo,
+                                    idServ = selectedServ!!.codigo,
+                                    tipoAlim = selectedServ!!.tipoAlimento
+                                )
+                                onContratoAdded(newContrato)
+                            }
                         }
                         else{
                             print("ERROR")
@@ -911,7 +1140,7 @@ fun UpdateServicioTransporteDialog(
                 OutlinedTextField(
                     value = vehiculo,
                     onValueChange = { vehiculo = it },
-                    label = { Text("Vehiculo") },
+                    label = { Text("Vehículo") },
                     modifier = Modifier.fillMaxWidth()
                 )
 

@@ -5,6 +5,7 @@ import java.time.LocalDate
 data class ContratoVeterinario(
     val codigo: Int,
     val precio: Double,
+    val costoUnit: Double,
     val descripcion: String,
     val idVet: Int,
     val nombreVet: String,
@@ -18,4 +19,8 @@ data class ContratoVeterinario(
     val fechaInicio: LocalDate, //TIPO DE DATO FECHA
     val fechaFin: LocalDate, //TIPO DE DATO FECHA
     val fechaConcil: LocalDate //TIPO DE DATO FECHA
-)
+){
+    override fun toString(): String{
+        return "C:$codigo N:$nombreVet M:$modalidadServVet EV:$especialidad"
+    }
+}

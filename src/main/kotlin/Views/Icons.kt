@@ -38,7 +38,7 @@ fun getIconForAttribute(attribute: String): ImageVector {
         "Teléfono" -> Icons.Default.Phone
         "Tipo de Alimento" -> Icons.Default.Fastfood
         "Tipo" -> Icons.Default.Bloodtype
-        "Vehiculo" -> Icons.Default.LocalShipping
+        "Vehículo" -> Icons.Default.LocalShipping
 
         else -> Icons.Default.Info
     }

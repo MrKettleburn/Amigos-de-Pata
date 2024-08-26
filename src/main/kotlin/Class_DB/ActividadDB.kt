@@ -6,10 +6,13 @@ import Models.Animal
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.sql.Connection
+import java.sql.Date
+import java.sql.Time
 import java.sql.Types
 import java.time.LocalDate
 import java.time.LocalTime
 import java.time.format.DateTimeFormatter
+import kotlin.math.cos
 
 object ActividadDB {
 
@@ -50,7 +53,8 @@ object ActividadDB {
                     tipo = resultSet.getString("tipo_actividad"),
                     codigoContr = resultSet.getInt("id_contrato"),
                     tipoContrato = resultSet.getString("tipo_contrato"),
-                    descrip = resultSet.getString("descrip_act")
+                    descrip = resultSet.getString("descrip_act"),
+                    costo = resultSet.getDouble("costo")
                 )
             )
         }
@@ -59,5 +63,27 @@ object ActividadDB {
         dbConnection.close()
         actividades
         //PROBAR INTERFAZ
+    }
+
+    suspend fun createActividad(actividad: Actividad): Boolean = withContext(Dispatchers.IO){
+        val dbConnection = Database.connect()
+        val statement = dbConnection.prepareStatement(
+            "INSERT INTO actividad (id_animal, fecha, hora, tipo_actividad, id_contrato, descrip_act, costo) VALUES(?,?,?,?,?,?,?)"  // QUITAR LUEGO LOS DIAS
+        )
+
+        statement.setInt(1,actividad.codigoAnim)
+        val sqlDate = Date.valueOf(actividad.fecha)
+        statement.setDate(2,sqlDate)
+        val sqlTime = Time.valueOf(actividad.hora)
+        statement.setTime(3,sqlTime)
+        statement.setString(4,actividad.tipo)
+        statement.setInt(5,actividad.codigoContr)
+        statement.setString(6,actividad.descrip)
+        statement.setDouble(7,actividad.costo)
+
+        val rowsInserted = statement.executeUpdate()
+        statement.close()
+        dbConnection.close()
+        rowsInserted > 0
     }
 }

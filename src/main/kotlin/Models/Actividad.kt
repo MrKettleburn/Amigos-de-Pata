@@ -11,5 +11,6 @@ data class Actividad(
     val tipo: String,
     val codigoContr: Int,
     val tipoContrato: String,
-    val descrip: String
+    val descrip: String,
+    val costo: Double
 )
