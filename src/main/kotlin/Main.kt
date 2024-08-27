@@ -4,7 +4,6 @@ import Models.Actividad
 import Models.ActividadReporte
 import ReportesPDF.generarReporteActividadesDeUnAnimal
 import ReportesPDF.generarReporteContratosVeterinarios
-import ReportesPDF.generarReportePlanDeIngresos
 import Utiles.sacarActividadesMesPasado
 import Views.LoginScreen
 import Views.RefugioApp
@@ -19,11 +18,9 @@ import java.awt.GraphicsEnvironment
 import java.sql.Connection
 import java.time.LocalDate
 import java.time.LocalDateTime
-import java.time.LocalTime
 import java.time.format.DateTimeFormatter
 
 @Composable
-@Preview
 fun App(window: java.awt.Window) {
     var isLoggedIn by remember { mutableStateOf(false) }
 
@@ -35,11 +32,15 @@ fun App(window: java.awt.Window) {
         LaunchedEffect(Unit) {
             setFullScreen(window)
         }
-        RefugioApp()
-    } else {
-        LoginScreen(colors = colors, onLoginSuccess = { isLoggedIn = true })
     }
+
+    RefugioApp(
+        isLoggedIn = isLoggedIn,
+        onLogout = { isLoggedIn = false }, // Controla el logout
+        onLoginSuccess = { isLoggedIn = true } // Controla el login exitoso
+    )
 }
+
 
 fun main() = application {
     Window(
@@ -50,16 +51,11 @@ fun main() = application {
         App(window)
     }
 
-//    generarReportePlanDeIngresos(LocalDateTime.now())
-
-//    generarReporteContratosVeterinarios(LocalDateTime.now())
-//    generarReporteActividadesDeUnAnimal(9,LocalDateTime.now())
-    //generarReporteContratosVeterinarios( LocalDateTime.now())
 
 //    LaunchedEffect(Unit) {
 //        generarReporteContratosVeterinarios("C:\\Users\\ruben\\IdeaProjects\\Amigos_de_Pata\\src\\main\\kotlin\\PruebaPDF.pdf", LocalDateTime.now())
 //    }
-
+//
 //    LaunchedEffect(Unit) {
 //        println(generarReporteActividadesDeUnAnimal(9))
 //    }
@@ -92,10 +88,10 @@ fun main() = application {
 //
 //    val formatterDate = DateTimeFormatter.ofPattern("dd/MM/yyyy")
 //    val actividadesMesPasado = sacarActividadesMesPasado(actividades)
-//
-////    println("TODAS LAS ACTIVIDADES")
-////    actividades.forEach { act -> println(act.fecha.format(formatterDate)) }
-//
+
+//    println("TODAS LAS ACTIVIDADES")
+//    actividades.forEach { act -> println(act.fecha.format(formatterDate)) }
+
 //    println("\n\n\n")
 //    println("ACTIVIDADES MES PASADO")
 //    actividadesMesPasado.forEach { act -> println(act.fecha.format(formatterDate) + "    " + act.costo) }
