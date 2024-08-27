@@ -12,35 +12,42 @@ import java.time.format.DateTimeFormatter
 object ContratoDB {
 
 ///////////////////-----------------------INSERCIONES----------------------///////////////////////
-    suspend fun createContratoVeterinario(contrato: ContratoVeterinario): Boolean  = withContext(Dispatchers.IO){
-    val dbConnection = Database.connect()
-    val statement = dbConnection.prepareStatement(
-        "INSERT INTO contrato(tipo_contrato, descrip, precio_contrato, id_contratado, id_servicio, fecha_inicio, fecha_fin, fecha_conciliacion, costo_unitario) VALUES(?,?,?,?,?,?,?,?,?)"
-    )
-
-    statement.setString(1,"Veterinario")
-    statement.setString(2,contrato.descripcion)
-    statement.setDouble(3,contrato.precio)
-    statement.setInt(4,contrato.idVet)
-    statement.setInt(5,contrato.idServ)
-    val sqlDateI = Date.valueOf(contrato.fechaInicio)
-    statement.setDate(6, sqlDateI)
-    val sqlDateF = Date.valueOf(contrato.fechaFin)
-    statement.setDate(7, sqlDateF)
-    val sqlDateC = Date.valueOf(contrato.fechaConcil)
-    statement.setDate(8, sqlDateC)
-    statement.setDouble(9,contrato.costoUnit)
-
-    val rowsInserted = statement.executeUpdate()
-    statement.close()
-    dbConnection.close()
-    rowsInserted > 0
-}
-
-    suspend fun createContratoTransporte(contrato: ContratoTransporte): Boolean  = withContext(Dispatchers.IO){
+    suspend fun createContratoVeterinario(contrato: ContratoVeterinario): Int  = withContext(Dispatchers.IO){
+        var retorno = -1
         val dbConnection = Database.connect()
         val statement = dbConnection.prepareStatement(
-            "INSERT INTO contrato(tipo_contrato, descrip, precio_contrato, id_contratado, id_servicio, fecha_inicio, fecha_fin, fecha_conciliacion, costo_unitario) VALUES(?,?,?,?,?,?,?,?,?)"
+            "SELECT insertar_contrato(?,?,?,?,?,?,?,?,?)"
+        )
+
+        statement.setString(1,"Veterinario")
+        statement.setString(2,contrato.descripcion)
+        statement.setDouble(3,contrato.precio)
+        statement.setInt(4,contrato.idVet)
+        statement.setInt(5,contrato.idServ)
+        val sqlDateI = Date.valueOf(contrato.fechaInicio)
+        statement.setDate(6, sqlDateI)
+        val sqlDateF = Date.valueOf(contrato.fechaFin)
+        statement.setDate(7, sqlDateF)
+        val sqlDateC = Date.valueOf(contrato.fechaConcil)
+        statement.setDate(8, sqlDateC)
+        statement.setDouble(9,contrato.costoUnit)
+
+        val resultSet = statement.executeQuery()
+        if(resultSet.next())
+        {
+            retorno=resultSet.getInt(1)
+        }
+        resultSet.close()
+        statement.close()
+        dbConnection.close()
+        retorno
+}
+
+    suspend fun createContratoTransporte(contrato: ContratoTransporte): Int  = withContext(Dispatchers.IO){
+        var retorno = -1
+        val dbConnection = Database.connect()
+        val statement = dbConnection.prepareStatement(
+            "SELECT insertar_contrato(?,?,?,?,?,?,?,?,?)"
         )
 
         statement.setString(1,"Transporte")
@@ -56,16 +63,22 @@ object ContratoDB {
         statement.setDate(8, sqlDateC)
         statement.setDouble(9,contrato.costoUnit)
 
-        val rowsInserted = statement.executeUpdate()
+        val resultSet = statement.executeQuery()
+        if(resultSet.next())
+        {
+            retorno=resultSet.getInt(1)
+        }
+        resultSet.close()
         statement.close()
         dbConnection.close()
-        rowsInserted > 0
+        retorno
     }
 
-    suspend fun createContratoProveedorAlim(contrato: ContratoProveedorAlim): Boolean  = withContext(Dispatchers.IO){
+    suspend fun createContratoProveedorAlim(contrato: ContratoProveedorAlim): Int  = withContext(Dispatchers.IO){
+        var retorno = -1
         val dbConnection = Database.connect()
         val statement = dbConnection.prepareStatement(
-            "INSERT INTO contrato(tipo_contrato, descrip, precio_contrato, id_contratado, id_servicio, fecha_inicio, fecha_fin, fecha_conciliacion, costo_unitario) VALUES(?,?,?,?,?,?,?,?,?)"
+            "SELECT insertar_contrato(?,?,?,?,?,?,?,?,?)"
         )
 
         statement.setString(1,"Proveedor de alimentos")
@@ -81,10 +94,15 @@ object ContratoDB {
         statement.setDate(8, sqlDateC)
         statement.setDouble(9,contrato.costoUnit)
 
-        val rowsInserted = statement.executeUpdate()
+        val resultSet = statement.executeQuery()
+        if(resultSet.next())
+        {
+            retorno=resultSet.getInt(1)
+        }
+        resultSet.close()
         statement.close()
         dbConnection.close()
-        rowsInserted > 0
+        retorno
     }
 
 //    suspend fun getContratos(): List<Animal> = withContext(Dispatchers.IO) {

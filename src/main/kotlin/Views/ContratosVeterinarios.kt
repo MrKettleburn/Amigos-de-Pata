@@ -198,25 +198,27 @@ fun ContratosVeterinariosMostrar(colors: RefugioColorPalette, selectedItem: Stri
                     coroutineScope.launch {
 
                         print(newContrato)
-                        ContratoDB.createContratoVeterinario(newContrato)
+                        val success= ContratoDB.createContratoVeterinario(newContrato)
 
-                        contratos = ContratoDB.getContratosVeterinariosFilter(
-                            null,
-                            null,
-                            null,
-                            null,
-                            null,
-                            null,
-                            null,
-                            null,
-                            null,
-                            null,
-                            null,
-                            null,
-                            null,
-                            null
-                        )
-                        showDialog = false
+                        if(success!=-1) {
+                            contratos = ContratoDB.getContratosVeterinariosFilter(
+                                null,
+                                null,
+                                null,
+                                null,
+                                null,
+                                null,
+                                null,
+                                null,
+                                null,
+                                null,
+                                null,
+                                null,
+                                null,
+                                null
+                            )
+                            showDialog = false
+                        }
                     }
                 }
             )

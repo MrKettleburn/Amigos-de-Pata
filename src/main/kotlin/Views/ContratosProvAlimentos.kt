@@ -186,23 +186,25 @@ fun ContratosProvAlimentosMostrar(colors: RefugioColorPalette, selectedItem: Str
                     coroutineScope.launch {
 
                         print(newContrato)
-                        ContratoDB.createContratoProveedorAlim(newContrato)
+                        val success = ContratoDB.createContratoProveedorAlim(newContrato)
 
-                        contratos = ContratoDB.getContratosProveedorAlimFilter(
-                            null,
-                            null,
-                            null,
-                            null,
-                            null,
-                            null,
-                            null,
-                            null,
-                            null,
-                            null,
-                            null,
-                            null,
-                        )
-                        showDialog = false
+                        if(success!=-1) {
+                            contratos = ContratoDB.getContratosProveedorAlimFilter(
+                                null,
+                                null,
+                                null,
+                                null,
+                                null,
+                                null,
+                                null,
+                                null,
+                                null,
+                                null,
+                                null,
+                                null,
+                            )
+                            showDialog = false
+                        }
                     }
                 }
             )

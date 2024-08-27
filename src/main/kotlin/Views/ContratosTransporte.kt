@@ -183,22 +183,24 @@ fun ContratosTransporteMostrar(colors: RefugioColorPalette, selectedItem: String
                     coroutineScope.launch {
 
                         print(newContrato)
-                        ContratoDB.createContratoTransporte(newContrato)
+                        val success = ContratoDB.createContratoTransporte(newContrato)
 
-                        contratos = ContratoDB.getContratosTransporteFilter(
-                            null,
-                            null,
-                            null,
-                            null,
-                            null,
-                            null,
-                            null,
-                            null,
-                            null,
-                            null,
-                            null,
-                        )
-                        showDialog = false
+                        if(success!=-1) {
+                            contratos = ContratoDB.getContratosTransporteFilter(
+                                null,
+                                null,
+                                null,
+                                null,
+                                null,
+                                null,
+                                null,
+                                null,
+                                null,
+                                null,
+                                null,
+                            )
+                            showDialog = false
+                        }
                     }
                 }
             )

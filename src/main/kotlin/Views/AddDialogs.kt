@@ -800,7 +800,7 @@ fun AddContratoVeterinarioDialog(
                     }
                     Spacer(modifier = Modifier.width(8.dp))
                     Button(onClick = {
-                        if (selectedVet != null && selectedServ != null && descripcion.isNotBlank() && fechaInicio != null && fechaFin != null && fechaConcil != null) {
+                        if (selectedVet != null && selectedServ != null && descripcion.isNotBlank() && fechaInicio != null && fechaFin != null && fechaConcil != null && recargo>=0.0) {
                             val newContrato = ContratoVeterinario(
                                 codigo = 0,
                                 precio = ChronoUnit.DAYS.between(fechaInicio,fechaFin).toInt() * selectedServ!!.precioUni + selectedServ!!.precioUni +recargo,
@@ -958,7 +958,7 @@ fun AddContratoTransporteDialog(
                     }
                     Spacer(modifier = Modifier.width(8.dp))
                     Button(onClick = {
-                        if (selectedTrans != null && selectedServ != null && descripcion.isNotBlank() && kilometros != 0.0 && fechaInicio != null && fechaFin != null && fechaConcil != null) {
+                        if (selectedTrans != null && selectedServ != null && descripcion.isNotBlank() && kilometros != 0.0 && fechaInicio != null && fechaFin != null && fechaConcil != null && recargo>=0.0) {
                             coroutineScope.launch {
                                 val totalAnimales = AnimalDB.totalDeAnimales()
 
@@ -1115,7 +1115,7 @@ fun AddContratoProvAlimentosDialog(
                     }
                     Spacer(modifier = Modifier.width(8.dp))
                     Button(onClick = {
-                        if (selectedProv != null && selectedServ != null && descripcion.isNotBlank() && kilogramos > 0.0 && fechaInicio != null && fechaFin != null && fechaConcil != null && recargo>0.0) {
+                        if (selectedProv != null && selectedServ != null && descripcion.isNotBlank() && kilogramos > 0.0 && fechaInicio != null && fechaFin != null && fechaConcil != null && recargo>=0.0) {
                             coroutineScope.launch {
                                 val totalAnimales = AnimalDB.totalDeAnimales()
                                 val newContrato = ContratoProveedorAlim(

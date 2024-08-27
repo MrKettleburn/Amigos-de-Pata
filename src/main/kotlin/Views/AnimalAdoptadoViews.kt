@@ -58,14 +58,6 @@ fun AnimalesAdoptadosMostrar(colors: RefugioColorPalette, selectedItem: String, 
                 modifier = Modifier.padding(bottom = 4.dp)
             )
 
-            Button(
-                onClick = { coroutineScope.launch {
-                    animalesAdoptados = AnimalDB.getAnimalAdoptFilter(null, null, null, null, null, null, null, null, null, null)
-                } },
-            ) {
-                Text("Recargar")
-            }
-
             FilterComponentsA(
                 colors,
                 onFilterApplied = {
@@ -110,12 +102,10 @@ fun AnimalesAdoptadosMostrar(colors: RefugioColorPalette, selectedItem: String, 
         }
 
         FloatingActionButton(
-            onClick = { showDialog = true },
-            modifier = Modifier
-                .align(Alignment.BottomEnd)
-                .padding(16.dp)
+            onClick = { coroutineScope.launch { animalesAdoptados = AnimalDB.getAnimalAdoptFilter(null, null, null, null, null, null, null, null, null, null) } },
+            modifier = Modifier.padding(bottom = 16.dp)
         ) {
-            Icon(Icons.Default.Add, contentDescription = "Agregar")
+            Icon(Icons.Default.ArrowCircleDown, contentDescription = "Recargar")
         }
     }
 }
@@ -168,12 +158,6 @@ fun FilterComponentsA(
                 label = { Text("Especie") },
                 modifier = Modifier.weight(1f)
             )
-        }
-
-        Row(
-            modifier = Modifier.fillMaxWidth().padding(top = 8.dp),
-            horizontalArrangement = Arrangement.spacedBy(8.dp)
-        ) {
             OutlinedTextField(
                 value = raza.orEmpty(),
                 onValueChange = { onRazaChange(if (it.isEmpty()) null else it) },
@@ -187,6 +171,12 @@ fun FilterComponentsA(
                 step = 1,
                 modifier = Modifier.weight(1f)
             )
+            Button(
+                onClick = onFilterApplied,
+                modifier = Modifier.align(Alignment.CenterVertically)
+            ) {
+                Text("Filtrar")
+            }
         }
 
         Row(
@@ -205,12 +195,6 @@ fun FilterComponentsA(
                 onDateChange = onFechaSupChange,
                 modifier = Modifier.weight(1f)
             )
-        }
-
-        Row(
-            modifier = Modifier.fillMaxWidth().padding(top = 8.dp),
-            horizontalArrangement = Arrangement.spacedBy(8.dp)
-        ) {
             Spinner(
                 value = precioInf?.toDoubleOrNull() ?: 0.0,
                 onValueChange = { onPrecioInfChange(it.toString()) },
@@ -225,21 +209,16 @@ fun FilterComponentsA(
                 step = 0.5,
                 modifier = Modifier.weight(1f)
             )
+
+            OutlinedTextField(
+                value = nombreAdoptante.orEmpty(),
+                onValueChange = { onNombreAdoptanteChange(if (it.isEmpty()) null else it) },
+                label = { Text("Nombre del Adoptante") },
+                modifier = Modifier.weight(1f)
+            )
         }
 
-        OutlinedTextField(
-            value = nombreAdoptante.orEmpty(),
-            onValueChange = { onNombreAdoptanteChange(if (it.isEmpty()) null else it) },
-            label = { Text("Nombre del Adoptante") },
-            modifier = Modifier.fillMaxWidth().padding(top = 8.dp)
-        )
 
-        Button(
-            onClick = onFilterApplied,
-            modifier = Modifier.align(Alignment.End).padding(top = 8.dp)
-        ) {
-            Text("Filtrar")
-        }
     }
 }
 @Composable
@@ -276,7 +255,7 @@ fun AnimalAdoptadoExpandableRow(colors: RefugioColorPalette, row: AnimalAdoptado
                     modifier = Modifier.weight(1f)
                 ) {
                     Icon(
-                        imageVector = getIconForAttributeAA(key),
+                        imageVector = getIconForAttribute(key),
                         contentDescription = null,
                         modifier = Modifier.size(20.dp)
                     )
@@ -289,12 +268,6 @@ fun AnimalAdoptadoExpandableRow(colors: RefugioColorPalette, row: AnimalAdoptado
                 }
             }
             Row {
-                IconButton(onClick = { /* TODO: Implementar modificar */ }) {
-                    Icon(Icons.Default.Edit, contentDescription = "Modificar")
-                }
-                IconButton(onClick = { /* TODO: Implementar eliminar */ }) {
-                    Icon(Icons.Default.Delete, contentDescription = "Eliminar")
-                }
                 IconButton(onClick = { expanded = !expanded }) {
                     Icon(
                         if (expanded) Icons.Default.KeyboardArrowUp else Icons.Default.KeyboardArrowDown,
@@ -311,7 +284,7 @@ fun AnimalAdoptadoExpandableRow(colors: RefugioColorPalette, row: AnimalAdoptado
                     modifier = Modifier.padding(start = 16.dp, top = 8.dp)
                 ) {
                     Icon(
-                        imageVector = getIconForAttributeAA(key),
+                        imageVector = getIconForAttribute(key),
                         contentDescription = null,
                         modifier = Modifier.size(20.dp)
                     )
@@ -353,34 +326,5 @@ fun getAnimalesAdoptadosTableRows(animalesAdoptados: List<AnimalAdoptado>): List
                 "Nombre del Adoptante" to (animalAdoptado.nombreAdoptante ?: "No adoptado")
             )
         )
-    }
-}
-data class AnimalAdoptadoTableRow(
-    val id: String,
-    val nombre: String,
-    val especie: String,
-    val raza: String,
-    val edad: String,
-    val peso: String,
-    val fecha_ingreso: String,
-    val precioAdop: String,
-    val nombreAdoptante: String,
-    val mainAttributes: Map<String, String>,
-    val expandedAttributes: Map<String, String>
-)
-
-fun getIconForAttributeAA(attribute: String): ImageVector {
-    return when (attribute) {
-        "Código" -> Icons.Default.Badge
-        "Nombre" -> Icons.Default.Pets
-        "Especie" -> Icons.Default.Category
-        "Raza" -> Icons.Default.Fingerprint
-        "Edad" -> Icons.Default.Cake
-        "Peso" -> Icons.Default.Scale
-        "Días en adopción" -> Icons.Default.HourglassEmpty
-        "Fecha de ingreso" -> Icons.Default.DateRange
-        "Precio de adopción" -> Icons.Default.AttachMoney
-        "Nombre del Adoptante" -> Icons.Default.Person
-        else -> Icons.Default.Info
     }
 }

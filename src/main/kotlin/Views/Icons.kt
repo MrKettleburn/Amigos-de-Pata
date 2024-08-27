@@ -11,6 +11,7 @@ fun getIconForAttribute(attribute: String): ImageVector {
         "Código" -> Icons.Default.Badge
         "Código Contrato" -> Icons.Default.Description
         "Descripción" -> Icons.Default.Textsms
+        "Días en adopción" -> Icons.Default.HourglassEmpty
         "Días en Refugio" -> Icons.Default.Numbers
         "Dirección" -> Icons.Default.LocationOn
         "Dirección del Contratado" -> Icons.Default.LocationOn
@@ -28,9 +29,11 @@ fun getIconForAttribute(attribute: String): ImageVector {
         "Modalidad" -> Icons.Default.Mode
         "Modalidad del Servicio" -> Icons.Default.Mode
         "Nombre" -> Icons.Default.Person
+        "Nombre del Adoptante" -> Icons.Default.Person
         "Nombre del Contratado" -> Icons.Default.Person
         "Peso" -> Icons.Default.FitnessCenter
         "Precio" -> Icons.Default.AttachMoney
+        "Precio de adopción" -> Icons.Default.AttachMoney
         "Precio Unitario del Servicio" -> Icons.Default.AttachMoney
         "Provincia" -> Icons.Default.LocationCity
         "Provincia del Contratado" -> Icons.Default.LocationCity

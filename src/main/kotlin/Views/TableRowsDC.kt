@@ -90,3 +90,17 @@ data class VeterinarioTableRow(
     val mainAttributes: Map<String, String>,
     val expandedAttributes: Map<String, String>
 )
+
+data class AnimalAdoptadoTableRow(
+    val id: String,
+    val nombre: String,
+    val especie: String,
+    val raza: String,
+    val edad: String,
+    val peso: String,
+    val fecha_ingreso: String,
+    val precioAdop: String,
+    val nombreAdoptante: String,
+    val mainAttributes: Map<String, String>,
+    val expandedAttributes: Map<String, String>
+)

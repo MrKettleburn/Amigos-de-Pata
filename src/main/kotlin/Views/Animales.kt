@@ -137,7 +137,7 @@ fun AnimalesEnRefugioMostrar(colors: RefugioColorPalette, selectedItem: String, 
                 onAnimalAdded = { newAnimal ->
                     coroutineScope.launch {
                         val success = AnimalDB.createAnimal(newAnimal)
-                        if (success) {
+                        if (success!=-1) {
                             animales = AnimalDB.getAnimalesFilter(null, null, null, null, null, null, null)
                             showDialog = false
                         } else {
@@ -622,6 +622,15 @@ fun ActividadesDialog(
                         },
                     ) {
                         Text("Agregar Actividad")
+                    }
+
+                    Button(
+                        onClick = {
+                            coroutineScope.launch {
+                                actividades = ActividadDB.getActividadesFilter(codigoAnim, null, null, null, null, null, null)
+                            } },
+                    ) {
+                        Text("Recargar")
                     }
 
                     IconButton(

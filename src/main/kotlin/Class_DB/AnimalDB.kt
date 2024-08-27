@@ -194,10 +194,11 @@ object AnimalDB {
 
     //_____________________________________INSERCCIONES____________________________________________
 
-    suspend fun createAnimal(animal: Animal): Boolean = withContext(Dispatchers.IO) {
+    suspend fun createAnimal(animal: Animal): Int = withContext(Dispatchers.IO) {
+        var retorno = -1
         val dbConnection = Database.connect()
         val statement = dbConnection.prepareStatement(
-            "INSERT INTO animal (nombre_animal, especie, raza, edad, peso, fecha_ingreso) VALUES(?,?,?,?,?,?)"  // QUITAR LUEGO LOS DIAS
+            "SELECT insertar_animal(?,?,?,?,?,?)"  // QUITAR LUEGO LOS DIAS
         )
 
         statement.setString(1,animal.nombre)
@@ -208,10 +209,15 @@ object AnimalDB {
         val sqlDate = Date.valueOf(animal.fecha_ingreso)
         statement.setDate(6, sqlDate)
 
-        val rowsInserted = statement.executeUpdate()
+        val resultSet = statement.executeQuery()
+        if(resultSet.next())
+        {
+            retorno=resultSet.getInt(1)
+        }
+        resultSet.close()
         statement.close()
         dbConnection.close()
-        rowsInserted > 0
+        retorno
     }
 
     suspend fun createAnimalAdoptado(animalAdoptado: AnimalAdoptado): Boolean = withContext(Dispatchers.IO) {
