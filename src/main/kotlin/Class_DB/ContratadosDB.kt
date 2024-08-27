@@ -220,8 +220,7 @@ object ContratadosDB {
         var nuevoId = -1
         val dbConnection: Connection = Database.connect()
         val statement = dbConnection.prepareStatement(
-            "SELECT insertar_veterinario(?, ?, ?, ?, ?, ?, ?)",  // Consulta SQL que invoca la función almacenada
-            arrayOf("id_contratado")
+            "SELECT insertar_veterinario(?, ?, ?, ?, ?, ?, ?)",
         )
 
         statement.setString(1, veterinario.nombre)
@@ -247,15 +246,15 @@ object ContratadosDB {
         var nuevoId = -1
         val dbConnection: Connection = Database.connect()
         val statement = dbConnection.prepareStatement(
-            "SELECT insertar_proveedorA(?, ?, ?, ?, ?,)",  // Consulta SQL que invoca la función almacenada
-            arrayOf("id_contratado")
+            "SELECT insertar_contratado(?, ?, ?, ?, ?, ?)",
         )
 
-        statement.setString(1, proveedorA.nombre)
-        statement.setString(2, proveedorA.email)
-        statement.setString(3, proveedorA.provincia)
-        statement.setString(4, proveedorA.direccion)
-        statement.setString(5, proveedorA.telefono)
+        statement.setString(1,"Proveedor de Alimentos")
+        statement.setString(2, proveedorA.nombre)
+        statement.setString(3, proveedorA.email)
+        statement.setString(4, proveedorA.provincia)
+        statement.setString(5, proveedorA.direccion)
+        statement.setString(6, proveedorA.telefono)
 
         val resultSet = statement.executeQuery()
 
@@ -268,19 +267,20 @@ object ContratadosDB {
         dbConnection.close()
         nuevoId
     }
+
     suspend fun createTransportista(transportista: Transporte): Int = withContext(Dispatchers.IO) {
         var nuevoId = -1
         val dbConnection: Connection = Database.connect()
         val statement = dbConnection.prepareStatement(
-            "SELECT insertar_transportista(?, ?, ?, ?, ?,)",  // Consulta SQL que invoca la función almacenada
-            arrayOf("id_contratado")
+            "SELECT insertar_contratado(?, ?, ?, ?, ?, ?)",
         )
 
-        statement.setString(1, transportista.nombre)
-        statement.setString(2, transportista.email)
-        statement.setString(3, transportista.provincia)
-        statement.setString(4, transportista.direccion)
-        statement.setString(5, transportista.telefono)
+        statement.setString(1,"Transporte")
+        statement.setString(2, transportista.nombre)
+        statement.setString(3, transportista.email)
+        statement.setString(4, transportista.provincia)
+        statement.setString(5, transportista.direccion)
+        statement.setString(6, transportista.telefono)
 
         val resultSet = statement.executeQuery()
 

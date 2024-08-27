@@ -161,6 +161,37 @@ object AnimalDB {
         animalesAdopt
     }
 
+    suspend fun getAnimalesAdoptForReport(): List<AnimalAdoptado> = withContext(Dispatchers.IO) {
+
+        val animalesAdopt = mutableListOf<AnimalAdoptado>()
+        val dbConnection: Connection = Database.connect()
+        val statement= dbConnection.prepareStatement(
+            "SELECT * FROM reporte_adopciones()"
+        )
+
+        val resultSet = statement.executeQuery()
+
+        while (resultSet.next()) {
+            animalesAdopt.add(
+                AnimalAdoptado(
+                    codigo = resultSet.getInt("id_animal"),
+                    nombre = resultSet.getString("nombre_animal"),
+                    especie = resultSet.getString("especie"),
+                    raza = resultSet.getString("raza"),
+                    edad = resultSet.getInt("edad"),
+                    peso = resultSet.getDouble("peso"),
+                    fecha_ingreso = resultSet.getDate("fecha_ingreso").toLocalDate(),
+                    precioAdop = resultSet.getDouble("precio_adopcion"),
+                    nombreAdoptante = resultSet.getString("nombre_adoptante")
+                )
+            )
+        }
+        resultSet.close()
+        statement.close()
+        dbConnection.close()
+        animalesAdopt
+    }
+
     //_____________________________________INSERCCIONES____________________________________________
 
     suspend fun createAnimal(animal: Animal): Boolean = withContext(Dispatchers.IO) {

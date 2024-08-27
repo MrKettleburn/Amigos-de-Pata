@@ -1,6 +1,7 @@
 package Views
 
 import java.time.LocalDate
+import java.time.LocalTime
 
 data class AnimalTableRow(
     val id: String,
@@ -17,6 +18,12 @@ data class AnimalTableRow(
 
 data class ActividadTableRow(
     val id: String,
+    val codigoAnim: Int,
+    val fecha: LocalDate,
+    val hora: LocalTime,
+    val tipo: String,
+    val codigoContr: Int,
+    val descrip: String,
     val mainAttributes: Map<String, String>,
     val expandedAttributes: Map<String, String>
 )

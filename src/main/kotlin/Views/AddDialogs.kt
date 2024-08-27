@@ -451,6 +451,242 @@ fun AddActividadDialog(
     }
 }
 
+@Composable
+fun UpdateActividadDialog(
+    colors: RefugioColorPalette,
+    onDismissRequest: () -> Unit,
+    onActividadUpdated: (Int, Int, LocalDate, LocalTime, String, Int, String, Double) -> Unit,
+    codigo: Int,
+    codigoAnim: Int,
+    fechaInicial: LocalDate,
+    horaInicial: LocalTime,
+    tipoInicial: String,
+    codigoContrato: Int,
+    descripInicial: String,
+    contratosVet: List<ContratoVeterinario>,
+    contratosProveedor: List<ContratoProveedorAlim>,
+    contratosTransporte: List<ContratoTransporte>
+) {
+    val coroutineScope = rememberCoroutineScope()
+
+    // Estados para los campos, inicializados con los valores actuales de la actividad
+    var tipoActividad by remember { mutableStateOf(tipoInicial) }
+    var selectedContratoVet by remember { mutableStateOf<ContratoVeterinario?>(null) }
+    var selectedContratoProveedor by remember { mutableStateOf<ContratoProveedorAlim?>(null) }
+    var selectedContratoTransporte by remember { mutableStateOf<ContratoTransporte?>(null) }
+    var fechaActividad by remember { mutableStateOf(fechaInicial) }
+    var horaActividad by remember { mutableStateOf(horaInicial) }
+    var descripcion by remember { mutableStateOf(descripInicial) }
+    var showError by remember { mutableStateOf(false) }
+
+    LaunchedEffect(tipoActividad) {
+        when (tipoActividad) {
+            "Atención Médica" -> {
+                selectedContratoVet = contratosVet.find { it.codigo == codigoContrato }
+                selectedContratoProveedor = null
+                selectedContratoTransporte = null
+            }
+            "Socialización y Entrenamiento" -> {
+                selectedContratoTransporte = contratosTransporte.find { it.codigo == codigoContrato }
+                selectedContratoVet = null
+                selectedContratoProveedor = null
+            }
+            "Alimentación" -> {
+                selectedContratoProveedor = contratosProveedor.find { it.codigo == codigoContrato }
+                selectedContratoVet = null
+                selectedContratoTransporte = null
+            }
+        }
+    }
+
+    Dialog(onDismissRequest = onDismissRequest) {
+        Surface(
+            modifier = Modifier.padding(16.dp).width(800.dp),
+            shape = RoundedCornerShape(8.dp),
+            color = colors.menuBackground
+        ) {
+            Column(modifier = Modifier.padding(16.dp)) {
+                Text("Actualizar Actividad", style = MaterialTheme.typography.h6)
+
+                // ComboBox para seleccionar el tipo de actividad
+                DropdownMenu(
+                    label = { Text("Tipo de Actividad") },
+                    items = listOf("Atención Médica", "Socialización y Entrenamiento", "Alimentación"),
+                    selectedItem = tipoActividad,
+                    onItemSelected = { tipoActividad = it },
+                    modifier = Modifier.fillMaxWidth()
+                )
+
+                Spacer(modifier = Modifier.height(8.dp))
+
+                // ComboBox para seleccionar el contrato (habilitado solo si se seleccionó un tipo de actividad)
+                when (tipoActividad) {
+                    "Atención Médica" -> {
+                        DropdownMenu(
+                            label = { Text("Contrato Veterinario") },
+                            items = contratosVet,
+                            selectedItem = selectedContratoVet,
+                            onItemSelected = { selectedContratoVet = it },
+                            modifier = Modifier.fillMaxWidth(),
+                        )
+                    }
+                    "Socialización y Entrenamiento" -> {
+                        DropdownMenu(
+                            label = { Text("Contrato de Transporte") },
+                            items = contratosTransporte,
+                            selectedItem = selectedContratoTransporte,
+                            onItemSelected = { selectedContratoTransporte = it },
+                            modifier = Modifier.fillMaxWidth(),
+                        )
+                    }
+                    "Alimentación" -> {
+                        DropdownMenu(
+                            label = { Text("Contrato de Proveedor de Alimentos") },
+                            items = contratosProveedor,
+                            selectedItem = selectedContratoProveedor,
+                            onItemSelected = { selectedContratoProveedor = it },
+                            modifier = Modifier.fillMaxWidth(),
+                        )
+                    }
+                }
+                Spacer(modifier = Modifier.height(8.dp))
+                Row(modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    OutlinedTextField(
+                        value = descripcion,
+                        onValueChange = { descripcion = it },
+                        label = { Text("Descripción de la Actividad") },
+                        modifier = Modifier.fillMaxWidth()
+                    )
+                }
+
+                Spacer(modifier = Modifier.height(8.dp))
+                Row(modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    // Campo DatePicker para la fecha de la actividad
+                    DatePicker(
+                        label = { Text("Fecha de la Actividad") },
+                        selectedDate = fechaActividad,
+                        onDateChange = {
+                            if (it != null) {
+                                fechaActividad = it
+                            }
+                        },
+                        modifier = Modifier.weight(1f)
+                    )
+
+                    // Campo TimePicker para la hora de la actividad
+                    TimePicker(
+                        label = { Text("Hora de la Actividad") },
+                        selectedTime = horaActividad,
+                        onTimeChange = {
+                            if (it != null) {
+                                horaActividad = it
+                            }
+                        },
+                        modifier = Modifier.weight(1f)
+                    )
+                }
+
+                Spacer(modifier = Modifier.height(16.dp))
+
+                // Botones de acción
+                Row(
+                    horizontalArrangement = Arrangement.End,
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    TextButton(onClick = onDismissRequest) {
+                        Text("Cancelar")
+                    }
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Button(onClick = {
+                        if (tipoActividad != null && fechaActividad != null && horaActividad != null && descripcion.isNotBlank()) {
+                            val actividadActualizada = when (tipoActividad) {
+                                "Atención Médica" -> {
+                                    if (selectedContratoVet != null) {
+                                        Actividad(
+                                            codigo = codigo,
+                                            tipo = tipoActividad!!,
+                                            codigoContr = selectedContratoVet!!.codigo,
+                                            fecha = fechaActividad!!,
+                                            hora = horaActividad!!,
+                                            codigoAnim = codigoAnim,
+                                            costo = selectedContratoVet!!.costoUnit,
+                                            descrip = descripcion,
+                                            tipoContrato = "Veterinario"
+                                        )
+                                    } else null
+                                }
+                                "Socialización y Entrenamiento" -> {
+                                    if (selectedContratoTransporte != null) {
+                                        Actividad(
+                                            codigo = codigo,
+                                            tipo = tipoActividad!!,
+                                            codigoContr = selectedContratoTransporte!!.codigo,
+                                            fecha = fechaActividad!!,
+                                            hora = horaActividad!!,
+                                            codigoAnim = codigoAnim,
+                                            costo = selectedContratoTransporte!!.costoUnit,
+                                            descrip = descripcion,
+                                            tipoContrato = "Transporte"
+                                        )
+                                    } else null
+                                }
+                                "Alimentación" -> {
+                                    if (selectedContratoProveedor != null) {
+                                        Actividad(
+                                            codigo = codigo,
+                                            tipo = tipoActividad!!,
+                                            codigoContr = selectedContratoProveedor!!.codigo,
+                                            fecha = fechaActividad!!,
+                                            hora = horaActividad!!,
+                                            codigoAnim = codigoAnim,
+                                            costo = selectedContratoProveedor!!.costoUnit,
+                                            descrip = descripcion,
+                                            tipoContrato = "Proveedor de alimentos"
+                                        )
+                                    } else null
+                                }
+                                else -> null
+                            }
+                            if (actividadActualizada != null) {
+                                onActividadUpdated(
+                                    actividadActualizada.codigo,
+                                    actividadActualizada.codigoAnim,
+                                    actividadActualizada.fecha,
+                                    actividadActualizada.hora,
+                                    actividadActualizada.tipo,
+                                    actividadActualizada.codigoContr,
+                                    actividadActualizada.descrip,
+                                    actividadActualizada.costo
+                                )
+                            }
+                            else
+                            {
+                                showError = true
+                            }
+                        } else {
+                            showError = true
+                        }
+                    }) {
+                        Text("Actualizar")
+                    }
+                }
+            }
+        }
+    }
+
+    if (showError) {
+        showErrorDialog(
+            title = "Error",
+            message = "No se actualizo la actividad. Revise los datos",
+            onDismissRequest = { showError = false }
+        )
+    }
+}
+
 ///////////////----------------------CONTRATO VETERINARIO------------------///////////////////
 
 @Composable

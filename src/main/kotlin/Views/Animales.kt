@@ -2,8 +2,8 @@ package Views
 
 import Class_DB.ActividadDB
 import Class_DB.AnimalDB
-import Models.Actividad
-import Models.Animal
+import Class_DB.ContratoDB
+import Models.*
 import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -160,25 +160,7 @@ fun AnimalesEnRefugioMostrar(colors: RefugioColorPalette, selectedItem: String, 
     }
 }
 
-@Composable
-fun showErrorDialog(title: String, message: String, onDismissRequest: () -> Unit) {
-    Dialog(onDismissRequest = onDismissRequest) {
-        Surface(
-            shape = RoundedCornerShape(8.dp),
-            color = MaterialTheme.colors.surface
-        ) {
-            Column(modifier = Modifier.padding(16.dp)) {
-                Text(text = title, style = MaterialTheme.typography.h6)
-                Spacer(modifier = Modifier.height(8.dp))
-                Text(text = message)
-                Spacer(modifier = Modifier.height(16.dp))
-                Button(onClick = onDismissRequest) {
-                    Text("Aceptar")
-                }
-            }
-        }
-    }
-}
+
 
 @Composable
 fun FilterComponentsAnimals(
@@ -402,6 +384,21 @@ fun AnimalsExpandableRow(colors: RefugioColorPalette, row: AnimalTableRow) {
 fun ActividadesExpandableRow(colors: RefugioColorPalette, row: ActividadTableRow) {
     var expanded by remember { mutableStateOf(false) }
     val backgroundColor = if (expanded) colors.secondary else Color.Transparent
+    var showUpdateDialog by remember { mutableStateOf(false) }
+    val coroutineScope = rememberCoroutineScope()
+    var showError by remember { mutableStateOf(false) }
+
+    var contratosVet by remember { mutableStateOf<List<ContratoVeterinario>>(emptyList()) }
+    var contratosTransporte by remember { mutableStateOf<List<ContratoTransporte>>(emptyList()) }
+    var contratosProveedor by remember { mutableStateOf<List<ContratoProveedorAlim>>(emptyList()) }
+
+    LaunchedEffect(showUpdateDialog) {
+        if (showUpdateDialog) {
+            contratosVet = ContratoDB.getContratosVeterinariosForComboBox()
+            contratosTransporte = ContratoDB.getContratosTransporteForComboBox()
+            contratosProveedor = ContratoDB.getContratosProveedoresAlimentosForComboBox()
+        }
+    }
 
     Column(
         modifier = Modifier
@@ -435,7 +432,7 @@ fun ActividadesExpandableRow(colors: RefugioColorPalette, row: ActividadTableRow
                 }
             }
             Row {
-                IconButton(onClick = { /* TODO: Implementar modificar */ }) {
+                IconButton(onClick = { showUpdateDialog=true }) {
                     Icon(Icons.Default.Edit, contentDescription = "Modificar")
                 }
                 IconButton(onClick = { /* TODO: Implementar eliminar */ }) {
@@ -469,6 +466,51 @@ fun ActividadesExpandableRow(colors: RefugioColorPalette, row: ActividadTableRow
                     Text(text = value)
                 }
             }
+        }
+
+        if (showUpdateDialog) {
+                UpdateActividadDialog(
+                    colors = colors,
+                    codigo = row.id.toInt(),
+                    codigoAnim = row.codigoAnim,
+                    codigoContrato = row.codigoContr,
+                    descripInicial = row.descrip,
+                    fechaInicial = row.fecha,
+                    horaInicial = row.hora,
+                    tipoInicial = row.tipo,
+                    onDismissRequest = { showUpdateDialog = false },
+                    onActividadUpdated = { codigo, codigoAnim, fecha, hora, tipo, codigoContr, descrip, costo ->
+                        coroutineScope.launch {
+
+                            val result = ActividadDB.updateActividad(
+                                codigo,
+                                codigoAnim,
+                                fecha,
+                                hora,
+                                tipo,
+                                codigoContr,
+                                descrip,
+                                costo
+                            )
+                            if (!result) {
+                                showError = true
+                            }
+                            else
+                                showUpdateDialog = false
+                        }
+                    },
+                    contratosVet = contratosVet,
+                    contratosTransporte = contratosTransporte,
+                    contratosProveedor = contratosProveedor
+                )
+        }
+
+        if (showError) {
+            showErrorDialog(
+                title = "Error",
+                message = "No se actualizo la actividad. La hora es la misma a otra actividad de ese día",
+                onDismissRequest = { showError = false }
+            )
         }
 
     }
@@ -508,6 +550,12 @@ fun getActividadesTableRows(actividades: List<Actividad>): List<ActividadTableRo
     return actividades.map { actividad ->
         ActividadTableRow(
             id = actividad.codigo.toString(),
+            codigoAnim = actividad.codigoAnim,
+            codigoContr = actividad.codigoContr,
+            descrip = actividad.descrip,
+            fecha = actividad.fecha,
+            hora = actividad.hora,
+            tipo = actividad.tipo,
             mainAttributes = mapOf(
                 "Código" to "${actividad.codigo}",
                 "Tipo" to actividad.tipo,
@@ -534,19 +582,20 @@ fun ActividadesDialog(
     var actividades by remember { mutableStateOf<List<Actividad>>(emptyList()) }
     var codigoActividad by remember { mutableStateOf<String?>(null) }
     var tipo by remember { mutableStateOf<String?>(null) }
+    var codigoContrato by remember { mutableStateOf<String?>(null) }
     var tipoContrato by remember { mutableStateOf<String?>(null) }
     var fechaLI by remember { mutableStateOf<LocalDate?>(null) }
     var fechaLS by remember { mutableStateOf<LocalDate?>(null) }
 
     // Cargar las actividades iniciales
     LaunchedEffect(Unit) {
-        actividades = ActividadDB.getActividadesFilter(codigoAnim, null, null, null, null, null)
+        actividades = ActividadDB.getActividadesFilter(codigoAnim, null, null, null, null, null,null)
     }
 
     Box(
         modifier = Modifier
             .border(width = 1.2.dp, brush = Brush.verticalGradient(colors = listOf(colors.primary, colors.secondary)), shape = RoundedCornerShape(8.dp))
-            .width(1200.dp)
+            .fillMaxWidth()
             .height(400.dp)
             .background(Color.White) // Fondo para la caja
             .padding(0.dp)
@@ -567,6 +616,14 @@ fun ActividadesDialog(
                 ) {
                     Text("Actividades de ${nombreAnim}", style = MaterialTheme.typography.h6)
 
+                    Button(
+                        onClick = {
+                            showAddDialog = true
+                        },
+                    ) {
+                        Text("Agregar Actividad")
+                    }
+
                     IconButton(
                         onClick = { onDismissRequest() },
                         modifier = Modifier.size(24.dp)
@@ -584,31 +641,37 @@ fun ActividadesDialog(
                         value = codigoActividad.orEmpty(),
                         onValueChange = { codigoActividad = if (it.isEmpty()) null else it },
                         label = { Text("Código Actividad") },
-                        modifier = Modifier.width(160.dp)  // Tamaño fijo
+                        modifier = Modifier.weight(1f)  // Tamaño fijo
                     )
                     OutlinedTextField(
                         value = tipo.orEmpty(),
                         onValueChange = { tipo = if (it.isEmpty()) null else it },
                         label = { Text("Tipo Actividad") },
-                        modifier = Modifier.width(150.dp)  // Tamaño fijo
+                        modifier = Modifier.weight(1f)  // Tamaño fijo
                     )
                     OutlinedTextField(
                         value = tipoContrato.orEmpty(),
                         onValueChange = { tipoContrato = if (it.isEmpty()) null else it },
                         label = { Text("Tipo Contrato") },
-                        modifier = Modifier.width(150.dp)  // Tamaño fijo
+                        modifier = Modifier.weight(1f)  // Tamaño fijo
+                    )
+                    OutlinedTextField(
+                        value = codigoContrato.orEmpty(),
+                        onValueChange = { codigoContrato = if (it.isEmpty()) null else it },
+                        label = { Text("Código Contrato") },
+                        modifier = Modifier.weight(1f)  // Tamaño fijo
                     )
                     DatePicker(
                         label = { Text("Fecha Desde") },
                         selectedDate = fechaLI,
                         onDateChange = { fechaLI = it },
-                        modifier = Modifier.width(180.dp)  // Tamaño fijo
+                        modifier = Modifier.weight(1f)  // Tamaño fijo
                     )
                     DatePicker(
                         label = { Text("Fecha Hasta") },
                         selectedDate = fechaLS,
                         onDateChange = { fechaLS = it },
-                        modifier = Modifier.width(180.dp)  // Tamaño fijo
+                        modifier = Modifier.weight(1f)  // Tamaño fijo
                     )
                     Button(
                         onClick = {
@@ -619,6 +682,7 @@ fun ActividadesDialog(
                                     fechaLI?.format(DateTimeFormatter.ISO_DATE),
                                     fechaLS?.format(DateTimeFormatter.ISO_DATE),
                                     tipo,
+                                    codigoContrato?.toIntOrNull(),
                                     tipoContrato
                                 )
                             }
@@ -626,15 +690,6 @@ fun ActividadesDialog(
                         modifier = Modifier.align(Alignment.CenterVertically)
                     ) {
                         Text("Filtrar")
-                    }
-                    Spacer(modifier = Modifier.width(30.dp))
-                    Button(
-                        onClick = {
-                            showAddDialog = true
-                        },
-                        modifier = Modifier.align(Alignment.CenterVertically)
-                    ) {
-                        Text("Agregar Actividad")
                     }
                 }
 
@@ -653,7 +708,7 @@ fun ActividadesDialog(
                         coroutineScope.launch {
                             ActividadDB.createActividad(newActividad)
                             showAddDialog=false
-                            actividades = ActividadDB.getActividadesFilter(codigoAnim, null, null, null, null, null)
+                            actividades = ActividadDB.getActividadesFilter(codigoAnim, null, null, null, null, null,null)
                         }
                     }
                 )

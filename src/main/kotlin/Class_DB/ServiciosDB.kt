@@ -212,8 +212,7 @@ object ServiciosDB {
         var nuevoId = -1
         val dbConnection: Connection = Database.connect()
         val statement = dbConnection.prepareStatement(
-            "SELECT insertar_servicioVeterinario(?, ?)",  // Consulta SQL que invoca la función almacenada
-            arrayOf("id_servicio")
+            "SELECT insertar_servicio_veterinario(?, ?)",  // Consulta SQL que invoca la función almacenada
         )
 
         statement.setDouble(1, servicio.precioUni)
@@ -235,8 +234,7 @@ object ServiciosDB {
         var nuevoId = -1
         val dbConnection: Connection = Database.connect()
         val statement = dbConnection.prepareStatement(
-            "SELECT insertar_servicioTransportacion(?, ?)",
-            arrayOf("id_servicio")
+            "SELECT insertar_servicio_transporte(?, ?)",
         )
 
         statement.setDouble(1, servicio.precioUni)
@@ -258,8 +256,7 @@ object ServiciosDB {
         var nuevoId = -1
         val dbConnection: Connection = Database.connect()
         val statement = dbConnection.prepareStatement(
-            "SELECT insertar_servicioAlimenticio(?, ?)",
-            arrayOf("id_servicio")
+            "SELECT insertar_servicio_alimentacion(?, ?)",
         )
 
         statement.setDouble(1, servicio.precioUni)

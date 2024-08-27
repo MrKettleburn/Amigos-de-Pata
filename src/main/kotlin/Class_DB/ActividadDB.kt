@@ -6,10 +6,7 @@ import Models.ActividadReporte
 import Models.Animal
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-import java.sql.Connection
-import java.sql.Date
-import java.sql.Time
-import java.sql.Types
+import java.sql.*
 import java.time.LocalDate
 import java.time.LocalTime
 import java.time.format.DateTimeFormatter
@@ -23,13 +20,14 @@ object ActividadDB {
         fechaLI: String?,
         fechaLS: String?,
         tipo: String?,
+        codigoContrato: Int?,
         tipoContrato: String?,
     ): List<Actividad>  = withContext(Dispatchers.IO) {
 
         val actividades = mutableListOf<Actividad>()
         val dbConnection: Connection = Database.connect()
         val statement = dbConnection.prepareStatement(
-            "SELECT * FROM buscar_actividades(?, ?, ?, ?, ?, ?)"
+            "SELECT * FROM buscar_actividades(?, ?, ?, ?, ?, ?, ?)"
         )
 
         statement.setInt(1, codigoAnim)
@@ -37,7 +35,8 @@ object ActividadDB {
         statement.setString(3, fechaLI)
         statement.setString(4, fechaLS)
         statement.setString(5, tipo)
-        statement.setString(6, tipoContrato)
+        if (codigoContrato != null) statement.setInt(6, codigoContrato) else statement.setNull(6, Types.INTEGER)
+        statement.setString(7, tipoContrato)
 
         val resultSet = statement.executeQuery()
 
@@ -123,5 +122,38 @@ object ActividadDB {
         statement.close()
         dbConnection.close()
         rowsInserted > 0
+    }
+
+    suspend fun updateActividad(codigo: Int, codigoAnim: Int, fecha: LocalDate, hora: LocalTime, tipo: String, codigoContr:Int, descrip: String, costo:Double): Boolean = withContext(Dispatchers.IO) {
+        val dbConnection = Database.connect()
+       try{
+           val statement = dbConnection.prepareStatement(
+            "UPDATE actividad SET fecha=?, hora=?, tipo_actividad=?, id_contrato=?, descrip_act=?, costo=? WHERE id_actividad=? AND id_animal=?"
+            )
+
+            val sqlDate = Date.valueOf(fecha)
+            statement.setDate(1, sqlDate)
+            val sqlTime = Time.valueOf(hora)
+            statement.setTime(2,sqlTime)
+            statement.setString(3,tipo)
+            statement.setInt(4,codigoContr)
+            statement.setString(5,descrip)
+            statement.setDouble(6,costo)
+            statement.setInt(7,codigo)
+            statement.setInt(8,codigoAnim)
+
+            val rowsUpdated = statement.executeUpdate()
+            statement.close()
+            dbConnection.close()
+            rowsUpdated > 0
+
+    } catch (e: SQLException) {
+
+        e.printStackTrace()
+        false
+
+    } finally {
+        dbConnection.close()
+    }
     }
 }
