@@ -7,6 +7,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.sql.Connection
 import java.sql.Date
+import java.sql.SQLException
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 import java.time.temporal.ChronoUnit
@@ -262,5 +263,66 @@ object AnimalDB {
         statement.close()
         dbConnection.close()
         rowsInserted > 0
+    }
+
+    suspend fun deleteAnimal(animalId: Int): Boolean = withContext(Dispatchers.IO) {
+        val dbConnection: Connection? = null
+        try {
+
+            val dbConnection = Database.connect()
+            val statement = dbConnection.prepareStatement(
+                "DELETE FROM animal WHERE id_animal = ?"
+            )
+
+            statement.setInt(1, animalId)
+
+            val rowsDeleted = statement.executeUpdate()
+
+            return@withContext rowsDeleted > 0
+
+        } catch (e: SQLException) {
+            e.printStackTrace()
+            return@withContext false
+        } catch (e: Exception) {
+            e.printStackTrace()
+            return@withContext false
+        } finally {
+            try {
+                dbConnection?.close()
+            } catch (e: SQLException) {
+                e.printStackTrace()
+            }
+        }
+    }
+
+    suspend fun insertAnimalEnAdoptado(idAnimal: Int, precioAdopcion: Double, idAdoptante: Int): Boolean = withContext(Dispatchers.IO) {
+        var dbConnection: Connection? = null
+        try {
+            dbConnection = Database.connect()
+            val statement = dbConnection.prepareStatement(
+                "INSERT INTO animal_adoptado(id_animal, precio_adopcion, id_adoptante) VALUES(?,?,?)"
+            )
+
+            statement.setInt(1, idAnimal)
+            statement.setDouble(2, precioAdopcion)
+            statement.setInt(3, idAdoptante)
+
+            val rowsDeleted = statement.executeUpdate()
+
+            return@withContext rowsDeleted > 0
+
+        } catch (e: SQLException) {
+            e.printStackTrace()
+            return@withContext false
+        } catch (e: Exception) {
+            e.printStackTrace()
+            return@withContext false
+        } finally {
+            try {
+                dbConnection?.close()
+            } catch (e: SQLException) {
+                e.printStackTrace()
+            }
+        }
     }
 }

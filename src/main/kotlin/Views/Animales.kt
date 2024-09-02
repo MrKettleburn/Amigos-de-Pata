@@ -4,6 +4,8 @@ import Class_DB.ActividadDB
 import Class_DB.AnimalDB
 import Class_DB.ContratoDB
 import Models.*
+import Utiles.estimarMantenimientoSeisMeses
+import Utiles.estimarPrecioDeAdopcion
 import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -30,6 +32,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.vector.addPathNodes
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import java.time.YearMonth
@@ -271,7 +274,8 @@ fun AnimalsExpandableRow(colors: RefugioColorPalette, row: AnimalTableRow) {
     var showActivityDialog by remember { mutableStateOf(false) }
     var showUpdateDialog by remember { mutableStateOf(false) }
     val backgroundColor = if (expanded) colors.menuBackground else Color.Transparent
-
+    var showConfirmDialog by remember { mutableStateOf(false) }
+    var showAdoptarDialog by remember { mutableStateOf(false) }
 
     Column(
         modifier = Modifier
@@ -314,8 +318,14 @@ fun AnimalsExpandableRow(colors: RefugioColorPalette, row: AnimalTableRow) {
                 IconButton(onClick = { showUpdateDialog=true }) {
                     Icon(Icons.Default.Edit, contentDescription = "Modificar")
                 }
-                IconButton(onClick = { /* TODO: Implementar eliminar */ }) {
+                IconButton(onClick = { showConfirmDialog=true }) {
                     Icon(Icons.Default.Delete, contentDescription = "Eliminar")
+                }
+                Button(
+                    onClick = { showAdoptarDialog = true },
+                    modifier = Modifier.align(Alignment.CenterVertically)
+                ) {
+                    Text("Adoptar")
                 }
                 IconButton(onClick = { expanded = !expanded }) {
                     Icon(
@@ -377,6 +387,53 @@ fun AnimalsExpandableRow(colors: RefugioColorPalette, row: AnimalTableRow) {
                 }
             )
         }
+
+        if (showConfirmDialog) {
+            ConfirmDeleteAnimalDialog(
+                colors = colors,
+                animalName = row.nombreAnim,
+                onDismissRequest = { showConfirmDialog = false },
+                onConfirmDelete = {
+                    coroutineScope.launch {
+                        val success = AnimalDB.deleteAnimal(row.id.toInt())
+                        if (success) {
+                            showConfirmDialog = false
+                        } else {
+                            // Mostrar un mensaje de error
+                        }
+                    }
+                }
+            )
+        }
+
+        if(showAdoptarDialog)
+        {
+            var precioAdopcion by remember { mutableStateOf<Double>(0.0) }
+            var animal by remember { mutableStateOf<Animal?>(null) }
+
+            LaunchedEffect(Unit) {
+                val animales = AnimalDB.getAnimalesFilter(row.id.toInt(), null, null, null, null, null, null)
+                animal = animales.get(0)
+                val actividades = ActividadDB.getActividadesReport(row.id.toInt())
+                val mantenimientoSeisMeses = estimarMantenimientoSeisMeses(actividades)
+                precioAdopcion = estimarPrecioDeAdopcion(mantenimientoSeisMeses, animal!!)
+            }
+
+            animal?.let {
+                DialogAdopcion(
+                    colors= colors,
+                    animal = it,
+                    precioAdopcion = precioAdopcion,
+                    onDismissRequest = {showAdoptarDialog = false},
+                    onConfirmAdoption = {
+                        coroutineScope.launch {
+                            AnimalDB.insertAnimalEnAdoptado(row.id.toInt(), precioAdopcion,1) //CAMBIAR LUEGO
+                            showAdoptarDialog = false
+                        }
+                    }
+                )
+            }
+        }
     }
 }
 
@@ -386,7 +443,8 @@ fun ActividadesExpandableRow(colors: RefugioColorPalette, row: ActividadTableRow
     val backgroundColor = if (expanded) colors.secondary else Color.Transparent
     var showUpdateDialog by remember { mutableStateOf(false) }
     val coroutineScope = rememberCoroutineScope()
-    var showError by remember { mutableStateOf(false) }
+    var showErrorUpdate by remember { mutableStateOf(false) }
+    var showConfirmDialog by remember { mutableStateOf(false) }
 
     var contratosVet by remember { mutableStateOf<List<ContratoVeterinario>>(emptyList()) }
     var contratosTransporte by remember { mutableStateOf<List<ContratoTransporte>>(emptyList()) }
@@ -435,7 +493,7 @@ fun ActividadesExpandableRow(colors: RefugioColorPalette, row: ActividadTableRow
                 IconButton(onClick = { showUpdateDialog=true }) {
                     Icon(Icons.Default.Edit, contentDescription = "Modificar")
                 }
-                IconButton(onClick = { /* TODO: Implementar eliminar */ }) {
+                IconButton(onClick = { showConfirmDialog=true }) {
                     Icon(Icons.Default.Delete, contentDescription = "Eliminar")
                 }
                 IconButton(onClick = { expanded = !expanded }) {
@@ -493,7 +551,7 @@ fun ActividadesExpandableRow(colors: RefugioColorPalette, row: ActividadTableRow
                                 costo
                             )
                             if (!result) {
-                                showError = true
+                                showErrorUpdate = true
                             }
                             else
                                 showUpdateDialog = false
@@ -505,11 +563,29 @@ fun ActividadesExpandableRow(colors: RefugioColorPalette, row: ActividadTableRow
                 )
         }
 
-        if (showError) {
+        if (showErrorUpdate) {
             showErrorDialog(
                 title = "Error",
                 message = "No se actualizo la actividad. La hora es la misma a otra actividad de ese día",
-                onDismissRequest = { showError = false }
+                onDismissRequest = { showErrorUpdate = false }
+            )
+        }
+
+        if (showConfirmDialog) {
+            ConfirmDeleteActividadDialog(
+                colors = colors,
+                actividCod = row.id.toInt(),
+                onDismissRequest = { showConfirmDialog = false },
+                onConfirmDelete = {
+                    coroutineScope.launch {
+                        val success = ActividadDB.deleteActividad(row.id.toInt(), row.codigoAnim)
+                        if (success) {
+                            showConfirmDialog = false
+                        } else {
+                            // Mostrar un mensaje de error
+                        }
+                    }
+                }
             )
         }
 
@@ -556,6 +632,7 @@ fun getActividadesTableRows(actividades: List<Actividad>): List<ActividadTableRo
             fecha = actividad.fecha,
             hora = actividad.hora,
             tipo = actividad.tipo,
+            costo = actividad.costo,
             mainAttributes = mapOf(
                 "Código" to "${actividad.codigo}",
                 "Tipo" to actividad.tipo,
@@ -563,6 +640,7 @@ fun getActividadesTableRows(actividades: List<Actividad>): List<ActividadTableRo
                 "Hora" to actividad.hora.format(formatterH)
             ),
             expandedAttributes = mapOf(
+                "Costo" to "${actividad.costo}",
                 "Descripción" to actividad.descrip,
                 "Código Contrato" to "${actividad.codigoContr}   Tipo de Contrato: ${actividad.tipoContrato}"
             )
@@ -586,6 +664,7 @@ fun ActividadesDialog(
     var tipoContrato by remember { mutableStateOf<String?>(null) }
     var fechaLI by remember { mutableStateOf<LocalDate?>(null) }
     var fechaLS by remember { mutableStateOf<LocalDate?>(null) }
+    var showErrorAdd by remember { mutableStateOf(false) }
 
     // Cargar las actividades iniciales
     LaunchedEffect(Unit) {
@@ -715,11 +794,25 @@ fun ActividadesDialog(
                     onDismissRequest = {showAddDialog=false},
                     onActividadAdded = {newActividad ->
                         coroutineScope.launch {
-                            ActividadDB.createActividad(newActividad)
-                            showAddDialog=false
-                            actividades = ActividadDB.getActividadesFilter(codigoAnim, null, null, null, null, null,null)
+                            val success = ActividadDB.createActividad(newActividad)
+                            if(success) {
+                                showAddDialog = false
+                                actividades = ActividadDB.getActividadesFilter(codigoAnim, null, null, null, null, null, null)
+                            }
+                            else
+                            {
+                                showErrorAdd=true
+                            }
                         }
                     }
+                )
+            }
+            if(showErrorAdd)
+            {
+                showErrorDialog(
+                    title = "Error",
+                    message = "No se agregó la actividad. Revise los datos",
+                    onDismissRequest = { showErrorAdd = false }
                 )
             }
 

@@ -23,6 +23,7 @@ data class ActividadTableRow(
     val hora: LocalTime,
     val tipo: String,
     val codigoContr: Int,
+    val costo: Double,
     val descrip: String,
     val mainAttributes: Map<String, String>,
     val expandedAttributes: Map<String, String>

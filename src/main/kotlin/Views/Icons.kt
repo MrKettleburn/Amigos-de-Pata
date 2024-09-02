@@ -11,6 +11,7 @@ fun getIconForAttribute(attribute: String): ImageVector {
         "Código" -> Icons.Default.Badge
         "Código Contrato" -> Icons.Default.Description
         "Contraseña" -> Icons.Default.Lock
+        "Costo" -> Icons.Default.AttachMoney
         "Descripción" -> Icons.Default.Textsms
         "Días en adopción" -> Icons.Default.HourglassEmpty
         "Días en Refugio" -> Icons.Default.Numbers

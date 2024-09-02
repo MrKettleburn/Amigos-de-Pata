@@ -101,11 +101,24 @@ fun AnimalesAdoptadosMostrar(colors: RefugioColorPalette, selectedItem: String, 
             AnimalesAdoptadosExpandableTable(colors, getAnimalesAdoptadosTableRows(animalesAdoptados))
         }
 
-        FloatingActionButton(
-            onClick = { coroutineScope.launch { animalesAdoptados = AnimalDB.getAnimalAdoptFilter(null, null, null, null, null, null, null, null, null, null) } },
-            modifier = Modifier.padding(bottom = 16.dp)
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(16.dp),
+            verticalArrangement = Arrangement.Bottom,
+            horizontalAlignment = Alignment.End
         ) {
-            Icon(Icons.Default.ArrowCircleDown, contentDescription = "Recargar")
+            FloatingActionButton(
+                onClick = {
+                    coroutineScope.launch {
+                        animalesAdoptados =
+                            AnimalDB.getAnimalAdoptFilter(null, null, null, null, null, null, null, null, null, null)
+                    }
+                },
+                modifier = Modifier.padding(bottom = 16.dp)
+            ) {
+                Icon(Icons.Default.ArrowCircleDown, contentDescription = "Recargar")
+            }
         }
     }
 }

@@ -56,7 +56,7 @@ fun LoginScreen(colors: RefugioColorPalette, onLoginSuccess: () -> Unit) {
             Spacer(modifier = Modifier.height(16.dp))
 
             Text(
-                "Amigos de la Pata",
+                "Amigos de Pata",
                 style = MaterialTheme.typography.h4,
                 fontWeight = FontWeight.Bold,
                 color = Color.White

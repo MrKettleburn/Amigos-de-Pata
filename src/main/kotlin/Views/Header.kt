@@ -39,7 +39,7 @@ fun Header(colors: RefugioColorPalette) {
             verticalAlignment = Alignment.CenterVertically
         ) {
             Text(
-                "Refugio \"Amigos de la Pata\"",
+                "Refugio \"Amigos de Pata\"",
                 style = MaterialTheme.typography.h5,
                 fontWeight = FontWeight.Bold,
                 color = Color.White

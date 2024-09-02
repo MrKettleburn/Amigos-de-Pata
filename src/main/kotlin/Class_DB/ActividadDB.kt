@@ -102,26 +102,49 @@ object ActividadDB {
         //PROBAR INTERFAZ
     }
 
-    suspend fun createActividad(actividad: Actividad): Boolean = withContext(Dispatchers.IO){
-        val dbConnection = Database.connect()
-        val statement = dbConnection.prepareStatement(
-            "INSERT INTO actividad (id_animal, fecha, hora, tipo_actividad, id_contrato, descrip_act, costo) VALUES(?,?,?,?,?,?,?)"  // QUITAR LUEGO LOS DIAS
-        )
+    suspend fun createActividad(actividad: Actividad): Boolean = withContext(Dispatchers.IO) {
+        val dbConnection: Connection? = null
+        try {
+            val dbConnection = Database.connect()
 
-        statement.setInt(1,actividad.codigoAnim)
-        val sqlDate = Date.valueOf(actividad.fecha)
-        statement.setDate(2,sqlDate)
-        val sqlTime = Time.valueOf(actividad.hora)
-        statement.setTime(3,sqlTime)
-        statement.setString(4,actividad.tipo)
-        statement.setInt(5,actividad.codigoContr)
-        statement.setString(6,actividad.descrip)
-        statement.setDouble(7,actividad.costo)
+            val statement = dbConnection.prepareStatement(
+                "INSERT INTO actividad (id_animal, fecha, hora, tipo_actividad, id_contrato, descrip_act, costo) VALUES(?,?,?,?,?,?,?)"
+            )
 
-        val rowsInserted = statement.executeUpdate()
-        statement.close()
-        dbConnection.close()
-        rowsInserted > 0
+            statement.setInt(1, actividad.codigoAnim)
+            val sqlDate = Date.valueOf(actividad.fecha)
+            statement.setDate(2, sqlDate)
+            val sqlTime = Time.valueOf(actividad.hora)
+            statement.setTime(3, sqlTime)
+            statement.setString(4, actividad.tipo)
+            statement.setInt(5, actividad.codigoContr)
+            statement.setString(6, actividad.descrip)
+            statement.setDouble(7, actividad.costo)
+
+            val rowsInserted = statement.executeUpdate()
+
+            statement.close()
+            dbConnection.close()
+
+
+            rowsInserted > 0
+
+        } catch (e: SQLException) {
+
+            e.printStackTrace()
+            return@withContext false
+        } catch (e: Exception) {
+
+            e.printStackTrace()
+            return@withContext false
+        } finally {
+
+            try {
+                dbConnection?.close()
+            } catch (e: SQLException) {
+                e.printStackTrace()
+            }
+        }
     }
 
     suspend fun updateActividad(codigo: Int, codigoAnim: Int, fecha: LocalDate, hora: LocalTime, tipo: String, codigoContr:Int, descrip: String, costo:Double): Boolean = withContext(Dispatchers.IO) {
@@ -155,5 +178,36 @@ object ActividadDB {
     } finally {
         dbConnection.close()
     }
+    }
+
+    suspend fun deleteActividad(actividId: Int, animalId: Int): Boolean = withContext(Dispatchers.IO) {
+        val dbConnection: Connection? = null
+        try {
+
+            val dbConnection = Database.connect()
+            val statement = dbConnection.prepareStatement(
+                "DELETE FROM actividad WHERE id_animal = ? AND id_actividad=?"
+            )
+
+            statement.setInt(1, animalId)
+            statement.setInt(2, actividId)
+
+            val rowsDeleted = statement.executeUpdate()
+
+            return@withContext rowsDeleted > 0
+
+        } catch (e: SQLException) {
+            e.printStackTrace()
+            return@withContext false
+        } catch (e: Exception) {
+            e.printStackTrace()
+            return@withContext false
+        } finally {
+            try {
+                dbConnection?.close()
+            } catch (e: SQLException) {
+                e.printStackTrace()
+            }
+        }
     }
 }
