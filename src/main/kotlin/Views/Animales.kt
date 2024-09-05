@@ -527,40 +527,40 @@ fun ActividadesExpandableRow(colors: RefugioColorPalette, row: ActividadTableRow
         }
 
         if (showUpdateDialog) {
-                UpdateActividadDialog(
-                    colors = colors,
-                    codigo = row.id.toInt(),
-                    codigoAnim = row.codigoAnim,
-                    codigoContrato = row.codigoContr,
-                    descripInicial = row.descrip,
-                    fechaInicial = row.fecha,
-                    horaInicial = row.hora,
-                    tipoInicial = row.tipo,
-                    onDismissRequest = { showUpdateDialog = false },
-                    onActividadUpdated = { codigo, codigoAnim, fecha, hora, tipo, codigoContr, descrip, costo ->
-                        coroutineScope.launch {
+            UpdateActividadDialog(
+                colors = colors,
+                codigo = row.id.toInt(),
+                codigoAnim = row.codigoAnim,
+                codigoContrato = row.codigoContr,
+                descripInicial = row.descrip,
+                fechaInicial = row.fecha,
+                horaInicial = row.hora,
+                tipoInicial = row.tipo,
+                onDismissRequest = { showUpdateDialog = false },
+                onActividadUpdated = { codigo, codigoAnim, fecha, hora, tipo, codigoContr, descrip, costo ->
+                    coroutineScope.launch {
 
-                            val result = ActividadDB.updateActividad(
-                                codigo,
-                                codigoAnim,
-                                fecha,
-                                hora,
-                                tipo,
-                                codigoContr,
-                                descrip,
-                                costo
-                            )
-                            if (!result) {
-                                showErrorUpdate = true
-                            }
-                            else
-                                showUpdateDialog = false
+                        val result = ActividadDB.updateActividad(
+                            codigo,
+                            codigoAnim,
+                            fecha,
+                            hora,
+                            tipo,
+                            codigoContr,
+                            descrip,
+                            costo
+                        )
+                        if (!result) {
+                            showErrorUpdate = true
                         }
-                    },
-                    contratosVet = contratosVet,
-                    contratosTransporte = contratosTransporte,
-                    contratosProveedor = contratosProveedor
-                )
+                        else
+                            showUpdateDialog = false
+                    }
+                },
+                contratosVet = contratosVet,
+                contratosTransporte = contratosTransporte,
+                contratosProveedor = contratosProveedor
+            )
         }
 
         if (showErrorUpdate) {

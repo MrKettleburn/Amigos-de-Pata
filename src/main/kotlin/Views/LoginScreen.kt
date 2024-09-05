@@ -128,7 +128,7 @@ fun LoginScreen(colors: RefugioColorPalette, onLoginSuccess: () -> Unit) {
                     Spacer(modifier = Modifier.height(16.dp))
 
                     Text(
-                        text = "Loguearse Aquí :D",
+                        text = "Registrarse Aquí :D",
                         color = colors.secondary,
                         modifier = Modifier.clickable { showDialog = true }
                     )

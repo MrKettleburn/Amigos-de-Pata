@@ -179,6 +179,42 @@ fun FilterComponentsVeterinarios(
 @Composable
 fun VeterinariosExpandableTable(colors: RefugioColorPalette, data: List<VeterinarioTableRow>) {
     LazyColumn {
+        // Agregar encabezados de la tabla con íconos
+        item {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(vertical = 8.dp),
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                val headersWithIcons = listOf(
+                    "Código" to getIconForAttribute("Código"),
+                    "Nombre" to getIconForAttribute("Nombre"),
+                    "Provincia" to getIconForAttribute("Provincia")
+                )
+
+                headersWithIcons.forEach { (header, icon) ->
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        modifier = Modifier.weight(1f)
+                    ) {
+                        Icon(
+                            imageVector = icon,
+                            contentDescription = null,
+                            modifier = Modifier.size(20.dp)
+                        )
+                        Spacer(modifier = Modifier.width(4.dp))
+                        Text(
+                            text = header,
+                            fontWeight = FontWeight.Bold
+                        )
+                    }
+                }
+                Spacer(modifier = Modifier.width(56.dp)) // Espacio para íconos de acciones
+            }
+            Divider(color = colors.primary, thickness = 1.5.dp)
+        }
+
         items(data) { row ->
             VeterinarioExpandableRow(colors, row)
             Divider(color = colors.primary, thickness = 1.5.dp)
@@ -190,8 +226,8 @@ fun VeterinariosExpandableTable(colors: RefugioColorPalette, data: List<Veterina
 fun VeterinarioExpandableRow(colors: RefugioColorPalette, row: VeterinarioTableRow) {
     var expanded by remember { mutableStateOf(false) }
     val backgroundColor = if (expanded) colors.menuBackground else Color.Transparent
-    var showUpdateDialog by remember { mutableStateOf(false) }
     val coroutineScope = rememberCoroutineScope()
+    var showUpdateDialog by remember { mutableStateOf(false) }
 
     Column(
         modifier = Modifier
@@ -206,26 +242,15 @@ fun VeterinarioExpandableRow(colors: RefugioColorPalette, row: VeterinarioTableR
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {
-            row.mainAttributes.forEach { (key, value) ->
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
+            listOf(row.id, row.nombre, row.provincia).forEach { value ->
+                Text(
+                    text = value,
                     modifier = Modifier.weight(1f)
-                ) {
-                    Icon(
-                        imageVector = getIconForAttribute(key),
-                        contentDescription = null,
-                        modifier = Modifier.size(20.dp)
-                    )
-                    Spacer(modifier = Modifier.width(4.dp))
-                    Text(
-                        text = "$key: ",
-                        fontWeight = FontWeight.Bold
-                    )
-                    Text(text = value)
-                }
+                )
             }
+
             Row {
-                IconButton(onClick = { showUpdateDialog=true }) {
+                IconButton(onClick = { showUpdateDialog = true }) {
                     Icon(Icons.Default.Edit, contentDescription = "Modificar")
                 }
                 IconButton(onClick = { /* TODO: Implementar eliminar */ }) {
@@ -275,7 +300,6 @@ fun VeterinarioExpandableRow(colors: RefugioColorPalette, row: VeterinarioTableR
                 onDismissRequest = { showUpdateDialog = false },
                 onVeterinarioUpdated = { codigo, nombre, email, provincia, direccion, telefono, especialidad, clinica ->
                     coroutineScope.launch {
-
                         val success = ContratadosDB.updateVeterinario(codigo, nombre, email, provincia, direccion, telefono, especialidad, clinica)
                         if (success) {
                             showUpdateDialog = false
@@ -303,11 +327,11 @@ fun getVeterinariosTableRows(veterinarios: List<Veterinario>): List<VeterinarioT
             mainAttributes = mapOf(
                 "Código" to "${veterinario.codigo}",
                 "Nombre" to veterinario.nombre,
-                "Provincia" to veterinario.provincia,
-                "Especialidad" to veterinario.especialidad,
-                "Clínica" to veterinario.clinica
+                "Provincia" to veterinario.provincia
             ),
             expandedAttributes = mapOf(
+                "Especialidad" to veterinario.especialidad,
+                "Clínica" to veterinario.clinica,
                 "Email" to veterinario.email,
                 "Dirección" to veterinario.direccion,
                 "Teléfono" to veterinario.telefono

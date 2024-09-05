@@ -156,6 +156,42 @@ fun FilterComponentsPA(
 @Composable
 fun ProveedoresExpandableTable(colors: RefugioColorPalette, data: List<ProveedorTableRow>) {
     LazyColumn {
+        // Agregar encabezados de la tabla con íconos
+        item {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(vertical = 8.dp),
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                val headersWithIcons = listOf(
+                    "Código" to getIconForAttribute("Código"),
+                    "Nombre" to getIconForAttribute("Nombre"),
+                    "Provincia" to getIconForAttribute("Provincia")
+                )
+
+                headersWithIcons.forEach { (header, icon) ->
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        modifier = Modifier.weight(1f)
+                    ) {
+                        Icon(
+                            imageVector = icon,
+                            contentDescription = null,
+                            modifier = Modifier.size(20.dp)
+                        )
+                        Spacer(modifier = Modifier.width(4.dp))
+                        Text(
+                            text = header,
+                            fontWeight = FontWeight.Bold
+                        )
+                    }
+                }
+                Spacer(modifier = Modifier.width(56.dp)) // Espacio para íconos de acciones
+            }
+            Divider(color = colors.primary, thickness = 1.5.dp)
+        }
+
         items(data) { row ->
             ProveedorExpandableRow(colors, row)
             Divider(color = colors.primary, thickness = 1.5.dp)
@@ -183,26 +219,15 @@ fun ProveedorExpandableRow(colors: RefugioColorPalette, row: ProveedorTableRow) 
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {
-            row.mainAttributes.forEach { (key, value) ->
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
+            listOf(row.id, row.nombre, row.provincia).forEach { value ->
+                Text(
+                    text = value,
                     modifier = Modifier.weight(1f)
-                ) {
-                    Icon(
-                        imageVector = getIconForAttribute(key),
-                        contentDescription = null,
-                        modifier = Modifier.size(20.dp)
-                    )
-                    Spacer(modifier = Modifier.width(4.dp))
-                    Text(
-                        text = "$key: ",
-                        fontWeight = FontWeight.Bold
-                    )
-                    Text(text = value)
-                }
+                )
             }
+
             Row {
-                IconButton(onClick = { showUpdateDialog=true }) {
+                IconButton(onClick = { showUpdateDialog = true }) {
                     Icon(Icons.Default.Edit, contentDescription = "Modificar")
                 }
                 IconButton(onClick = { /* TODO: Implementar eliminar */ }) {
@@ -250,7 +275,7 @@ fun ProveedorExpandableRow(colors: RefugioColorPalette, row: ProveedorTableRow) 
                 onDismissRequest = { showUpdateDialog = false },
                 onProveedorUpdated = { codigo, nombre, email, provincia, direccion, telefono ->
                     coroutineScope.launch {
-                        if(ContratadosDB.updateProveedorAlim(codigo, nombre, email, provincia, direccion, telefono))
+                        if (ContratadosDB.updateProveedorAlim(codigo, nombre, email, provincia, direccion, telefono))
                             showUpdateDialog = false
                         else
                             println("Revise los datos")
@@ -260,7 +285,6 @@ fun ProveedorExpandableRow(colors: RefugioColorPalette, row: ProveedorTableRow) 
         }
     }
 }
-
 
 fun getProveedoresTableRows(proveedores: List<ProveedorDeAlimentos>): List<ProveedorTableRow> {
     return proveedores.map { proveedor ->

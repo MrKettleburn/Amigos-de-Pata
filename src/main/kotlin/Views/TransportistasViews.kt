@@ -150,10 +150,47 @@ fun FilterComponentsT(
         }
     }
 }
-
 @Composable
 fun TransportistasExpandableTable(colors: RefugioColorPalette, data: List<TransportistaTableRow>) {
     LazyColumn {
+        // Agregar encabezados de la tabla con íconos
+        item {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(vertical = 8.dp),
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                // Lista de atributos principales y sus íconos correspondientes
+                val headersWithIcons = listOf(
+                    "Código" to getIconForAttribute("Código"),
+                    "Nombre" to getIconForAttribute("Nombre"),
+                    "Provincia" to getIconForAttribute("Provincia")
+                )
+
+                headersWithIcons.forEach { (header, icon) ->
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        modifier = Modifier.weight(1f)
+                    ) {
+                        Icon(
+                            imageVector = icon,
+                            contentDescription = null,
+                            modifier = Modifier.size(20.dp)
+                        )
+                        Spacer(modifier = Modifier.width(4.dp))
+                        Text(
+                            text = header,
+                            fontWeight = FontWeight.Bold
+                        )
+                    }
+                }
+                Spacer(modifier = Modifier.width(56.dp)) // Espacio para íconos de acciones (Modificar, Eliminar, Expandir)
+            }
+            Divider(color = colors.primary, thickness = 1.5.dp)
+        }
+
+        // Iterar sobre las filas de datos
         items(data) { row ->
             TransportistaExpandableRow(colors, row)
             Divider(color = colors.primary, thickness = 1.5.dp)
@@ -167,6 +204,7 @@ fun TransportistaExpandableRow(colors: RefugioColorPalette, row: TransportistaTa
     val backgroundColor = if (expanded) colors.menuBackground else Color.Transparent
     val coroutineScope = rememberCoroutineScope()
     var showUpdateDialog by remember { mutableStateOf(false) }
+
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -180,26 +218,16 @@ fun TransportistaExpandableRow(colors: RefugioColorPalette, row: TransportistaTa
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {
-            row.mainAttributes.forEach { (key, value) ->
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
+            // Mostrar valores de los atributos principales en la fila sin los subtítulos
+            listOf(row.id, row.nombre, row.provincia).forEach { value ->
+                Text(
+                    text = value,
                     modifier = Modifier.weight(1f)
-                ) {
-                    Icon(
-                        imageVector = getIconForAttribute(key),
-                        contentDescription = null,
-                        modifier = Modifier.size(20.dp)
-                    )
-                    Spacer(modifier = Modifier.width(4.dp))
-                    Text(
-                        text = "$key: ",
-                        fontWeight = FontWeight.Bold
-                    )
-                    Text(text = value)
-                }
+                )
             }
+
             Row {
-                IconButton(onClick = { showUpdateDialog=true}) {
+                IconButton(onClick = { showUpdateDialog = true }) {
                     Icon(Icons.Default.Edit, contentDescription = "Modificar")
                 }
                 IconButton(onClick = { /* TODO: Implementar eliminar */ }) {
@@ -214,6 +242,7 @@ fun TransportistaExpandableRow(colors: RefugioColorPalette, row: TransportistaTa
             }
         }
 
+        // Atributos expandidos solo si está expandido
         if (expanded) {
             row.expandedAttributes.forEach { (key, value) ->
                 Row(
@@ -245,9 +274,9 @@ fun TransportistaExpandableRow(colors: RefugioColorPalette, row: TransportistaTa
                 direccionInicial = row.direccion,
                 telefonoInicial = row.telefono,
                 onDismissRequest = { showUpdateDialog = false },
-                onTransporteUpdated = { codigo, nombre, email, provincia,  direccion, telefono->
+                onTransporteUpdated = { codigo, nombre, email, provincia, direccion, telefono ->
                     coroutineScope.launch {
-                        if(ContratadosDB.updateTransporte(codigo, nombre, email, provincia,  direccion, telefono))
+                        if (ContratadosDB.updateTransporte(codigo, nombre, email, provincia, direccion, telefono))
                             showUpdateDialog = false
                         else
                             println("Revise los datos")
@@ -257,7 +286,6 @@ fun TransportistaExpandableRow(colors: RefugioColorPalette, row: TransportistaTa
         }
     }
 }
-
 
 fun getTransportistasTableRows(transportistas: List<Transporte>): List<TransportistaTableRow> {
     return transportistas.map { transportista ->
