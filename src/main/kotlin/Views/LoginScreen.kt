@@ -25,6 +25,12 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import kotlin.math.PI
 import kotlin.math.sin
+import androidx.compose.ui.input.key.*
+import androidx.compose.ui.focus.*
+import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.text.KeyboardActions
+import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.text.input.ImeAction
 
 @Composable
 fun LoginScreen(colors: RefugioColorPalette, onLoginSuccess: () -> Unit) {
@@ -32,6 +38,17 @@ fun LoginScreen(colors: RefugioColorPalette, onLoginSuccess: () -> Unit) {
     var password by remember { mutableStateOf("") }
     var errorMessage by remember { mutableStateOf("") }
     var showDialog by remember { mutableStateOf(false) }
+
+    val focusManager = LocalFocusManager.current
+    val (focusedTextField, setFocusedTextField) = remember { mutableStateOf<String?>(null) }
+
+    fun attemptLogin() {
+        if (username == "admin" && password == "password") {
+            onLoginSuccess()
+        } else {
+            errorMessage = "Usuario o contraseña inválidos"
+        }
+    }
 
     Box(
         modifier = Modifier
@@ -41,6 +58,14 @@ fun LoginScreen(colors: RefugioColorPalette, onLoginSuccess: () -> Unit) {
                     colors = listOf(colors.primary, colors.secondary)
                 )
             )
+            .onKeyEvent { keyEvent ->
+                if (keyEvent.key == Key.Enter && keyEvent.type == KeyEventType.KeyDown) {
+                    attemptLogin()
+                    true
+                } else {
+                    false
+                }
+            }
     ) {
         KotlinWavePatternLogin(colors, Modifier.fillMaxSize())
 
@@ -80,12 +105,22 @@ fun LoginScreen(colors: RefugioColorPalette, onLoginSuccess: () -> Unit) {
                         onValueChange = { username = it },
                         label = { Text("Usuario") },
                         leadingIcon = { Icon(getIconForAttribute("Nombre"), contentDescription = null) },
-                        modifier = Modifier.fillMaxWidth(),
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .focusRequester(remember { FocusRequester() })
+                            .onFocusChanged { focusState ->
+                                if (focusState.isFocused) {
+                                    setFocusedTextField("username")
+                                }
+                            },
                         colors = TextFieldDefaults.outlinedTextFieldColors(
                             focusedBorderColor = colors.primary,
                             unfocusedBorderColor = colors.menuItemSelected,
                             cursorColor = colors.primary
-                        )
+                        ),
+                        singleLine = true,
+                        keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next),
+                        keyboardActions = KeyboardActions(onNext = { focusManager.moveFocus(FocusDirection.Down) })
                     )
 
                     Spacer(modifier = Modifier.height(16.dp))
@@ -95,25 +130,29 @@ fun LoginScreen(colors: RefugioColorPalette, onLoginSuccess: () -> Unit) {
                         onValueChange = { password = it },
                         label = { Text("Contraseña") },
                         leadingIcon = { Icon(getIconForAttribute("Contraseña"), contentDescription = null) },
-                        modifier = Modifier.fillMaxWidth(),
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .focusRequester(remember { FocusRequester() })
+                            .onFocusChanged { focusState ->
+                                if (focusState.isFocused) {
+                                    setFocusedTextField("password")
+                                }
+                            },
                         visualTransformation = PasswordVisualTransformation(),
                         colors = TextFieldDefaults.outlinedTextFieldColors(
                             focusedBorderColor = colors.primary,
                             unfocusedBorderColor = colors.menuItemSelected,
                             cursorColor = colors.primary
-                        )
+                        ),
+                        singleLine = true,
+                        keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
+                        keyboardActions = KeyboardActions(onDone = { attemptLogin() })
                     )
 
                     Spacer(modifier = Modifier.height(24.dp))
 
                     Button(
-                        onClick = {
-                            if (username == "admin" && password == "password") {
-                                onLoginSuccess()
-                            } else {
-                                errorMessage = "Usuario o contraseña inválidos"
-                            }
-                        },
+                        onClick = { attemptLogin() },
                         modifier = Modifier.fillMaxWidth(),
                         colors = ButtonDefaults.buttonColors(backgroundColor = colors.secondary)
                     ) {

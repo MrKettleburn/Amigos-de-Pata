@@ -1,18 +1,24 @@
 package Views
 
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.size
-import androidx.compose.material.Icon
-import androidx.compose.material.IconButton
-import androidx.compose.material.OutlinedTextField
+import androidx.compose.foundation.gestures.detectTapGestures
+import androidx.compose.foundation.layout.*
+import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.icons.filled.KeyboardArrowUp
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.input.key.*
 import androidx.compose.ui.unit.dp
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.isActive
+import androidx.compose.ui.input.key.Key
+import androidx.compose.ui.input.key.onKeyEvent
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.launch
+
 @Composable
 fun <T : Number> Spinner(
     value: T,
@@ -22,9 +28,36 @@ fun <T : Number> Spinner(
     step: T,
 ) {
     var text by remember { mutableStateOf(value.toString()) }
+    var incrementJob: Job? by remember { mutableStateOf(null) }  // Track the job for increment/decrement
+    val coroutineScope = rememberCoroutineScope()
 
     Row(
-        modifier = modifier,
+        modifier = modifier
+            .onKeyEvent { event ->
+                if (event.type == KeyEventType.KeyDown) {
+                    when (event.key) {
+                        Key.DirectionUp -> {
+                            val numberValue: T = parseNumber(text, value) ?: getDefaultNumber(value)
+                            val newValue = increment(numberValue, step)
+                            text = newValue.toString()
+                            onValueChange(newValue)
+                            true
+                        }
+                        Key.DirectionDown -> {
+                            val numberValue: T = parseNumber(text, value) ?: getDefaultNumber(value)
+                            val newValue = decrement(numberValue, step)
+                            if (newValue.toDouble() >= 0) {
+                                text = newValue.toString()
+                                onValueChange(newValue)
+                            }
+                            true
+                        }
+                        else -> false
+                    }
+                } else {
+                    false
+                }
+            },
         verticalAlignment = Alignment.CenterVertically
     ) {
         OutlinedTextField(
@@ -39,19 +72,42 @@ fun <T : Number> Spinner(
         )
 
         Column {
+            // Increment Button with hold functionality
             IconButton(
                 onClick = {
+                    incrementJob?.cancel()  // Cancel any previous job
                     val numberValue: T = parseNumber(text, value) ?: getDefaultNumber(value)
                     val newValue = increment(numberValue, step)
                     text = newValue.toString()
                     onValueChange(newValue)
                 },
-                modifier = Modifier.size(24.dp) // Tamaño pequeño
+                modifier = Modifier
+                    .size(24.dp)
+                    .pointerInput(Unit) {
+                        detectTapGestures(
+                            onPress = {
+                                incrementJob = coroutineScope.launch {
+                                    while (true) {
+                                        val numberValue: T = parseNumber(text, value) ?: getDefaultNumber(value)
+                                        val newValue = increment(numberValue, step)
+                                        text = newValue.toString()
+                                        onValueChange(newValue)
+                                        delay(200) // Repeat the increment every 200ms
+                                    }
+                                }
+                                tryAwaitRelease()  // Wait until the press is released
+                                incrementJob?.cancel()  // Cancel the job after release
+                            }
+                        )
+                    }
             ) {
                 Icon(Icons.Default.KeyboardArrowUp, contentDescription = "Incrementar")
             }
+
+            // Decrement Button with hold functionality
             IconButton(
                 onClick = {
+                    incrementJob?.cancel()  // Cancel any previous job
                     val numberValue: T = parseNumber(text, value) ?: getDefaultNumber(value)
                     val newValue = decrement(numberValue, step)
                     if (newValue.toDouble() >= 0) {
@@ -59,7 +115,27 @@ fun <T : Number> Spinner(
                         onValueChange(newValue)
                     }
                 },
-                modifier = Modifier.size(24.dp) // Tamaño pequeño
+                modifier = Modifier
+                    .size(24.dp)
+                    .pointerInput(Unit) {
+                        detectTapGestures(
+                            onPress = {
+                                incrementJob = coroutineScope.launch {
+                                    while (true) {
+                                        val numberValue: T = parseNumber(text, value) ?: getDefaultNumber(value)
+                                        val newValue = decrement(numberValue, step)
+                                        if (newValue.toDouble() >= 0) {
+                                            text = newValue.toString()
+                                            onValueChange(newValue)
+                                        }
+                                        delay(200)  // Repeat the decrement every 200ms
+                                    }
+                                }
+                                tryAwaitRelease()  // Wait until the press is released
+                                incrementJob?.cancel()  // Cancel the job after release
+                            }
+                        )
+                    }
             ) {
                 Icon(Icons.Default.KeyboardArrowDown, contentDescription = "Decrementar")
             }
