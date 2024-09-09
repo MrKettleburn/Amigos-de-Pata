@@ -1,6 +1,6 @@
 package Models
 
 data class Adoptante(
-    val codigp: Int,
+    val codigo: Int,
     val nombre: String
 )

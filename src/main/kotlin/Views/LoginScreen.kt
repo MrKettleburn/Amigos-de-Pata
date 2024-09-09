@@ -1,5 +1,8 @@
 package Views
 
+import UserLogged.UsuarioDB
+import UserLogged.UsuarioDB.verificarCredenciales
+import UserLogged.UsuarioSingleton
 import androidx.compose.animation.core.*
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
@@ -31,22 +34,36 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.text.input.ImeAction
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 @Composable
 fun LoginScreen(colors: RefugioColorPalette, onLoginSuccess: () -> Unit) {
     var username by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
+    var nombre by remember { mutableStateOf("") } // Nuevo campo para el nombre
     var errorMessage by remember { mutableStateOf("") }
     var showDialog by remember { mutableStateOf(false) }
+    var dialogErrorMessage by remember { mutableStateOf("") } // Mensaje de error en el dialogo
+    val coroutineScope = rememberCoroutineScope()
 
     val focusManager = LocalFocusManager.current
     val (focusedTextField, setFocusedTextField) = remember { mutableStateOf<String?>(null) }
 
     fun attemptLogin() {
-        if (username == "admin" && password == "password") {
-            onLoginSuccess()
-        } else {
-            errorMessage = "Usuario o contraseña inválidos"
+        GlobalScope.launch {
+            val resultado = verificarCredenciales(username, password)
+            if (resultado != null) {
+                val (id, permiso) = resultado
+                UsuarioSingleton.iniciarSesion(id, permiso)
+                onLoginSuccess()
+            } else {
+                withContext(Dispatchers.Main) {
+                    errorMessage = "Usuario o contraseña inválidos"
+                }
+            }
         }
     }
 
@@ -181,16 +198,28 @@ fun LoginScreen(colors: RefugioColorPalette, onLoginSuccess: () -> Unit) {
                 title = {
                     Text(
                         text = "Introducir Datos",
-                        style = MaterialTheme.typography.h6.copy(fontWeight = FontWeight.Bold) // Más negrito y marcado
+                        style = MaterialTheme.typography.h6.copy(fontWeight = FontWeight.Bold)
                     )
                 },
                 text = {
                     Column {
                         OutlinedTextField(
+                            value = nombre,
+                            onValueChange = { nombre = it },
+                            label = { Text("Nombre Completo") },  // Campo para nombre
+                            leadingIcon = { Icon(getIconForAttribute("Nombre"), contentDescription = null) },
+                            colors = TextFieldDefaults.outlinedTextFieldColors(
+                                focusedBorderColor = colors.primary,
+                                unfocusedBorderColor = colors.menuItemSelected,
+                                cursorColor = colors.primary
+                            )
+                        )
+                        Spacer(modifier = Modifier.height(8.dp))
+                        OutlinedTextField(
                             value = username,
                             onValueChange = { username = it },
                             label = { Text("Usuario") },
-                            leadingIcon = { Icon(getIconForAttribute("Nombre"), contentDescription = null) },
+                            leadingIcon = { Icon(getIconForAttribute("Usuario"), contentDescription = null) },
                             colors = TextFieldDefaults.outlinedTextFieldColors(
                                 focusedBorderColor = colors.primary,
                                 unfocusedBorderColor = colors.menuItemSelected,
@@ -210,16 +239,31 @@ fun LoginScreen(colors: RefugioColorPalette, onLoginSuccess: () -> Unit) {
                                 cursorColor = colors.primary
                             )
                         )
+
+                        if (dialogErrorMessage.isNotEmpty()) {
+                            Spacer(modifier = Modifier.height(8.dp))
+                            Text(text = dialogErrorMessage, color = MaterialTheme.colors.error)
+                        }
                     }
                 },
                 confirmButton = {
                     Button(
                         onClick = {
-                            showDialog = false
-                            if (username == "admin" && password == "password") {
-                                onLoginSuccess()
-                            } else {
-                                errorMessage = "Usuario o contraseña inválidos"
+                            coroutineScope.launch {
+                                // Dejar esta función comentada
+                                // verificarUsuarioNoExistente(username) { usuarioExiste ->
+                                //     if (usuarioExiste) {
+                                //         dialogErrorMessage = "El usuario ya existe"
+                                //     } else {
+
+                                UsuarioDB.createUsuarioAdoptante(nombre, username, password)
+                                dialogErrorMessage = "Cuenta creada con éxito"
+                                //         // Autocompletar los campos de login
+                                username = username // Actualizamos el estado directamente
+                                password = password // Actualizamos el estado directamente
+                                showDialog = false
+                                //     }
+                                // }
                             }
                         },
                         colors = ButtonDefaults.buttonColors(backgroundColor = colors.primary)

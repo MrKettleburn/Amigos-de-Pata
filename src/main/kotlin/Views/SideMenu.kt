@@ -1,5 +1,6 @@
 package Views
 
+import UserLogged.UsuarioSingleton
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.background
@@ -52,11 +53,42 @@ fun AnimatedSideMenu(
         )
 
         // Menús expandibles
-        ExpandableMenuItem("Contratos", colors, selectedItem, selectedSubItem, onSelectionChanged, Icons.Default.Description)
-        ExpandableMenuItem("Contratados", colors, selectedItem, selectedSubItem, onSelectionChanged, Icons.Default.People)
-        ExpandableMenuItem("Servicios", colors, selectedItem, selectedSubItem, onSelectionChanged, Icons.Default.Build)
-        ExpandableMenuItem("Animales", colors, selectedItem, selectedSubItem, onSelectionChanged, Icons.Default.Pets)
-
+        if (UsuarioSingleton.permiso == "GESTION") {
+            ExpandableMenuItem(
+                "Contratos",
+                colors,
+                selectedItem,
+                selectedSubItem,
+                onSelectionChanged,
+                Icons.Default.Description
+            )
+            ExpandableMenuItem(
+                "Contratados",
+                colors,
+                selectedItem,
+                selectedSubItem,
+                onSelectionChanged,
+                Icons.Default.People
+            )
+            ExpandableMenuItem(
+                "Servicios",
+                colors,
+                selectedItem,
+                selectedSubItem,
+                onSelectionChanged,
+                Icons.Default.Build
+            )
+        }
+        if (UsuarioSingleton.permiso == "CUIDADOR") {
+            ExpandableMenuItem(
+                "Animales",
+                colors,
+                selectedItem,
+                selectedSubItem,
+                onSelectionChanged,
+                Icons.Default.Pets
+            )
+        }
         // Nuevo campo de Usuarios
         MenuItem("Usuarios", colors, selectedItem, selectedSubItem, Icons.Default.Person) {
             onSelectionChanged("Usuarios", "")
@@ -78,7 +110,7 @@ fun AnimatedSideMenu(
         ) {
             Icon(Icons.Default.ExitToApp, contentDescription = "Log Out")
             Spacer(modifier = Modifier.width(8.dp))
-            Text("Log Out")
+            Text("Cerrar Sesión")
         }
     }
 }
