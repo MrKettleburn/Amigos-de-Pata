@@ -51,9 +51,14 @@ fun LoginScreen(colors: RefugioColorPalette, onLoginSuccess: () -> Unit) {
     var notificationState by remember { mutableStateOf<Pair<String, Boolean>?>(null) }
     var errorMessage by remember { mutableStateOf("") }
     var dialogErrorMessage by remember { mutableStateOf("") }
+    var nombreError by remember { mutableStateOf(false) }
+    var usernameError by remember { mutableStateOf(false) }
+    var passwordError by remember { mutableStateOf(false) }
+    var dialogGeneralError by remember { mutableStateOf("") }
     val coroutineScope = rememberCoroutineScope()
 
     val focusManager = LocalFocusManager.current
+    val dialogFocusRequester = remember { FocusRequester() }
 
     @Composable
     fun AnimatedNotification(message: String, isSuccess: Boolean) {
@@ -112,7 +117,7 @@ fun LoginScreen(colors: RefugioColorPalette, onLoginSuccess: () -> Unit) {
                     val (id, permiso) = resultado
                     UsuarioSingleton.iniciarSesion(id, permiso)
                     showNotification("Inicio de sesión exitoso", true)
-                    delay(1500) // Dar tiempo para que se vea la notificación
+                    delay(1800)
                     onLoginSuccess()
                 } else {
                     showNotification("Usuario o contraseña incorrectos", false)
@@ -127,18 +132,38 @@ fun LoginScreen(colors: RefugioColorPalette, onLoginSuccess: () -> Unit) {
         coroutineScope.launch(Dispatchers.IO) {
             val usuarioExiste = verificarUsuarioyContrasenia(username, password)
             if (usuarioExiste) {
-                showNotification("El usuario ya existe. Intente con otras credenciales.", false)
+                withContext(Dispatchers.IO) {
+                    showDialog = false // Cerrar el diálogo antes de mostrar la notificación
+                    delay(100) // Pequeña pausa para asegurar que el diálogo se cierre
+                    showNotification("El usuario ya existe. Intente con otras credenciales.", false)
+                    delay(1500)
+                    showDialog = true
+                }
             } else {
                 UsuarioDB.createUsuarioAdoptante(nombre, username, password)
-                showDialog = false
-                showNotification("Cuenta creada con éxito. Bienvenido al refugio Amigos de Pata.", true)
-                delay(1500) // Dar tiempo para que se vea la notificación
-                // No iniciamos sesión automáticamente, solo llenamos los campos
-                withContext(Dispatchers.Main) {
-                    username = username // El username ya está en el estado
-                    password = password // La contraseña ya está en el estado
+                withContext(Dispatchers.IO) {
+                    showDialog = false
+                    showNotification("Cuenta creada con éxito. Bienvenido al refugio Amigos de Pata.", true)
+                }
+                delay(1500)
+                withContext(Dispatchers.IO) {
+                    username = username
+                    password = password
                 }
             }
+        }
+    }
+
+    fun validateAndRegister() {
+        nombreError = nombre.isBlank()
+        usernameError = username.isBlank()
+        passwordError = password.isBlank()
+
+        if (nombre.isBlank() || username.isBlank() || password.isBlank()) {
+            dialogGeneralError = "Deben llenarse todos los campos"
+        } else {
+            dialogGeneralError = ""
+            attemptRegister()
         }
     }
 
@@ -152,7 +177,9 @@ fun LoginScreen(colors: RefugioColorPalette, onLoginSuccess: () -> Unit) {
             )
             .onKeyEvent { keyEvent ->
                 if (keyEvent.key == Key.Enter && keyEvent.type == KeyEventType.KeyDown) {
-                    attemptLogin()
+                    if (!showDialog) {
+                        attemptLogin()
+                    }
                     true
                 } else {
                     false
@@ -261,6 +288,7 @@ fun LoginScreen(colors: RefugioColorPalette, onLoginSuccess: () -> Unit) {
             }
         }
 
+
         if (showDialog) {
             AlertDialog(
                 onDismissRequest = { showDialog = false },
@@ -271,38 +299,63 @@ fun LoginScreen(colors: RefugioColorPalette, onLoginSuccess: () -> Unit) {
                     )
                 },
                 text = {
-                    Column {
+                    Column(
+                        modifier = Modifier.onKeyEvent { keyEvent ->
+                            if (keyEvent.key == Key.Enter && keyEvent.type == KeyEventType.KeyDown) {
+                                validateAndRegister()
+                                true
+                            } else {
+                                false
+                            }
+                        }
+                    ) {
                         OutlinedTextField(
                             value = nombre,
-                            onValueChange = { nombre = it },
+                            onValueChange = {
+                                nombre = it
+                                nombreError = false
+                                if (dialogGeneralError.isNotEmpty()) dialogGeneralError = ""
+                            },
                             label = { Text("Nombre Completo") },
                             leadingIcon = { Icon(getIconForAttribute("Nombre"), contentDescription = null) },
                             colors = TextFieldDefaults.outlinedTextFieldColors(
-                                focusedBorderColor = colors.primary,
-                                unfocusedBorderColor = colors.menuItemSelected,
+                                focusedBorderColor = if (nombreError) Color.Red else colors.primary,
+                                unfocusedBorderColor = if (nombreError) Color.Red else colors.menuItemSelected,
                                 cursorColor = colors.primary
                             ),
                             keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next),
-                            keyboardActions = KeyboardActions(onNext = { focusManager.moveFocus(FocusDirection.Down) })
+                            keyboardActions = KeyboardActions(onNext = { focusManager.moveFocus(FocusDirection.Down) }),
+                            singleLine = true,
+                            isError = nombreError
                         )
                         Spacer(modifier = Modifier.height(8.dp))
                         OutlinedTextField(
                             value = username,
-                            onValueChange = { username = it },
+                            onValueChange = {
+                                username = it
+                                usernameError = false
+                                if (dialogGeneralError.isNotEmpty()) dialogGeneralError = ""
+                            },
                             label = { Text("Usuario") },
                             leadingIcon = { Icon(getIconForAttribute("Usuario"), contentDescription = null) },
                             colors = TextFieldDefaults.outlinedTextFieldColors(
-                                focusedBorderColor = colors.primary,
-                                unfocusedBorderColor = colors.menuItemSelected,
+                                focusedBorderColor = if (usernameError) Color.Red else colors.primary,
+                                unfocusedBorderColor = if (usernameError) Color.Red else colors.menuItemSelected,
                                 cursorColor = colors.primary
                             ),
                             keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next),
-                            keyboardActions = KeyboardActions(onNext = { focusManager.moveFocus(FocusDirection.Down) })
+                            keyboardActions = KeyboardActions(onNext = { focusManager.moveFocus(FocusDirection.Down) }),
+                            singleLine = true,
+                            isError = usernameError
                         )
                         Spacer(modifier = Modifier.height(8.dp))
                         OutlinedTextField(
                             value = password,
-                            onValueChange = { password = it },
+                            onValueChange = {
+                                password = it
+                                passwordError = false
+                                if (dialogGeneralError.isNotEmpty()) dialogGeneralError = ""
+                            },
                             label = { Text("Contraseña") },
                             leadingIcon = { Icon(getIconForAttribute("Contraseña"), contentDescription = null) },
                             trailingIcon = {
@@ -315,23 +368,25 @@ fun LoginScreen(colors: RefugioColorPalette, onLoginSuccess: () -> Unit) {
                             },
                             visualTransformation = if (dialogPasswordVisible) VisualTransformation.None else PasswordVisualTransformation(),
                             colors = TextFieldDefaults.outlinedTextFieldColors(
-                                focusedBorderColor = colors.primary,
-                                unfocusedBorderColor = colors.menuItemSelected,
+                                focusedBorderColor = if (passwordError) Color.Red else colors.primary,
+                                unfocusedBorderColor = if (passwordError) Color.Red else colors.menuItemSelected,
                                 cursorColor = colors.primary
                             ),
                             keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
-                            keyboardActions = KeyboardActions(onDone = { attemptRegister() })
+                            keyboardActions = KeyboardActions(onDone = { validateAndRegister() }),
+                            singleLine = true,
+                            isError = passwordError
                         )
 
-                        if (dialogErrorMessage.isNotEmpty()) {
+                        if (dialogGeneralError.isNotEmpty()) {
                             Spacer(modifier = Modifier.height(8.dp))
-                            Text(text = dialogErrorMessage, color = MaterialTheme.colors.error)
+                            Text(text = dialogGeneralError, color = Color.Red)
                         }
                     }
                 },
                 confirmButton = {
                     Button(
-                        onClick = { attemptRegister() },
+                        onClick = { validateAndRegister() },
                         colors = ButtonDefaults.buttonColors(backgroundColor = colors.primary)
                     ) {
                         Text("Aceptar", color = colors.onMenuItemSelected)
@@ -346,11 +401,10 @@ fun LoginScreen(colors: RefugioColorPalette, onLoginSuccess: () -> Unit) {
             )
         }
 
-        // Add the notification at the top of the screen
         Box(
             modifier = Modifier
                 .align(Alignment.TopCenter)
-                .zIndex(1f)  // Ensure the notification is above everything else
+                .zIndex(Float.MAX_VALUE)
         ) {
             notificationState?.let { (message, isSuccess) ->
                 AnimatedNotification(message, isSuccess)

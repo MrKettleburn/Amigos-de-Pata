@@ -176,6 +176,41 @@ fun FilterComponentsAlimenticio(
 @Composable
 fun ServiciosTableAlimenticio(colors: RefugioColorPalette, data: List<ServicioTableRowAlimenticio>) {
     LazyColumn {
+        // Encabezados de la tabla
+        item {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(vertical = 8.dp),
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                val headersWithIcons = listOf(
+                    "Código" to getIconForAttribute("Código"),
+                    "Tipo Alimenticio" to getIconForAttribute("Tipo Alimenticio"),
+                    "Precio" to getIconForAttribute("Precio")
+                )
+
+                headersWithIcons.forEach { (header, icon) ->
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        modifier = Modifier.weight(1f)
+                    ) {
+                        Icon(
+                            imageVector = icon,
+                            contentDescription = null,
+                            modifier = Modifier.size(20.dp)
+                        )
+                        Spacer(modifier = Modifier.width(4.dp))
+                        Text(
+                            text = header,
+                            fontWeight = FontWeight.Bold
+                        )
+                    }
+                }
+            }
+            Divider(color = colors.primary, thickness = 1.5.dp)
+        }
+        // Filas con datos
         items(data) { row ->
             ServiciosRowAlimenticio(colors, row)
             Divider(color = colors.primary, thickness = 1.5.dp)
@@ -187,6 +222,7 @@ fun ServiciosTableAlimenticio(colors: RefugioColorPalette, data: List<ServicioTa
 fun ServiciosRowAlimenticio(colors: RefugioColorPalette, row: ServicioTableRowAlimenticio) {
     val coroutineScope = rememberCoroutineScope()
     var showUpdateDialog by remember { mutableStateOf(false) }
+
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -194,26 +230,12 @@ fun ServiciosRowAlimenticio(colors: RefugioColorPalette, row: ServicioTableRowAl
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically
     ) {
-        row.mainAttributes.forEach { (key, value) ->
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                modifier = Modifier.weight(1f)
-            ) {
-                Icon(
-                    imageVector = getIconForAttribute(key),
-                    contentDescription = null,
-                    modifier = Modifier.size(20.dp)
-                )
-                Spacer(modifier = Modifier.width(4.dp))
-                Text(
-                    text = "$key: ",
-                    fontWeight = FontWeight.Bold
-                )
-                Text(text = value)
-            }
-        }
+        Text(text = row.id, modifier = Modifier.weight(1f))
+        Text(text = row.tipoAlim, modifier = Modifier.weight(1f))
+        Text(text = "$${row.precioUnit}", modifier = Modifier.weight(1f)) // Convertir a String
+
         Row {
-            IconButton(onClick = { showUpdateDialog=true }) {
+            IconButton(onClick = { showUpdateDialog = true }) {
                 Icon(Icons.Default.Edit, contentDescription = "Modificar")
             }
             IconButton(onClick = { /* TODO: Implementar eliminar */ }) {

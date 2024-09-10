@@ -2029,7 +2029,7 @@ fun AddVeterinarioDialog(
                         ) {
                             onVeterinarioAdded(
                                 Veterinario(
-                                    codigo = 0, // El código se generará automáticamente en la base de datos
+                                    codigo = 0,
                                     nombre = nombre,
                                     email = email,
                                     provincia = provincia,
