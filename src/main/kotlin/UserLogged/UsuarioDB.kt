@@ -87,4 +87,30 @@ object UsuarioDB {
         result
     }
 
+    suspend fun verificarUsuarioyContrasenia(
+        username: String,
+        password: String
+    ): Boolean = withContext(Dispatchers.IO) {
+        val dbConnection: Connection = Database.connect()
+        val statement = dbConnection.prepareStatement(
+            "SELECT verificar_usuario_existente(?, ?)"
+        )
+
+        statement.setString(1, username)
+        statement.setString(2, password)
+
+        val resultSet = statement.executeQuery()
+
+        var result = false
+        if (resultSet.next()) {
+            result = resultSet.getBoolean(1)
+        }
+
+        resultSet.close()
+        statement.close()
+        dbConnection.close()
+
+        result
+    }
+
 }
