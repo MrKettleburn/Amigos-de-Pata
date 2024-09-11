@@ -1,6 +1,5 @@
 package Views
 
-
 import Class_DB.ActividadDB
 import Class_DB.AnimalDB
 import Class_DB.ContratoDB
@@ -373,17 +372,35 @@ fun FilterComponentsVeterinarios(
     }
 }
 
-
 @Composable
 fun ContratosVeterinariosExpandableTable(colors: RefugioColorPalette, data: List<ContratoTableRow>) {
     LazyColumn {
+        // Encabezados de la tabla
+        item {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(vertical = 8.dp),
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                val headers = listOf("Código", "Precio", "Nombre del Contratado", "Modalidad del Servicio")
+                headers.forEach { header ->
+                    Text(
+                        text = header,
+                        fontWeight = FontWeight.Bold,
+                        modifier = Modifier.weight(1f)
+                    )
+                }
+            }
+            Divider(color = colors.primary, thickness = 1.5.dp)
+        }
+        // Filas con datos
         items(data) { row ->
             ContratosVeterinariosExpandableRow(colors, row)
             Divider(color = colors.primary, thickness = 1.5.dp)
         }
     }
 }
-
 
 @Composable
 fun ContratosVeterinariosExpandableRow(colors: RefugioColorPalette, row: ContratoTableRow) {
@@ -393,7 +410,7 @@ fun ContratosVeterinariosExpandableRow(colors: RefugioColorPalette, row: Contrat
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .background(backgroundColor) // Color de fondo para la fila expandida
+            .background(backgroundColor)
             .padding(vertical = 8.dp)
     ) {
         Row(
@@ -403,29 +420,12 @@ fun ContratosVeterinariosExpandableRow(colors: RefugioColorPalette, row: Contrat
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {
-            row.mainAttributes.forEach { (key, value) ->
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    modifier = Modifier.padding(0.dp)
-                ) {
-                    Icon(
-                        imageVector = getIconForAttribute(key),
-                        contentDescription = null,
-                        modifier = Modifier.size(20.dp)
-                    )
-                    Spacer(modifier = Modifier.width(4.dp))
-                    Text(
-                        text = "$key: ",
-                        fontWeight = FontWeight.Bold
-                    )
-                    Text(text = value)
-                    Spacer(modifier = Modifier.width(4.dp))
-                }
-            }
+            Text(text = row.id, modifier = Modifier.weight(1f))
+            Text(text = row.mainAttributes["Precio"] ?: "", modifier = Modifier.weight(1f))
+            Text(text = row.mainAttributes["Nombre del Contratado"] ?: "", modifier = Modifier.weight(1f))
+            Text(text = row.mainAttributes["Modalidad del Servicio"] ?: "", modifier = Modifier.weight(1f))
+
             Row {
-//                IconButton(onClick = { /* TODO: Implementar modificar */ }) {
-//                    Icon(Icons.Default.Edit, contentDescription = "Modificar")
-//                }
                 IconButton(onClick = { /* TODO: Implementar eliminar */ }) {
                     Icon(Icons.Default.Delete, contentDescription = "Eliminar")
                 }
@@ -438,18 +438,13 @@ fun ContratosVeterinariosExpandableRow(colors: RefugioColorPalette, row: Contrat
             }
         }
 
+        // Muestra los atributos adicionales cuando se expande la fila
         if (expanded) {
             row.expandedAttributes.forEach { (key, value) ->
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
                     modifier = Modifier.padding(start = 16.dp, top = 8.dp)
                 ) {
-                    Icon(
-                        imageVector = getIconForAttribute(key),
-                        contentDescription = null,
-                        modifier = Modifier.size(20.dp)
-                    )
-                    Spacer(modifier = Modifier.width(8.dp))
                     Text(
                         text = "$key: ",
                         fontWeight = FontWeight.Bold
@@ -460,7 +455,6 @@ fun ContratosVeterinariosExpandableRow(colors: RefugioColorPalette, row: Contrat
         }
     }
 }
-
 
 fun getContratosVeterinariosTableRows(contratos: List<ContratoVeterinario>): List<ContratoTableRow> {
     val formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy")

@@ -34,6 +34,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.vector.addPathNodes
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import java.time.YearMonth
 import java.time.format.TextStyle
@@ -250,6 +251,46 @@ fun FilterComponentsAnimals(
 @Composable
 fun AnimalsExpandableTable(colors: RefugioColorPalette, data: List<AnimalTableRow>) {
     LazyColumn {
+        // Encabezados de la tabla
+        item {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(vertical = 8.dp, horizontal = 16.dp),
+                horizontalArrangement = Arrangement.Start
+            ) {
+                val headersWithIcons = listOf(
+                    "Código" to getIconForAttribute("Código"),
+                    "Nombre" to getIconForAttribute("Nombre"),
+                    "Especie" to getIconForAttribute("Especie")
+                )
+
+                headersWithIcons.forEachIndexed { index, (header, icon) ->
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        modifier = Modifier.weight(1f, fill = false)
+                    ) {
+                        Icon(
+                            imageVector = icon,
+                            contentDescription = null,
+                            modifier = Modifier.size(20.dp)
+                        )
+                        Spacer(modifier = Modifier.width(4.dp))
+                        Text(
+                            text = header,
+                            fontWeight = FontWeight.Bold,
+                            fontSize = 15.sp
+                        )
+                    }
+                    if (index < headersWithIcons.size - 1) {
+                        Spacer(modifier = Modifier.width(130.dp))
+                    }
+                }
+            }
+            Divider(color = colors.primary, thickness = 1.5.dp)
+        }
+
+        // Filas con datos
         items(data) { row ->
             AnimalsExpandableRow(colors, row)
             Divider(color = colors.primary, thickness = 1.5.dp)
@@ -280,33 +321,21 @@ fun AnimalsExpandableRow(colors: RefugioColorPalette, row: AnimalTableRow) {
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .background(backgroundColor) // Color de fondo para la fila expandida
+            .background(if (expanded) colors.menuBackground else Color.Transparent)
             .padding(vertical = 8.dp)
     ) {
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .clickable { expanded = !expanded },
-            horizontalArrangement = Arrangement.SpaceBetween,
+                .clickable { expanded = !expanded }
+                .padding(horizontal = 16.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            row.mainAttributes.forEach { (key, value) ->
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
+            row.mainAttributes.forEach { (_, value) ->
+                Text(
+                    text = value,
                     modifier = Modifier.weight(1f)
-                ) {
-                    Icon(
-                        imageVector = getIconForAttribute(key),
-                        contentDescription = null,
-                        modifier = Modifier.size(20.dp)
-                    )
-                    Spacer(modifier = Modifier.width(4.dp))
-                    Text(
-                        text = "$key: ",
-                        fontWeight = FontWeight.Bold
-                    )
-                    Text(text = value)
-                }
+                )
             }
             Row {
                 Button(

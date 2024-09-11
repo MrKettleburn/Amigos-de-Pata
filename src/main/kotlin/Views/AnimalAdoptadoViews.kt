@@ -237,6 +237,44 @@ fun FilterComponentsA(
 @Composable
 fun AnimalesAdoptadosExpandableTable(colors: RefugioColorPalette, data: List<AnimalAdoptadoTableRow>) {
     LazyColumn {
+        // Encabezados de la tabla
+        item {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(vertical = 8.dp),
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                val headersWithIcons = listOf(
+                    "Código" to getIconForAttribute("Código"),
+                    "Nombre" to getIconForAttribute("Nombre"),
+                    "Especie" to getIconForAttribute("Especie")
+                )
+
+                headersWithIcons.forEachIndexed { index, (header, icon) ->
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        modifier = Modifier.weight(1f)
+                    ) {
+                        Icon(
+                            imageVector = icon,
+                            contentDescription = null,
+                            modifier = Modifier.size(20.dp)
+                        )
+                        Spacer(modifier = Modifier.width(4.dp))
+                        Text(
+                            text = header,
+                            fontWeight = FontWeight.Bold
+                        )
+                    }
+                    if (index < headersWithIcons.size - 1) {
+                        Spacer(modifier = Modifier.width(130.dp))
+                    }
+                }
+            }
+            Divider(color = colors.primary, thickness = 1.5.dp)
+        }
+        // Filas con datos
         items(data) { row ->
             AnimalAdoptadoExpandableRow(colors, row)
             Divider(color = colors.primary, thickness = 1.5.dp)
@@ -267,16 +305,7 @@ fun AnimalAdoptadoExpandableRow(colors: RefugioColorPalette, row: AnimalAdoptado
                     verticalAlignment = Alignment.CenterVertically,
                     modifier = Modifier.weight(1f)
                 ) {
-                    Icon(
-                        imageVector = getIconForAttribute(key),
-                        contentDescription = null,
-                        modifier = Modifier.size(20.dp)
-                    )
                     Spacer(modifier = Modifier.width(4.dp))
-                    Text(
-                        text = "$key: ",
-                        fontWeight = FontWeight.Bold
-                    )
                     Text(text = value)
                 }
             }

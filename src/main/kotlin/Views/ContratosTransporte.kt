@@ -331,17 +331,35 @@ fun FilterComponentsTransporte(
     }
 }
 
-
 @Composable
 fun ContratosTransporteExpandableTable(colors: RefugioColorPalette, data: List<ContratoTableRow>) {
     LazyColumn {
+        // Encabezados de la tabla
+        item {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(vertical = 8.dp),
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                val headers = listOf("Código", "Precio", "Nombre del Contratado")
+                headers.forEach { header ->
+                    Text(
+                        text = header,
+                        fontWeight = FontWeight.Bold,
+                        modifier = Modifier.weight(1f)
+                    )
+                }
+            }
+            Divider(color = colors.primary, thickness = 1.5.dp)
+        }
+        // Filas con datos
         items(data) { row ->
             ContratosTransporteExpandableRow(colors, row)
             Divider(color = colors.primary, thickness = 1.5.dp)
         }
     }
 }
-
 
 @Composable
 fun ContratosTransporteExpandableRow(colors: RefugioColorPalette, row: ContratoTableRow) {
@@ -351,7 +369,7 @@ fun ContratosTransporteExpandableRow(colors: RefugioColorPalette, row: ContratoT
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .background(backgroundColor) // Color de fondo para la fila expandida
+            .background(backgroundColor)
             .padding(vertical = 8.dp)
     ) {
         Row(
@@ -361,29 +379,11 @@ fun ContratosTransporteExpandableRow(colors: RefugioColorPalette, row: ContratoT
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {
-            row.mainAttributes.forEach { (key, value) ->
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    modifier = Modifier.padding(0.dp)
-                ) {
-                    Icon(
-                        imageVector = getIconForAttribute(key),
-                        contentDescription = null,
-                        modifier = Modifier.size(20.dp)
-                    )
-                    Spacer(modifier = Modifier.width(4.dp))
-                    Text(
-                        text = "$key: ",
-                        fontWeight = FontWeight.Bold
-                    )
-                    Text(text = value)
-                    Spacer(modifier = Modifier.width(4.dp))
-                }
-            }
+            Text(text = row.id, modifier = Modifier.weight(1f))
+            Text(text = row.mainAttributes["Precio"] ?: "", modifier = Modifier.weight(1f))
+            Text(text = row.mainAttributes["Nombre del Contratado"] ?: "", modifier = Modifier.weight(1f))
+
             Row {
-//                IconButton(onClick = { /* TODO: Implementar modificar */ }) {
-//                    Icon(Icons.Default.Edit, contentDescription = "Modificar")
-//                }
                 IconButton(onClick = { /* TODO: Implementar eliminar */ }) {
                     Icon(Icons.Default.Delete, contentDescription = "Eliminar")
                 }
@@ -402,12 +402,6 @@ fun ContratosTransporteExpandableRow(colors: RefugioColorPalette, row: ContratoT
                     verticalAlignment = Alignment.CenterVertically,
                     modifier = Modifier.padding(start = 16.dp, top = 8.dp)
                 ) {
-                    Icon(
-                        imageVector = getIconForAttribute(key),
-                        contentDescription = null,
-                        modifier = Modifier.size(20.dp)
-                    )
-                    Spacer(modifier = Modifier.width(8.dp))
                     Text(
                         text = "$key: ",
                         fontWeight = FontWeight.Bold
@@ -418,7 +412,6 @@ fun ContratosTransporteExpandableRow(colors: RefugioColorPalette, row: ContratoT
         }
     }
 }
-
 
 fun getContratosTransporteTableRows(contratos: List<ContratoTransporte>): List<ContratoTableRow> {
     val formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy")
