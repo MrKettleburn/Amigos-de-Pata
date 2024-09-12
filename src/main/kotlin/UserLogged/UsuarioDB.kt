@@ -14,7 +14,7 @@ object UsuarioDB {
         val usuarios = mutableListOf<Usuario>()
         val dbConnection: Connection = Database.connect()
         val statement = dbConnection.prepareStatement(
-            "SELECT * FROM buscar_usuarios_por_permiso(?)"
+            "SELECT * FROM buscar_usuarios_por_permiso_filter(?)"
         )
 
         statement.setString(1, permiso)
@@ -58,6 +58,33 @@ object UsuarioDB {
         statement.close()
         dbConnection.close()
         nuevoId
+    }
+
+    suspend fun updateUsuario(idUsuario: Int, nombreUsuario: String, contrasena: String, permiso: String): Boolean = withContext(Dispatchers.IO) {
+
+        val dbConnection = Database.connect()
+        val statement = dbConnection.prepareStatement(
+            "SELECT actualizar_usuario(?,?,?,?)"
+        )
+
+        statement.setInt(1, idUsuario)
+        statement.setString(2, nombreUsuario)
+        statement.setString(3, contrasena)
+        statement.setString(4, permiso)
+
+        var retorno: Boolean = true
+        val resultSet = statement.executeQuery()
+
+        if (resultSet.next()) {
+            val resultado: Boolean = resultSet.getBoolean(1)
+            if (!resultado) {
+                println("Error al actualizar el usuario. Intente nuevamente.")
+                retorno = false
+            }
+        }
+
+        dbConnection.close()
+        retorno
     }
 
     suspend fun createUsuarioAdoptante(name: String, user: String, pass: String): Int = withContext(Dispatchers.IO) {

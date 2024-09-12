@@ -212,7 +212,7 @@ object ServiciosDB {
         var nuevoId = -1
         val dbConnection: Connection = Database.connect()
         val statement = dbConnection.prepareStatement(
-            "SELECT insertar_servicio_veterinario(?, ?)",  // Consulta SQL que invoca la función almacenada
+            "SELECT insertar_servicio_veterinario(?, ?)",
         )
 
         statement.setDouble(1, servicio.precioUni)

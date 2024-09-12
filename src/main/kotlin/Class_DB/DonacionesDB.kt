@@ -57,7 +57,7 @@ object DonacionesDB {
                 Donacion(
                     id = resultSet.getInt("id"),
                     monto = resultSet.getDouble("monto"),
-                    permiso = resultSet.getString("id_adoptante")
+                    nombreAdopt = resultSet.getString("nombre_adoptante")
                 )
             )
         }
@@ -67,16 +67,15 @@ object DonacionesDB {
         donaciones
     }
 
-    suspend fun createUsuario(user: String, pass: String, rol:String): Int = withContext(Dispatchers.IO) {
+    suspend fun createDonacion(monto: Double, idAdop: Int): Int = withContext(Dispatchers.IO) {
         var nuevoId = -1
         val dbConnection: Connection = Database.connect()
         val statement = dbConnection.prepareStatement(
-            "SELECT insertar_usuario(?, ?, ?)"
+            "SELECT insertar_donacion(?, ?)"
         )
 
-        statement.setString(1, user)
-        statement.setString(2, pass)
-        statement.setString(3, rol)
+        statement.setDouble(1, monto)
+        statement.setInt(2, idAdop)
 
         val resultSet = statement.executeQuery()
 
@@ -89,5 +88,4 @@ object DonacionesDB {
         dbConnection.close()
         nuevoId
     }
-
 }
