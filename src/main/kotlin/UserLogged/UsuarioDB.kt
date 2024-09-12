@@ -14,7 +14,7 @@ object UsuarioDB {
         val usuarios = mutableListOf<Usuario>()
         val dbConnection: Connection = Database.connect()
         val statement = dbConnection.prepareStatement(
-            "SELECT * FROM buscar_usuarios(?)"
+            "SELECT * FROM buscar_usuarios_por_permiso(?)"
         )
 
         statement.setString(1, permiso)
@@ -35,6 +35,29 @@ object UsuarioDB {
         statement.close()
         dbConnection.close()
         usuarios
+    }
+
+    suspend fun createUsuario(user: String, pass: String, rol:String): Int = withContext(Dispatchers.IO) {
+        var nuevoId = -1
+        val dbConnection: Connection = Database.connect()
+        val statement = dbConnection.prepareStatement(
+            "SELECT insertar_usuario(?, ?, ?)"
+        )
+
+        statement.setString(1, user)
+        statement.setString(2, pass)
+        statement.setString(3, rol)
+
+        val resultSet = statement.executeQuery()
+
+        if (resultSet.next()) {
+            nuevoId = resultSet.getInt(1)
+        }
+
+        resultSet.close()
+        statement.close()
+        dbConnection.close()
+        nuevoId
     }
 
     suspend fun createUsuarioAdoptante(name: String, user: String, pass: String): Int = withContext(Dispatchers.IO) {
@@ -94,6 +117,31 @@ object UsuarioDB {
         val dbConnection: Connection = Database.connect()
         val statement = dbConnection.prepareStatement(
             "SELECT verificar_usuario_existente(?, ?)"
+        )
+
+        statement.setString(1, username)
+        statement.setString(2, password)
+
+        val resultSet = statement.executeQuery()
+
+        var result = false
+        if (resultSet.next()) {
+            result = resultSet.getBoolean(1)
+        }
+
+        resultSet.close()
+        statement.close()
+        dbConnection.close()
+
+        result
+    }
+    suspend fun verificarUsuarioyContraseniaDialog(
+        username: String,
+        password: String
+    ): Boolean = withContext(Dispatchers.IO) {
+        val dbConnection: Connection = Database.connect()
+        val statement = dbConnection.prepareStatement(
+            "SELECT verificar_usuario_existente_dialog(?, ?)"
         )
 
         statement.setString(1, username)

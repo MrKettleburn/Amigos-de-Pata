@@ -3,6 +3,7 @@ package Views
 import UserLogged.UsuarioDB
 import UserLogged.UsuarioDB.verificarCredenciales
 import UserLogged.UsuarioDB.verificarUsuarioyContrasenia
+import UserLogged.UsuarioDB.verificarUsuarioyContraseniaDialog
 import UserLogged.UsuarioSingleton
 import androidx.compose.animation.*
 import androidx.compose.animation.core.*
@@ -130,7 +131,7 @@ fun LoginScreen(colors: RefugioColorPalette, onLoginSuccess: () -> Unit) {
 
     fun attemptRegister() {
         coroutineScope.launch(Dispatchers.IO) {
-            val usuarioExiste = verificarUsuarioyContrasenia(username, password)
+            val usuarioExiste = verificarUsuarioyContraseniaDialog(username, password)
             if (usuarioExiste) {
                 withContext(Dispatchers.IO) {
                     showDialog = false // Cerrar el diálogo antes de mostrar la notificación
