@@ -187,7 +187,7 @@ fun TransportistasExpandableTable(colors: RefugioColorPalette, data: List<Transp
                         )
                     }
                 }
-                Spacer(modifier = Modifier.width(56.dp)) // Espacio para íconos de acciones (Modificar, Eliminar, Expandir)
+                Spacer(modifier = Modifier.width(56.dp))
             }
             Divider(color = colors.primary, thickness = 1.5.dp)
         }
@@ -224,7 +224,6 @@ fun TransportistaExpandableRow(colors: RefugioColorPalette, row: TransportistaTa
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {
-            // Mostrar valores de los atributos principales en la fila sin los subtítulos
             listOf(row.id, row.nombre, row.provincia).forEach { value ->
                 Text(
                     text = value,

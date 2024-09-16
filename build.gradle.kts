@@ -25,6 +25,7 @@ dependencies {
     implementation("org.postgresql:postgresql:42.7.3")
     implementation(compose.materialIconsExtended)
     implementation(compose.material3)
+    implementation("org.mindrot:jbcrypt:0.4")
 }
 
 compose.desktop {

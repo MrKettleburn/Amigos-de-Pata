@@ -1,5 +1,6 @@
 package Views
 
+import UserLogged.UsuarioSingleton
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.background
@@ -42,7 +43,8 @@ fun AnimatedSideMenu(
             .verticalScroll(scrollState)
             .padding(16.dp)
     ) {
-        // Sección Gestión
+
+        //if(UsuarioSingleton.permiso == '')
         Text(
             "Gestión",
             style = MaterialTheme.typography.h6,
@@ -51,25 +53,54 @@ fun AnimatedSideMenu(
             modifier = Modifier.padding(bottom = 8.dp)
         )
 
-        // Menús expandibles
-        ExpandableMenuItem("Contratos", colors, selectedItem, selectedSubItem, onSelectionChanged, Icons.Default.Description)
-        ExpandableMenuItem("Contratados", colors, selectedItem, selectedSubItem, onSelectionChanged, Icons.Default.People)
-        ExpandableMenuItem("Servicios", colors, selectedItem, selectedSubItem, onSelectionChanged, Icons.Default.Build)
-        ExpandableMenuItem("Animales", colors, selectedItem, selectedSubItem, onSelectionChanged, Icons.Default.Pets)
+            ExpandableMenuItem(
+                "Contratos",
+                colors,
+                selectedItem,
+                selectedSubItem,
+                onSelectionChanged,
+                Icons.Default.Description
+            )
+            ExpandableMenuItem(
+                "Contratados",
+                colors,
+                selectedItem,
+                selectedSubItem,
+                onSelectionChanged,
+                Icons.Default.People
+            )
+            ExpandableMenuItem(
+                "Servicios",
+                colors,
+                selectedItem,
+                selectedSubItem,
+                onSelectionChanged,
+                Icons.Default.Build
+            )
 
-        // Nuevo campo de Usuarios
+            ExpandableMenuItem(
+                "Animales",
+                colors,
+                selectedItem,
+                selectedSubItem,
+                onSelectionChanged,
+                Icons.Default.Pets
+            )
+
+        MenuItem("Donaciones", colors, selectedItem, selectedSubItem, Icons.Default.AttachMoney) {
+            onSelectionChanged("Donaciones", "")
+        }
+
         MenuItem("Usuarios", colors, selectedItem, selectedSubItem, Icons.Default.Person) {
             onSelectionChanged("Usuarios", "")
         }
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        // Sección Informes
         ExpandableMenuItem("Informes", colors, selectedItem, selectedSubItem, onSelectionChanged, Icons.Default.Assessment)
 
         Spacer(modifier = Modifier.weight(1f))
 
-        // Botón de Logout al final
         Button(
             onClick = onLogout,
             modifier = Modifier
@@ -78,7 +109,7 @@ fun AnimatedSideMenu(
         ) {
             Icon(Icons.Default.ExitToApp, contentDescription = "Log Out")
             Spacer(modifier = Modifier.width(8.dp))
-            Text("Log Out")
+            Text("Cerrar Sesión")
         }
     }
 }
@@ -240,7 +271,6 @@ fun MenuItem(
     }
 }
 
-// Agrega estas dos funciones de extensión en tu archivo:
 @Composable
 fun Modifier.onPointerEnter(onEnter: () -> Unit): Modifier = pointerInput(Unit) {
     awaitPointerEventScope {

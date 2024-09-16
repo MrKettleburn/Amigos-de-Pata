@@ -1,5 +1,11 @@
 package Views
 
+import UserLogged.UsuarioDB
+import UserLogged.UsuarioDB.verificarCredenciales
+import UserLogged.UsuarioDB.verificarUsuarioyContrasenia
+import UserLogged.UsuarioDB.verificarUsuarioyContraseniaDialog
+import UserLogged.UsuarioSingleton
+import androidx.compose.animation.*
 import androidx.compose.animation.core.*
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
@@ -8,9 +14,6 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Lock
-import androidx.compose.material.icons.filled.Person
-import androidx.compose.material.icons.filled.Pets
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -29,24 +32,139 @@ import androidx.compose.ui.input.key.*
 import androidx.compose.ui.focus.*
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.text.KeyboardActions
+import androidx.compose.material.icons.filled.*
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.input.VisualTransformation
+import androidx.compose.ui.unit.sp
+import androidx.compose.ui.zIndex
+import kotlinx.coroutines.*
+import java.time.format.TextStyle
 
 @Composable
 fun LoginScreen(colors: RefugioColorPalette, onLoginSuccess: () -> Unit) {
     var username by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
-    var errorMessage by remember { mutableStateOf("") }
+    var passwordVisible by remember { mutableStateOf(false) }
+    var nombre by remember { mutableStateOf("") }
     var showDialog by remember { mutableStateOf(false) }
+    var dialogPasswordVisible by remember { mutableStateOf(false) }
+    var notificationState by remember { mutableStateOf<Pair<String, Boolean>?>(null) }
+    var errorMessage by remember { mutableStateOf("") }
+    var dialogErrorMessage by remember { mutableStateOf("") }
+    var nombreError by remember { mutableStateOf(false) }
+    var usernameError by remember { mutableStateOf(false) }
+    var passwordError by remember { mutableStateOf(false) }
+    var dialogGeneralError by remember { mutableStateOf("") }
+    val coroutineScope = rememberCoroutineScope()
 
     val focusManager = LocalFocusManager.current
-    val (focusedTextField, setFocusedTextField) = remember { mutableStateOf<String?>(null) }
+    val dialogFocusRequester = remember { FocusRequester() }
+
+    @Composable
+    fun AnimatedNotification(message: String, isSuccess: Boolean) {
+        var isVisible by remember { mutableStateOf(false) }
+
+        LaunchedEffect(message) {
+            isVisible = true
+            delay(3000)
+            isVisible = false
+            notificationState = null
+        }
+
+        AnimatedVisibility(
+            visible = isVisible,
+            enter = slideInVertically(initialOffsetY = { -it }) + fadeIn(),
+            exit = slideOutVertically(targetOffsetY = { -it }) + fadeOut()
+        ) {
+            Card(
+                shape = RoundedCornerShape(8.dp),
+                elevation = 8.dp,
+                backgroundColor = if (isSuccess) colors.secondary else Color.Red.copy(alpha = 0.8f),
+                modifier = Modifier
+                    .padding(16.dp)
+                    .fillMaxWidth(0.8f)
+            ) {
+                Row(
+                    modifier = Modifier.padding(16.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Icon(
+                        imageVector = if (isSuccess) Icons.Default.Check else Icons.Default.Warning,
+                        contentDescription = if (isSuccess) "Éxito" else "Error",
+                        tint = Color.White
+                    )
+                    Spacer(modifier = Modifier.width(16.dp))
+                    Text(
+                        text = message,
+                        color = Color.White,
+                        fontWeight = FontWeight.Bold
+                    )
+                }
+            }
+        }
+    }
+
+    fun showNotification(message: String, isSuccess: Boolean) {
+        notificationState = message to isSuccess
+    }
 
     fun attemptLogin() {
-        if (username == "admin" && password == "password") {
-            onLoginSuccess()
+        coroutineScope.launch(Dispatchers.IO) {
+            val usuarioExiste = verificarUsuarioyContraseniaDialog(username, password)
+            if (usuarioExiste) {
+                val resultado = verificarCredenciales(username, password)
+                if (resultado != null) {
+                    val (id, permiso) = resultado
+                    UsuarioSingleton.iniciarSesion(id, permiso)
+                    showNotification("Inicio de sesión exitoso", true)
+                    delay(1800)
+                    onLoginSuccess()
+                } else {
+                    showNotification("Usuario o contraseña incorrectos", false)
+                }
+            } else {
+                showNotification("El usuario no existe. Regístrese primero.", false)
+            }
+        }
+    }
+
+    fun attemptRegister() {
+        coroutineScope.launch(Dispatchers.IO) {
+            val usuarioExiste = verificarUsuarioyContraseniaDialog(username, password)
+            if (usuarioExiste) {
+                withContext(Dispatchers.IO) {
+                    showDialog = false
+                    delay(100)
+                    showNotification("El usuario ya existe. Intente con otras credenciales.", false)
+                    delay(1500)
+                    showDialog = true
+                }
+            } else {
+                UsuarioDB.createUsuarioAdoptante(nombre, username, password)
+                withContext(Dispatchers.IO) {
+                    showDialog = false
+                    showNotification("Cuenta creada con éxito. Bienvenido al refugio Amigos de Pata.", true)
+                }
+                delay(1500)
+                withContext(Dispatchers.IO) {
+                    username = username
+                    password = password
+                }
+            }
+        }
+    }
+
+    fun validateAndRegister() {
+        nombreError = nombre.isBlank()
+        usernameError = username.isBlank()
+        passwordError = password.isBlank()
+
+        if (nombre.isBlank() || username.isBlank() || password.isBlank()) {
+            dialogGeneralError = "Deben llenarse todos los campos"
         } else {
-            errorMessage = "Usuario o contraseña inválidos"
+            dialogGeneralError = ""
+            attemptRegister()
         }
     }
 
@@ -60,7 +178,9 @@ fun LoginScreen(colors: RefugioColorPalette, onLoginSuccess: () -> Unit) {
             )
             .onKeyEvent { keyEvent ->
                 if (keyEvent.key == Key.Enter && keyEvent.type == KeyEventType.KeyDown) {
-                    attemptLogin()
+                    if (!showDialog) {
+                        attemptLogin()
+                    }
                     true
                 } else {
                     false
@@ -104,15 +224,8 @@ fun LoginScreen(colors: RefugioColorPalette, onLoginSuccess: () -> Unit) {
                         value = username,
                         onValueChange = { username = it },
                         label = { Text("Usuario") },
-                        leadingIcon = { Icon(getIconForAttribute("Nombre"), contentDescription = null) },
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .focusRequester(remember { FocusRequester() })
-                            .onFocusChanged { focusState ->
-                                if (focusState.isFocused) {
-                                    setFocusedTextField("username")
-                                }
-                            },
+                        leadingIcon = { Icon(getIconForAttribute("Usuario"), contentDescription = null) },
+                        modifier = Modifier.fillMaxWidth(),
                         colors = TextFieldDefaults.outlinedTextFieldColors(
                             focusedBorderColor = colors.primary,
                             unfocusedBorderColor = colors.menuItemSelected,
@@ -130,15 +243,16 @@ fun LoginScreen(colors: RefugioColorPalette, onLoginSuccess: () -> Unit) {
                         onValueChange = { password = it },
                         label = { Text("Contraseña") },
                         leadingIcon = { Icon(getIconForAttribute("Contraseña"), contentDescription = null) },
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .focusRequester(remember { FocusRequester() })
-                            .onFocusChanged { focusState ->
-                                if (focusState.isFocused) {
-                                    setFocusedTextField("password")
-                                }
-                            },
-                        visualTransformation = PasswordVisualTransformation(),
+                        trailingIcon = {
+                            IconButton(onClick = { passwordVisible = !passwordVisible }) {
+                                Icon(
+                                    imageVector = if (passwordVisible) Icons.Default.Visibility else Icons.Default.VisibilityOff,
+                                    contentDescription = if (passwordVisible) "Ocultar contraseña" else "Mostrar contraseña"
+                                )
+                            }
+                        },
+                        visualTransformation = if (passwordVisible) VisualTransformation.None else PasswordVisualTransformation(),
+                        modifier = Modifier.fillMaxWidth(),
                         colors = TextFieldDefaults.outlinedTextFieldColors(
                             focusedBorderColor = colors.primary,
                             unfocusedBorderColor = colors.menuItemSelected,
@@ -175,53 +289,105 @@ fun LoginScreen(colors: RefugioColorPalette, onLoginSuccess: () -> Unit) {
             }
         }
 
+
         if (showDialog) {
             AlertDialog(
                 onDismissRequest = { showDialog = false },
                 title = {
                     Text(
                         text = "Introducir Datos",
-                        style = MaterialTheme.typography.h6.copy(fontWeight = FontWeight.Bold) // Más negrito y marcado
+                        style = MaterialTheme.typography.h6.copy(fontWeight = FontWeight.Bold)
                     )
                 },
                 text = {
-                    Column {
+                    Column(
+                        modifier = Modifier.onKeyEvent { keyEvent ->
+                            if (keyEvent.key == Key.Enter && keyEvent.type == KeyEventType.KeyDown) {
+                                validateAndRegister()
+                                true
+                            } else {
+                                false
+                            }
+                        }
+                    ) {
                         OutlinedTextField(
-                            value = username,
-                            onValueChange = { username = it },
-                            label = { Text("Usuario") },
+                            value = nombre,
+                            onValueChange = {
+                                nombre = it
+                                nombreError = false
+                                if (dialogGeneralError.isNotEmpty()) dialogGeneralError = ""
+                            },
+                            label = { Text("Nombre Completo") },
                             leadingIcon = { Icon(getIconForAttribute("Nombre"), contentDescription = null) },
                             colors = TextFieldDefaults.outlinedTextFieldColors(
-                                focusedBorderColor = colors.primary,
-                                unfocusedBorderColor = colors.menuItemSelected,
+                                focusedBorderColor = if (nombreError) Color.Red else colors.primary,
+                                unfocusedBorderColor = if (nombreError) Color.Red else colors.menuItemSelected,
                                 cursorColor = colors.primary
-                            )
+                            ),
+                            keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next),
+                            keyboardActions = KeyboardActions(onNext = { focusManager.moveFocus(FocusDirection.Down) }),
+                            singleLine = true,
+                            isError = nombreError
+                        )
+                        Spacer(modifier = Modifier.height(8.dp))
+                        OutlinedTextField(
+                            value = username,
+                            onValueChange = {
+                                username = it
+                                usernameError = false
+                                if (dialogGeneralError.isNotEmpty()) dialogGeneralError = ""
+                            },
+                            label = { Text("Usuario") },
+                            leadingIcon = { Icon(getIconForAttribute("Usuario"), contentDescription = null) },
+                            colors = TextFieldDefaults.outlinedTextFieldColors(
+                                focusedBorderColor = if (usernameError) Color.Red else colors.primary,
+                                unfocusedBorderColor = if (usernameError) Color.Red else colors.menuItemSelected,
+                                cursorColor = colors.primary
+                            ),
+                            keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next),
+                            keyboardActions = KeyboardActions(onNext = { focusManager.moveFocus(FocusDirection.Down) }),
+                            singleLine = true,
+                            isError = usernameError
                         )
                         Spacer(modifier = Modifier.height(8.dp))
                         OutlinedTextField(
                             value = password,
-                            onValueChange = { password = it },
+                            onValueChange = {
+                                password = it
+                                passwordError = false
+                                if (dialogGeneralError.isNotEmpty()) dialogGeneralError = ""
+                            },
                             label = { Text("Contraseña") },
                             leadingIcon = { Icon(getIconForAttribute("Contraseña"), contentDescription = null) },
-                            visualTransformation = PasswordVisualTransformation(),
+                            trailingIcon = {
+                                IconButton(onClick = { dialogPasswordVisible = !dialogPasswordVisible }) {
+                                    Icon(
+                                        imageVector = if (dialogPasswordVisible) Icons.Default.Visibility else Icons.Default.VisibilityOff,
+                                        contentDescription = if (dialogPasswordVisible) "Ocultar contraseña" else "Mostrar contraseña"
+                                    )
+                                }
+                            },
+                            visualTransformation = if (dialogPasswordVisible) VisualTransformation.None else PasswordVisualTransformation(),
                             colors = TextFieldDefaults.outlinedTextFieldColors(
-                                focusedBorderColor = colors.primary,
-                                unfocusedBorderColor = colors.menuItemSelected,
+                                focusedBorderColor = if (passwordError) Color.Red else colors.primary,
+                                unfocusedBorderColor = if (passwordError) Color.Red else colors.menuItemSelected,
                                 cursorColor = colors.primary
-                            )
+                            ),
+                            keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
+                            keyboardActions = KeyboardActions(onDone = { validateAndRegister() }),
+                            singleLine = true,
+                            isError = passwordError
                         )
+
+                        if (dialogGeneralError.isNotEmpty()) {
+                            Spacer(modifier = Modifier.height(8.dp))
+                            Text(text = dialogGeneralError, color = Color.Red)
+                        }
                     }
                 },
                 confirmButton = {
                     Button(
-                        onClick = {
-                            showDialog = false
-                            if (username == "admin" && password == "password") {
-                                onLoginSuccess()
-                            } else {
-                                errorMessage = "Usuario o contraseña inválidos"
-                            }
-                        },
+                        onClick = { validateAndRegister() },
                         colors = ButtonDefaults.buttonColors(backgroundColor = colors.primary)
                     ) {
                         Text("Aceptar", color = colors.onMenuItemSelected)
@@ -234,6 +400,16 @@ fun LoginScreen(colors: RefugioColorPalette, onLoginSuccess: () -> Unit) {
                 },
                 backgroundColor = colors.background
             )
+        }
+
+        Box(
+            modifier = Modifier
+                .align(Alignment.TopCenter)
+                .zIndex(Float.MAX_VALUE)
+        ) {
+            notificationState?.let { (message, isSuccess) ->
+                AnimatedNotification(message, isSuccess)
+            }
         }
     }
 }

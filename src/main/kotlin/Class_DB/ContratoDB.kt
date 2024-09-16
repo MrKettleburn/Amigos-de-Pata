@@ -269,7 +269,6 @@ object ContratoDB {
         statement.close()
         dbConnection.close()
         contratos
-        //PROBAR INTERFAZ
     }
 
     suspend fun getContratosTransporteFilter(
