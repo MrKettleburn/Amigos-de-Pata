@@ -188,4 +188,24 @@ object UsuarioDB {
         result
     }
 
+    suspend fun deleteUsuario(idUsuario: Int): Boolean = withContext(Dispatchers.IO) {
+        var eliminado = false
+        val dbConnection: Connection = Database.connect()
+        val statement = dbConnection.prepareStatement(
+            "SELECT borrar_usuario(?)"
+        )
+
+        statement.setInt(1, idUsuario)
+        val resultSet = statement.executeQuery()
+
+        if (resultSet.next()) {
+            eliminado = resultSet.getBoolean(1)
+        }
+
+        resultSet.close()
+        statement.close()
+        dbConnection.close()
+        eliminado
+    }
+
 }

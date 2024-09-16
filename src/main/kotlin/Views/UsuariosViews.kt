@@ -156,7 +156,7 @@ fun UsuariosExpandableTable(colors: RefugioColorPalette, data: List<UsuarioTable
                         Text(text = header, fontWeight = FontWeight.Bold)
                     }
                 }
-                Spacer(modifier = Modifier.width(56.dp)) // Espacio para íconos de acciones
+                Spacer(modifier = Modifier.width(56.dp))
             }
             Divider(color = colors.primary, thickness = 1.5.dp)
         }
@@ -221,7 +221,7 @@ fun UsuarioExpandableRow(colors: RefugioColorPalette, row: UsuarioTableRow) {
                 colors = colors,
                 codigo = row.codigo.toInt(),
                 usuarioInicial = row.usuario,
-                contraseniaInicial = row.contrasenia, // Pasar la contraseña inicial
+                contraseniaInicial = row.contrasenia,
                 permisoInicial = row.permiso,
                 onDismissRequest = { showUpdateDialog = false },
                 onUsuarioUpdated = { codigo, usuario, contrasenia, permiso ->
@@ -343,7 +343,7 @@ data class UsuarioTableRow(
     val usuario: String,
     val contrasenia: String,
     val permiso: String,
-    val expandedAttributes: Map<String, String> // Atributos adicionales que se mostrarán al expandir
+    val expandedAttributes: Map<String, String>
 )
 @Composable
 fun UpdateUsuarioDialog(
@@ -426,7 +426,7 @@ fun UpdateUsuarioDialog(
                             onUsuarioUpdated(
                                 codigo,
                                 usuario,
-                                contrasenia, // Enviar la contraseña actualizada
+                                contrasenia,
                                 permiso
                             )
                         } else {
