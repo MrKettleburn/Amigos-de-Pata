@@ -53,7 +53,6 @@ fun AnimatedSideMenu(
         )
 
         // Menús expandibles
-        if (UsuarioSingleton.permiso == "GESTION") {
             ExpandableMenuItem(
                 "Contratos",
                 colors,
@@ -78,8 +77,7 @@ fun AnimatedSideMenu(
                 onSelectionChanged,
                 Icons.Default.Build
             )
-        }
-        if (UsuarioSingleton.permiso == "CUIDADOR") {
+
             ExpandableMenuItem(
                 "Animales",
                 colors,
@@ -88,20 +86,21 @@ fun AnimatedSideMenu(
                 onSelectionChanged,
                 Icons.Default.Pets
             )
+
+        MenuItem("Donaciones", colors, selectedItem, selectedSubItem, Icons.Default.AttachMoney) {
+            onSelectionChanged("Donaciones", "")
         }
-        // Nuevo campo de Usuarios
+
         MenuItem("Usuarios", colors, selectedItem, selectedSubItem, Icons.Default.Person) {
             onSelectionChanged("Usuarios", "")
         }
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        // Sección Informes
         ExpandableMenuItem("Informes", colors, selectedItem, selectedSubItem, onSelectionChanged, Icons.Default.Assessment)
 
         Spacer(modifier = Modifier.weight(1f))
 
-        // Botón de Logout al final
         Button(
             onClick = onLogout,
             modifier = Modifier
@@ -272,7 +271,6 @@ fun MenuItem(
     }
 }
 
-// Agrega estas dos funciones de extensión en tu archivo:
 @Composable
 fun Modifier.onPointerEnter(onEnter: () -> Unit): Modifier = pointerInput(Unit) {
     awaitPointerEventScope {

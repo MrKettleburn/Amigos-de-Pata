@@ -111,7 +111,7 @@ fun LoginScreen(colors: RefugioColorPalette, onLoginSuccess: () -> Unit) {
 
     fun attemptLogin() {
         coroutineScope.launch(Dispatchers.IO) {
-            val usuarioExiste = verificarUsuarioyContrasenia(username, password)
+            val usuarioExiste = verificarUsuarioyContraseniaDialog(username, password)
             if (usuarioExiste) {
                 val resultado = verificarCredenciales(username, password)
                 if (resultado != null) {

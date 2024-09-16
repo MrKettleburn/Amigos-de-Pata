@@ -88,7 +88,8 @@ fun ServiciosAlimenticioMostrar(colors: RefugioColorPalette, selectedItem: Strin
             horizontalAlignment = Alignment.End
         ) {
             FloatingActionButton(
-                onClick = { coroutineScope.launch { servicios = ServiciosDB.getServiciosAlimenticiosFilter(null, null, null, null)}}
+                onClick = { coroutineScope.launch {
+                    servicios = ServiciosDB.getServiciosAlimenticiosFilter(null, null, null, null)}}
             ) {
                 Icon(Icons.Default.ArrowCircleDown, contentDescription = "Recargar")
             }

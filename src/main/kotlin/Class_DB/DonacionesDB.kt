@@ -43,7 +43,7 @@ object DonacionesDB {
         val donaciones = mutableListOf<Donacion>()
         val dbConnection: Connection = Database.connect()
         val statement = dbConnection.prepareStatement(
-            "SELECT * FROM buscar_donaciones_por_rango(?, ?, ?)"
+            "SELECT * FROM buscar_donaciones_filtrado(?, ?, ?)"
         )
 
         if (montoInf != null) statement.setDouble(1,montoInf) else statement.setNull(1,java.sql.Types.DOUBLE)
@@ -55,7 +55,7 @@ object DonacionesDB {
         while (resultSet.next()) {
             donaciones.add(
                 Donacion(
-                    id = resultSet.getInt("id"),
+                    id = resultSet.getInt("id_donacion"),
                     monto = resultSet.getDouble("monto"),
                     nombreAdopt = resultSet.getString("nombre_adoptante")
                 )
@@ -71,7 +71,7 @@ object DonacionesDB {
         var nuevoId = -1
         val dbConnection: Connection = Database.connect()
         val statement = dbConnection.prepareStatement(
-            "SELECT insertar_donacion(?, ?)"
+            "SELECT insertar_donacion_adoptante(?, ?)"
         )
 
         statement.setDouble(1, monto)

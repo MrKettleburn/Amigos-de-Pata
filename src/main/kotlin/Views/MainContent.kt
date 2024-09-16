@@ -86,6 +86,8 @@ fun MainContent(colors: RefugioColorPalette, onLogout: () -> Unit) {
                             }
                         }
                         "Usuarios" -> UsuariosMostrar(colors, selectedItem, selectedSubItem)
+
+                        "Donaciones" -> DonacionesMostrar(colors, selectedItem, selectedSubItem)
                     }
                 }
             }
