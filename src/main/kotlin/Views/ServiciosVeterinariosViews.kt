@@ -1,7 +1,9 @@
 package Views
 
 import Class_DB.ContratadosDB
+import Class_DB.ContratoDB
 import Class_DB.ServiciosDB
+import Models.Contrato
 import Models.ServVeterinario
 import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
@@ -187,6 +189,10 @@ fun ServiciosTable(colors: RefugioColorPalette, data: List<ServicioVeterinarioTa
 fun ServiciosVeterinariosRow(colors: RefugioColorPalette, row: ServicioVeterinarioTableRow) {
     val coroutineScope = rememberCoroutineScope()
     var showUpdateDialog by remember { mutableStateOf(false) }
+    var showDeleteDialog by remember { mutableStateOf(false) }
+    var checkPoder by remember { mutableStateOf<List<Contrato>?>(null) }
+    var showError by remember { mutableStateOf(false) }
+
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -216,7 +222,7 @@ fun ServiciosVeterinariosRow(colors: RefugioColorPalette, row: ServicioVeterinar
             IconButton(onClick = { showUpdateDialog= true }) {
                 Icon(Icons.Default.Edit, contentDescription = "Modificar")
             }
-            IconButton(onClick = { /* TODO: Implementar eliminar */ }) {
+            IconButton(onClick = { showDeleteDialog = true }) {
                 Icon(Icons.Default.Delete, contentDescription = "Eliminar")
             }
         }
@@ -236,6 +242,48 @@ fun ServiciosVeterinariosRow(colors: RefugioColorPalette, row: ServicioVeterinar
                             println("Revise los datos")
                     }
                 }
+            )
+        }
+
+        if(showDeleteDialog)
+        {
+            ConfirmDeleteContratadoServicioDialog(
+                colors = colors,
+                title = "Eliminar Servicio Veterinario",
+                text = "servicio",
+                contrId = row.id.toInt(),
+                onDismissRequest = { showDeleteDialog = false },
+                onConfirmDelete = {
+                    coroutineScope.launch {
+                        val contratos = ContratoDB.getContratosPorServicioID(row.id.toInt())
+
+                        if(contratos!=null) {
+                            checkPoder = contratos
+                            if (contratos.isEmpty()) {
+                                try {
+                                    ServiciosDB.deleteServVet(row.id.toInt())
+                                    showDeleteDialog = false
+                                } catch (e: Exception) {
+                                    println("Error al eliminar el servicio: ${e.message}")
+                                }
+                            } else {
+
+                                showError = true
+                            }
+                        }
+                        else
+                        {
+                            println("ERROR")
+                        }
+                    }
+                }
+            )
+        }
+        if (showError) {
+            showErrorDialog(
+                title = "Error",
+                message = "El servicio veterinario no puede borrarse porque está vinculado a ${checkPoder?.size} contratos",
+                onDismissRequest = { showError = false }
             )
         }
     }

@@ -14,6 +14,52 @@ import kotlin.math.cos
 
 object ActividadDB {
 
+    suspend fun getActividadesConContratoID(idContrato: Int): List<Actividad>? = withContext(Dispatchers.IO){
+        val dbConnection: Connection? = null
+        try {
+            val actividades = mutableListOf<Actividad>()
+            val dbConnection = Database.connect()
+            val statement = dbConnection.prepareStatement(
+                "SELECT * FROM buscar_actividades_por_contrato(?)"
+            )
+
+            statement.setInt(1, idContrato)
+
+            val resultSet = statement.executeQuery()
+
+            while (resultSet.next()) {
+                actividades.add(
+                    Actividad(
+                        codigo = resultSet.getInt("id_actividad"),
+                        codigoAnim = resultSet.getInt("id_animal"),
+                        fecha = resultSet.getDate("fecha").toLocalDate(),
+                        hora = resultSet.getTime("hora").toLocalTime(),
+                        tipo = resultSet.getString("tipo_actividad"),
+                        codigoContr = resultSet.getInt("id_contrato"),
+                        tipoContrato = resultSet.getString("tipo_contrato"),
+                        descrip = resultSet.getString("descrip_act"),
+                        costo = resultSet.getDouble("costo")
+                    )
+                )
+            }
+
+            return@withContext actividades
+
+        } catch (e: SQLException) {
+            e.printStackTrace()
+            return@withContext null
+        } catch (e: Exception) {
+            e.printStackTrace()
+            return@withContext null
+        } finally {
+            try {
+                dbConnection?.close()
+            } catch (e: SQLException) {
+                e.printStackTrace()
+            }
+        }
+    }
+
     suspend fun getActividadesFilter(
         codigoAnim: Int,
         codigo: Int?,

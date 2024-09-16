@@ -389,6 +389,11 @@ fun ContratosVeterinariosExpandableTable(colors: RefugioColorPalette, data: List
 fun ContratosVeterinariosExpandableRow(colors: RefugioColorPalette, row: ContratoTableRow) {
     var expanded by remember { mutableStateOf(false) }
     val backgroundColor = if (expanded) colors.menuBackground else Color.Transparent
+    var showError by remember { mutableStateOf(false) }
+    var showDeleteContratDialog by remember { mutableStateOf(false) }
+    var checkPoder by remember { mutableStateOf<List<Actividad>?>(null) }
+    val coroutineScope = rememberCoroutineScope()
+    var showConfirmDeleteWithAct by remember { mutableStateOf(false) }
 
     Column(
         modifier = Modifier
@@ -423,10 +428,8 @@ fun ContratosVeterinariosExpandableRow(colors: RefugioColorPalette, row: Contrat
                 }
             }
             Row {
-//                IconButton(onClick = { /* TODO: Implementar modificar */ }) {
-//                    Icon(Icons.Default.Edit, contentDescription = "Modificar")
-//                }
-                IconButton(onClick = { /* TODO: Implementar eliminar */ }) {
+
+                IconButton(onClick = { showDeleteContratDialog = true  }) {
                     Icon(Icons.Default.Delete, contentDescription = "Eliminar")
                 }
                 IconButton(onClick = { expanded = !expanded }) {
@@ -457,6 +460,68 @@ fun ContratosVeterinariosExpandableRow(colors: RefugioColorPalette, row: Contrat
                     Text(text = value)
                 }
             }
+        }
+
+        if (showDeleteContratDialog) {
+            ConfirmDeleteContratoDialog(
+                colors = colors,
+                text = "Atención Médica",
+                contratoId = row.id.toInt(),
+                onDismissRequest = { showDeleteContratDialog = false },
+                onConfirmDelete = {
+                    coroutineScope.launch {
+                        val actividades = ActividadDB.getActividadesConContratoID(row.id.toInt())
+
+                        if(actividades!=null) {
+                            checkPoder = actividades
+                            if (actividades.isEmpty()) {
+                                try {
+                                    ContratoDB.deleteContrato(row.id.toInt())
+                                    showDeleteContratDialog = false
+                                } catch (e: Exception) {
+                                    println("Error al eliminar el contrato: ${e.message}")
+                                }
+                            } else {
+                                showDeleteContratDialog = false
+                                showConfirmDeleteWithAct = true
+                            }
+                        }
+                        else
+                        {
+                            println("ERROR")
+                        }
+                    }
+                }
+            )
+        }
+
+        if(showConfirmDeleteWithAct)
+        {
+            ConfirmDeleteContratoWithActDialog(
+                colors=colors,
+                title = "Confirmar Eliminación",
+                text = "El contrato está vinculado a ${checkPoder?.size} actividades. Si elimina el contrato se eliminarán las actividades. Desea eliminar el contrato?",
+                contrId = row.id.toInt(),
+                onDismissRequest = {showConfirmDeleteWithAct=false},
+                onConfirmDelete = {
+                    coroutineScope.launch {
+                        try {
+                            ContratoDB.deleteContrato(row.id.toInt())
+                            showConfirmDeleteWithAct = false
+                        } catch (e: Exception) {
+                            println("Error al eliminar el contrato: ${e.message}")
+                        }
+                    }
+                }
+            )
+        }
+
+        if (showError) {
+            showErrorDialog(
+                title = "Error",
+                message = "El contrato no puede borrarse porque está vinculado a ${checkPoder?.size} actividades",
+                onDismissRequest = { showError = false }
+            )
         }
     }
 }

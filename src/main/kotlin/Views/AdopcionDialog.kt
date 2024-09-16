@@ -47,7 +47,7 @@ fun DialogAdopcion(
                     painter = painterResource("Adopt.png"),
                     contentDescription = "Logo",
                     modifier = Modifier
-                        .size(100.dp)
+                        .size(150.dp)
                         .padding(bottom = 16.dp)
                 )
 

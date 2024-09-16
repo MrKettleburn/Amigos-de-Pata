@@ -1,6 +1,11 @@
 package Views
 
+import Class_DB.ActividadDB
 import Class_DB.ContratadosDB
+import Class_DB.ContratoDB
+import Models.Actividad
+import Models.Contrato
+import Models.ContratoVeterinario
 import Models.Veterinario
 import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
@@ -228,6 +233,9 @@ fun VeterinarioExpandableRow(colors: RefugioColorPalette, row: VeterinarioTableR
     val backgroundColor = if (expanded) colors.menuBackground else Color.Transparent
     val coroutineScope = rememberCoroutineScope()
     var showUpdateDialog by remember { mutableStateOf(false) }
+    var showDeleteDialog by remember { mutableStateOf(false) }
+    var checkPoder by remember { mutableStateOf<List<Contrato>?>(null) }
+    var showError by remember { mutableStateOf(false) }
 
     Column(
         modifier = Modifier
@@ -253,7 +261,7 @@ fun VeterinarioExpandableRow(colors: RefugioColorPalette, row: VeterinarioTableR
                 IconButton(onClick = { showUpdateDialog = true }) {
                     Icon(Icons.Default.Edit, contentDescription = "Modificar")
                 }
-                IconButton(onClick = { /* TODO: Implementar eliminar */ }) {
+                IconButton(onClick = { showDeleteDialog=true }) {
                     Icon(Icons.Default.Delete, contentDescription = "Eliminar")
                 }
                 IconButton(onClick = { expanded = !expanded }) {
@@ -308,6 +316,48 @@ fun VeterinarioExpandableRow(colors: RefugioColorPalette, row: VeterinarioTableR
                         }
                     }
                 }
+            )
+        }
+
+        if(showDeleteDialog)
+        {
+            ConfirmDeleteContratadoServicioDialog(
+                colors = colors,
+                title = "Eliminar Veterinario",
+                text = "Veterinario",
+                contrId = row.id.toInt(),
+                onDismissRequest = { showDeleteDialog = false },
+                onConfirmDelete = {
+                    coroutineScope.launch {
+                        val contratos = ContratoDB.getContratosPorContratadoID(row.id.toInt())
+
+                        if(contratos!=null) {
+                            checkPoder = contratos
+                            if (contratos.isEmpty()) {
+                                try {
+                                    ContratadosDB.deleteVeterinario(row.id.toInt())
+                                    showDeleteDialog = false
+                                } catch (e: Exception) {
+                                    println("Error al eliminar el vet: ${e.message}")
+                                }
+                            } else {
+
+                                showError = true
+                            }
+                        }
+                        else
+                        {
+                            println("ERROR")
+                        }
+                    }
+                }
+            )
+        }
+        if (showError) {
+            showErrorDialog(
+                title = "Error",
+                message = "El veterinario no puede borrarse porque está vinculado a ${checkPoder?.size} contratos",
+                onDismissRequest = { showError = false }
             )
         }
     }

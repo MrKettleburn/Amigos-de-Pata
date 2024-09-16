@@ -8,6 +8,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.sql.Connection
 import java.sql.Date
+import java.sql.SQLException
 import java.time.LocalDate
 
 object ServiciosDB {
@@ -351,6 +352,107 @@ object ServiciosDB {
         retorno
     }
 
+    suspend fun deleteServVet(idServ: Int): Boolean = withContext(Dispatchers.IO){
+        var dbConnection: Connection? = null
+        try {
+            var success=true
+            dbConnection = Database.connect()
+            val statement = dbConnection.prepareStatement(
+                "SELECT eliminar_servicio_veterinario(?)"
+            )
+
+            statement.setInt(1, idServ)
+
+            val resultSet = statement.executeQuery()
+
+            if (resultSet.next()) {
+                success = resultSet.getBoolean(1)
+            }
+
+            return@withContext success
+
+        } catch (e: SQLException) {
+            e.printStackTrace()
+            return@withContext false
+        } catch (e: Exception) {
+            e.printStackTrace()
+            return@withContext false
+        } finally {
+            try {
+                dbConnection?.close()
+            } catch (e: SQLException) {
+                e.printStackTrace()
+            }
+        }
+    }
+
+    suspend fun deleteServTrans(idServ: Int): Boolean = withContext(Dispatchers.IO){
+        var dbConnection: Connection? = null
+        try {
+            var success=true
+            dbConnection = Database.connect()
+            val statement = dbConnection.prepareStatement(
+                "SELECT eliminar_servicio_transporte(?)"
+            )
+
+            statement.setInt(1, idServ)
+
+            val resultSet = statement.executeQuery()
+
+            if (resultSet.next()) {
+                success = resultSet.getBoolean(1)
+            }
+
+            return@withContext success
+
+        } catch (e: SQLException) {
+            e.printStackTrace()
+            return@withContext false
+        } catch (e: Exception) {
+            e.printStackTrace()
+            return@withContext false
+        } finally {
+            try {
+                dbConnection?.close()
+            } catch (e: SQLException) {
+                e.printStackTrace()
+            }
+        }
+    }
+
+    suspend fun deleteServAlim(idServ: Int): Boolean = withContext(Dispatchers.IO){
+        var dbConnection: Connection? = null
+        try {
+            var success=true
+            dbConnection = Database.connect()
+            val statement = dbConnection.prepareStatement(
+                "SELECT eliminar_servicio_alimenticio(?)"
+            )
+
+            statement.setInt(1, idServ)
+
+            val resultSet = statement.executeQuery()
+
+            if (resultSet.next()) {
+                success = resultSet.getBoolean(1)
+            }
+
+            return@withContext success
+
+        } catch (e: SQLException) {
+            e.printStackTrace()
+            return@withContext false
+        } catch (e: Exception) {
+            e.printStackTrace()
+            return@withContext false
+        } finally {
+            try {
+                dbConnection?.close()
+            } catch (e: SQLException) {
+                e.printStackTrace()
+            }
+        }
+    }
 }
 
 

@@ -4,6 +4,7 @@ import Models.Actividad
 import Models.ActividadReporte
 import ReportesPDF.generarReporteActividadesDeUnAnimal
 import ReportesPDF.generarReporteContratosVeterinarios
+import ReportesPDF.generarReporteVeterinariosActivos
 import Utiles.sacarActividadesMesPasado
 import Views.LoginScreen
 import Views.RefugioApp

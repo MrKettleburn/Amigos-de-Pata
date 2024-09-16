@@ -357,13 +357,18 @@ fun ContratosProvAlimentosExpandableTable(colors: RefugioColorPalette, data: Lis
 
 @Composable
 fun ContratosProvAlimentosExpandableRow(colors: RefugioColorPalette, row: ContratoTableRow) {
+    val coroutineScope = rememberCoroutineScope()
     var expanded by remember { mutableStateOf(false) }
+    var showError by remember { mutableStateOf(false) }
+    var showDeleteContratDialog by remember { mutableStateOf(false) }
     val backgroundColor = if (expanded) colors.menuBackground else Color.Transparent
+    var checkPoder by remember { mutableStateOf<List<Actividad>?>(null) }
+    var showConfirmDeleteWithAct by remember { mutableStateOf(false) }
 
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .background(backgroundColor) // Color de fondo para la fila expandida
+            .background(backgroundColor)
             .padding(vertical = 8.dp)
     ) {
         Row(
@@ -393,10 +398,8 @@ fun ContratosProvAlimentosExpandableRow(colors: RefugioColorPalette, row: Contra
                 }
             }
             Row {
-//                IconButton(onClick = { /* TODO: Implementar modificar */ }) {
-//                    Icon(Icons.Default.Edit, contentDescription = "Modificar")
-//                }
-                IconButton(onClick = { /* TODO: Implementar eliminar */ }) {
+
+                IconButton(onClick = { showDeleteContratDialog = true }) {
                     Icon(Icons.Default.Delete, contentDescription = "Eliminar")
                 }
                 IconButton(onClick = { expanded = !expanded }) {
@@ -428,8 +431,72 @@ fun ContratosProvAlimentosExpandableRow(colors: RefugioColorPalette, row: Contra
                 }
             }
         }
+
+
+        if (showDeleteContratDialog) {
+            ConfirmDeleteContratoDialog(
+                colors = colors,
+                text = "Alimentación",
+                contratoId = row.id.toInt(),
+                onDismissRequest = { showDeleteContratDialog = false },
+                onConfirmDelete = {
+                    coroutineScope.launch {
+                        val actividades = ActividadDB.getActividadesConContratoID(row.id.toInt())
+
+                        if(actividades!=null) {
+                            checkPoder = actividades
+                            if (actividades.isEmpty()) {
+                                try {
+                                    ContratoDB.deleteContrato(row.id.toInt())
+                                    showDeleteContratDialog = false
+                                } catch (e: Exception) {
+                                    println("Error al eliminar el contrato: ${e.message}")
+                                }
+                            } else {
+                                showDeleteContratDialog = false
+                                showConfirmDeleteWithAct = true
+                            }
+                        }
+                        else
+                        {
+                            println("ERROR")
+                        }
+                    }
+                }
+            )
+        }
+
+        if(showConfirmDeleteWithAct)
+        {
+            ConfirmDeleteContratoWithActDialog(
+                colors=colors,
+                title = "Confirmar Eliminación",
+                text = "El contrato está vinculado a ${checkPoder?.size} actividades. Si elimina el contrato se eliminarán las actividades. Desea eliminar el contrato?",
+                contrId = row.id.toInt(),
+                onDismissRequest = {showConfirmDeleteWithAct=false},
+                onConfirmDelete = {
+                    coroutineScope.launch {
+                        try {
+                            ContratoDB.deleteContrato(row.id.toInt())
+                            showConfirmDeleteWithAct = false
+                        } catch (e: Exception) {
+                            println("Error al eliminar el contrato: ${e.message}")
+                        }
+                    }
+                }
+            )
+        }
+
+        if (showError) {
+            showErrorDialog(
+                title = "Error",
+                message = "El contrato no puede borrarse porque está vinculado a ${checkPoder?.size} actividades",
+                onDismissRequest = { showError = false }
+            )
+        }
     }
 }
+
 
 
 fun getContratosProvAlimentosTableRows(contratos: List<ContratoProveedorAlim>): List<ContratoTableRow> {
@@ -447,7 +514,7 @@ fun getContratosProvAlimentosTableRows(contratos: List<ContratoProveedorAlim>): 
                 "Tipo de Alimento" to contrato.tipoAlim,
                 "Provincia del Contratado" to contrato.provinciaProv,
                 "Dirección del Contratado" to contrato.direccProv,
-                "Precio Unitario del Servicio" to "${contrato.precioUnit}/km",
+                "Precio Unitario del Servicio" to "${contrato.precioUnit}/kg",
                 "Fecha de Inicio" to contrato.fechaInicio.format(formatter),
                 "Fecha de Fin" to contrato.fechaFin.format(formatter),
                 "Fecha de Conciliación" to contrato.fechaConcil.format(formatter),

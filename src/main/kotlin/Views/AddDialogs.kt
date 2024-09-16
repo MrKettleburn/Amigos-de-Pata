@@ -254,6 +254,7 @@ fun AddActividadDialog(
     var fechaActividad by remember { mutableStateOf<LocalDate?>(null) }
     var horaActividad by remember { mutableStateOf<LocalTime?>(null) }
     var descripcion by remember { mutableStateOf("") }
+    var showError by remember { mutableStateOf(false) }
 
     // Tipos de actividad disponibles
     val tiposActividad = listOf("Atención Médica", "Socialización y Entrenamiento", "Alimentación")
@@ -440,7 +441,7 @@ fun AddActividadDialog(
                         }
                         else
                         {
-                            println("ERROR")
+                            showError=true
                         }
                     }) {
                         Text("Agregar")
@@ -448,6 +449,15 @@ fun AddActividadDialog(
                 }
             }
         }
+    }
+
+    if(showError)
+    {
+        showErrorDialog(
+            title = "Error",
+            message = "Faltan datos o están erróneos.",
+            onDismissRequest = {showError=false}
+        )
     }
 }
 
@@ -817,7 +827,8 @@ fun AddContratoVeterinarioDialog(
                                 fechaFin = fechaFin!!,
                                 fechaConcil = fechaConcil!!,
                                 idVet = selectedVet!!.codigo,
-                                idServ = selectedServ!!.codigo
+                                idServ = selectedServ!!.codigo,
+                                estado = "pending"
                             )
                             onContratoAdded(newContrato)
                         }
@@ -977,7 +988,8 @@ fun AddContratoTransporteDialog(
                                     fechaConcil = fechaConcil!!,
                                     idTrans = selectedTrans!!.codigo,
                                     idServ = selectedServ!!.codigo,
-                                    vehiculo = selectedServ!!.vehiculo
+                                    vehiculo = selectedServ!!.vehiculo,
+                                    estado = "pending"
                                 )
                                 onContratoAdded(newContrato)
                             }
@@ -1133,7 +1145,8 @@ fun AddContratoProvAlimentosDialog(
                                     fechaConcil = fechaConcil!!,
                                     idProv = selectedProv!!.codigo,
                                     idServ = selectedServ!!.codigo,
-                                    tipoAlim = selectedServ!!.tipoAlimento
+                                    tipoAlim = selectedServ!!.tipoAlimento,
+                                    estado = "pending"
                                 )
                                 onContratoAdded(newContrato)
                             }

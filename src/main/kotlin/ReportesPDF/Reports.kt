@@ -542,3 +542,101 @@ fun createPdfPlanDeIngresos(destination: String,animalesAdoptados: List<AnimalAd
     document.add(tableDon)
     document.close()
 }
+fun createPdfVeterinariosActivos(destination: String, clinica: String?, provincia:String?, veterinarios: List<ReporteVeterinariosActivosObj>, fechaYhora: LocalDateTime)
+{
+    var clinicaText = "Todas"
+    var provinciaText = "Todas"
+
+    if(clinica!=null)  {clinicaText=clinica}
+    if(provincia!=null) {provinciaText=provincia}
+
+    val writer = PdfWriter(destination)
+    val pdf = PdfDocument(writer)
+    val document = Document(pdf)
+
+    // Encabezado del refugio
+    val title = Paragraph("Refugio Amigos de Pata")
+        .setTextAlignment(TextAlignment.CENTER)
+        .setFontSize(20f)
+        .setBold()
+    document.add(title)
+
+    // Nombre del reporte
+    val reportTitle = Paragraph("Veterinarios Activos")
+        .setTextAlignment(TextAlignment.CENTER)
+        .setFontSize(16f)
+        .setMarginTop(10f)
+    document.add(reportTitle)
+
+    val fechaYhoraParagraph = Paragraph()
+        .setTextAlignment(TextAlignment.CENTER)
+        .setFontSize(0f)
+        .setMarginTop(0f)
+        .setFontSize(12f)
+    fechaYhoraParagraph.add(Paragraph("Fecha: ").setBold().setMargin(0f))
+    fechaYhoraParagraph.add(Paragraph(fechaYhora.format(DateTimeFormatter.ofPattern("dd/MM/yyyy"))).setMargin(0f))
+    fechaYhoraParagraph.add(Paragraph("    "))
+    fechaYhoraParagraph.add(Paragraph("Hora: ").setBold().setMargin(0f))
+    fechaYhoraParagraph.add(Paragraph(fechaYhora.format(DateTimeFormatter.ofPattern("HH:mm"))).setMargin(0f))
+    document.add(fechaYhoraParagraph)
+
+    val clinicaYprovincia = Paragraph("Clínica: ${clinicaText}     Provincia: ${provinciaText}")
+        .setTextAlignment(TextAlignment.CENTER)
+        .setFontSize(14f)
+        .setMarginTop(10f)
+    document.add(clinicaYprovincia)
+
+    document.add(Paragraph("\n"))
+
+    veterinarios.forEach { vet ->
+        document.add(Paragraph("Codigo: ${vet.idVet}")
+            .setTextAlignment(TextAlignment.CENTER)
+            .setBold()
+            .setMarginTop(0f)
+            .setMarginBottom(0f))
+
+        val fechaInicParagraph = Paragraph().setMarginTop(0f).setMarginBottom(0f)
+        fechaInicParagraph.add(Paragraph("Fecha Inicio: ").setBold().setMargin(0f))
+        fechaInicParagraph.add(Paragraph(vet.fechaInicio.format(DateTimeFormatter.ofPattern("dd/MM/yyyy"))).setMargin(0f))
+        document.add(fechaInicParagraph)
+
+        val fechaFinParagraph = Paragraph().setMarginTop(0f).setMarginBottom(0f)
+        fechaFinParagraph.add(Paragraph("Fecha Fin: ").setBold().setMargin(0f))
+        fechaFinParagraph.add(Paragraph(vet.fechaFin.format(DateTimeFormatter.ofPattern("dd/MM/yyyy"))).setMargin(0f))
+        document.add(fechaFinParagraph)
+
+        val clinicaParagraph = Paragraph().setMarginTop(0f).setMarginBottom(0f)
+        clinicaParagraph.add(Paragraph("Clínica: ").setBold().setMargin(0f))
+        clinicaParagraph.add(Paragraph(vet.clinica).setMargin(0f))
+        document.add(clinicaParagraph)
+
+        val provinciaParagraph = Paragraph().setMarginTop(0f).setMarginBottom(0f)
+        provinciaParagraph.add(Paragraph("Provincia: ").setBold().setMargin(0f))
+        provinciaParagraph.add(Paragraph(vet.provincia).setMargin(0f))
+        document.add(provinciaParagraph)
+
+        val especialidadParagraph = Paragraph().setMarginTop(0f).setMarginBottom(0f)
+        especialidadParagraph.add(Paragraph("Especialidad: ").setBold().setMargin(0f))
+        especialidadParagraph.add(Paragraph(vet.especialidad).setMargin(0f))
+        document.add(especialidadParagraph)
+
+        val telefonoParagraph = Paragraph().setMarginTop(0f).setMarginBottom(0f)
+        telefonoParagraph.add(Paragraph("Teléfono: ").setBold().setMargin(0f))
+        telefonoParagraph.add(Paragraph(vet.telefono).setMargin(0f))
+        document.add(telefonoParagraph)
+
+        val emailParagraph = Paragraph().setMarginTop(0f).setMarginBottom(0f)
+        emailParagraph.add(Paragraph("E-mail: ").setBold().setMargin(0f))
+        emailParagraph.add(Paragraph(vet.email).setMargin(0f))
+        document.add(emailParagraph)
+
+        val modalidadParagraph = Paragraph().setMarginTop(0f).setMarginBottom(0f)
+        modalidadParagraph.add(Paragraph("Modalidad del Servicio: ").setBold().setMargin(0f))
+        modalidadParagraph.add(Paragraph(vet.modalidad).setMargin(0f))
+        document.add(modalidadParagraph)
+
+        document.add(Paragraph("\n"))
+    }
+
+    document.close()
+}

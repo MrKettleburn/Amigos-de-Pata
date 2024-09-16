@@ -6,6 +6,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.sql.Connection
 import java.sql.Date
+import java.sql.SQLException
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 
@@ -193,7 +194,8 @@ object ContratoDB {
                     precioUnit = resultSet.getDouble("precio_unitario"),
                     fechaInicio = resultSet.getDate("fecha_inicio").toLocalDate(),
                     fechaFin = resultSet.getDate("fecha_fin").toLocalDate(),
-                    fechaConcil = resultSet.getDate("fecha_conciliacion").toLocalDate()
+                    fechaConcil = resultSet.getDate("fecha_conciliacion").toLocalDate(),
+                    estado = "pending"
                 )
             )
         }
@@ -259,6 +261,7 @@ object ContratoDB {
                     fechaConcil = resultSet.getDate("fecha_conciliacion").toLocalDate(),
                     idProv = resultSet.getInt("id_contratado"),
                     idServ = resultSet.getInt("id_servicio"),
+                    estado = "pending"
                 )
             )
         }
@@ -320,6 +323,7 @@ object ContratoDB {
                     fechaConcil = resultSet.getDate("fecha_conciliacion").toLocalDate(),
                     idTrans = resultSet.getInt("id_contratado"),
                     idServ = resultSet.getInt("id_servicio"),
+                    estado = "pending"
                 )
             )
         }
@@ -334,7 +338,7 @@ object ContratoDB {
         val contratos = mutableListOf<ContratoVeterinario>()
         val dbConnection: Connection = Database.connect()
         val statement = dbConnection.prepareStatement(
-            "SELECT * FROM contrato c INNER JOIN contratado con ON c.id_contratado=con.id_contratado INNER JOIN veterinario v ON con.id_contratado=v.id_contratado INNER JOIN servicio s ON c.id_servicio=s.id_servicio INNER JOIN servicio_veterinario sv ON s.id_servicio=sv.id_servicio WHERE c.tipo_contrato='Veterinario' ORDER BY sv.modalidad ASC"
+            "SELECT * FROM contrato c INNER JOIN contratado con ON c.id_contratado=con.id_contratado INNER JOIN veterinario v ON con.id_contratado=v.id_contratado INNER JOIN servicio s ON c.id_servicio=s.id_servicio INNER JOIN servicio_veterinario sv ON s.id_servicio=sv.id_servicio WHERE c.tipo_contrato='Veterinario' AND c.fecha_fin > CURRENT_DATE AND c.estado='pending' ORDER BY sv.modalidad ASC"
         )
 
         val resultSet = statement.executeQuery()
@@ -357,7 +361,8 @@ object ContratoDB {
                     precioUnit = resultSet.getDouble("precio_unitario"),
                     fechaInicio = resultSet.getDate("fecha_inicio").toLocalDate(),
                     fechaFin = resultSet.getDate("fecha_fin").toLocalDate(),
-                    fechaConcil = resultSet.getDate("fecha_conciliacion").toLocalDate()
+                    fechaConcil = resultSet.getDate("fecha_conciliacion").toLocalDate(),
+                    estado = "pending"
                 )
             )
         }
@@ -371,7 +376,7 @@ object ContratoDB {
         val contratos = mutableListOf<ContratoProveedorAlim>()
         val dbConnection: Connection = Database.connect()
         val statement = dbConnection.prepareStatement(
-            "SELECT * FROM contrato c INNER JOIN contratado con ON c.id_contratado=con.id_contratado INNER JOIN servicio s ON c.id_servicio=s.id_servicio INNER JOIN servicio_alimentacion sa ON s.id_servicio=sa.id_servicio WHERE c.tipo_contrato='Proveedor de alimentos' ORDER BY sa.tipo_alimento ASC"
+            "SELECT * FROM contrato c INNER JOIN contratado con ON c.id_contratado=con.id_contratado INNER JOIN servicio s ON c.id_servicio=s.id_servicio INNER JOIN servicio_alimentacion sa ON s.id_servicio=sa.id_servicio WHERE c.tipo_contrato='Proveedor de alimentos' AND c.fecha_fin > CURRENT_DATE AND c.estado='pending' ORDER BY sa.tipo_alimento ASC"
         )
 
         val resultSet = statement.executeQuery()
@@ -393,6 +398,7 @@ object ContratoDB {
                     fechaConcil = resultSet.getDate("fecha_conciliacion").toLocalDate(),
                     idProv = resultSet.getInt("id_contratado"),
                     idServ = resultSet.getInt("id_servicio"),
+                    estado = "pending"
                 )
             )
         }
@@ -406,7 +412,7 @@ object ContratoDB {
         val contratos = mutableListOf<ContratoTransporte>()
         val dbConnection: Connection = Database.connect()
         val statement = dbConnection.prepareStatement(
-            "SELECT * FROM contrato c INNER JOIN contratado con ON c.id_contratado=con.id_contratado INNER JOIN servicio s ON c.id_servicio=s.id_servicio INNER JOIN servicio_transporte st ON s.id_servicio=st.id_servicio WHERE c.tipo_contrato='Transporte' ORDER BY st.vehiculo ASC"
+            "SELECT * FROM contrato c INNER JOIN contratado con ON c.id_contratado=con.id_contratado INNER JOIN servicio s ON c.id_servicio=s.id_servicio INNER JOIN servicio_transporte st ON s.id_servicio=st.id_servicio WHERE c.tipo_contrato='Transporte' AND c.fecha_fin > CURRENT_DATE AND c.estado='pending' ORDER BY st.vehiculo ASC"
         )
 
         val resultSet = statement.executeQuery()
@@ -428,6 +434,7 @@ object ContratoDB {
                     fechaConcil = resultSet.getDate("fecha_conciliacion").toLocalDate(),
                     idTrans = resultSet.getInt("id_contratado"),
                     idServ = resultSet.getInt("id_servicio"),
+                    estado = "pending"
                 )
             )
         }
@@ -465,7 +472,8 @@ object ContratoDB {
                     precioUnit = resultSet.getDouble("precio_unitario_servicio"),
                     fechaInicio = resultSet.getDate("fecha_inicio").toLocalDate(),
                     fechaFin = resultSet.getDate("fecha_fin").toLocalDate(),
-                    fechaConcil = resultSet.getDate("fecha_conciliacion").toLocalDate()
+                    fechaConcil = resultSet.getDate("fecha_conciliacion").toLocalDate(),
+                    estado = resultSet.getString("estado")
                 )
             )
         }
@@ -502,6 +510,7 @@ object ContratoDB {
                     fechaConcil = resultSet.getDate("fecha_conciliacion").toLocalDate(),
                     idTrans = resultSet.getInt("id_contratado"),
                     idServ = resultSet.getInt("id_servicio"),
+                    estado = resultSet.getString("estado")
                 )
             )
         }
@@ -538,6 +547,7 @@ object ContratoDB {
                     fechaConcil = resultSet.getDate("fecha_conciliacion").toLocalDate(),
                     idProv = resultSet.getInt("id_contratado"),
                     idServ = resultSet.getInt("id_servicio"),
+                    estado = resultSet.getString("estado")
                 )
             )
         }
@@ -545,5 +555,112 @@ object ContratoDB {
         statement.close()
         dbConnection.close()
         contratos
+    }
+
+    suspend fun deleteContrato(idContrato: Int): Boolean = withContext(Dispatchers.IO){
+        var dbConnection: Connection? = null
+        try {
+            dbConnection = Database.connect()
+            val statement = dbConnection.prepareStatement(
+                "UPDATE contrato SET estado='cancelado' WHERE id_contrato = ?"
+            )
+
+            statement.setInt(1, idContrato)
+
+            val rowsUpdated = statement.executeUpdate()
+
+            return@withContext rowsUpdated > 0
+
+        } catch (e: SQLException) {
+            e.printStackTrace()
+            return@withContext false
+        } catch (e: Exception) {
+            e.printStackTrace()
+            return@withContext false
+        } finally {
+            try {
+                dbConnection?.close()
+            } catch (e: SQLException) {
+                e.printStackTrace()
+            }
+        }
+    }
+
+    suspend fun getContratosPorContratadoID(idContratado: Int): List<Contrato>? = withContext(Dispatchers.IO){
+
+        val dbConnection: Connection? = null
+        try {
+            val contratos = mutableListOf<Contrato>()
+            val dbConnection = Database.connect()
+            val statement = dbConnection.prepareStatement(
+                "SELECT * FROM buscar_contratos_por_id_contratado(?)"
+            )
+
+            statement.setInt(1, idContratado)
+
+            val resultSet = statement.executeQuery()
+
+            while (resultSet.next()) {
+                contratos.add(
+                    Contrato(
+                        codigo = resultSet.getInt("id_contrato")
+                    )
+                )
+            }
+
+            return@withContext contratos
+
+        } catch (e: SQLException) {
+            e.printStackTrace()
+            return@withContext null
+        } catch (e: Exception) {
+            e.printStackTrace()
+            return@withContext null
+        } finally {
+            try {
+                dbConnection?.close()
+            } catch (e: SQLException) {
+                e.printStackTrace()
+            }
+        }
+    }
+
+    suspend fun getContratosPorServicioID(idServicio: Int): List<Contrato>? = withContext(Dispatchers.IO){
+
+        val dbConnection: Connection? = null
+        try {
+            val contratos = mutableListOf<Contrato>()
+            val dbConnection = Database.connect()
+            val statement = dbConnection.prepareStatement(
+                "SELECT * FROM buscar_contratos_por_id_servicio(?)"
+            )
+
+            statement.setInt(1, idServicio)
+
+            val resultSet = statement.executeQuery()
+
+            while (resultSet.next()) {
+                contratos.add(
+                    Contrato(
+                        codigo = resultSet.getInt("id_contrato")
+                    )
+                )
+            }
+
+            return@withContext contratos
+
+        } catch (e: SQLException) {
+            e.printStackTrace()
+            return@withContext null
+        } catch (e: Exception) {
+            e.printStackTrace()
+            return@withContext null
+        } finally {
+            try {
+                dbConnection?.close()
+            } catch (e: SQLException) {
+                e.printStackTrace()
+            }
+        }
     }
 }

@@ -1,9 +1,6 @@
 package ReportesPDF
 
-import Class_DB.ActividadDB
-import Class_DB.AnimalDB
-import Class_DB.ContratoDB
-import Class_DB.DonacionesDB
+import Class_DB.*
 import Database.Database
 import Utiles.calcularMontoTotalPorAdopciones
 import Utiles.calcularMontoTotalPorDonaciones
@@ -48,6 +45,19 @@ fun generarReporteContratosProveedoresAlim(fechaYhora: LocalDateTime) {
         createPdfContratosProveedoresAlim(destination, contratos, fechaYhora)
     }
 }
+
+@Composable
+fun generarReporteVeterinariosActivos(clinica: String?, provincia: String?, fechaYhora: LocalDateTime) {
+
+    val destination: String = "C:\\Users\\ruben\\IdeaProjects\\Amigos_de_Pata\\src\\main\\kotlin\\Veterinarios_Activos.pdf"
+
+    LaunchedEffect(Unit) {
+        val veterinarios = ContratadosDB.getVeterinariosActivosForReport(clinica, provincia)
+
+        createPdfVeterinariosActivos(destination, clinica, provincia, veterinarios, fechaYhora)
+    }
+}
+
 @Composable
 fun generarReporteActividadesDeUnAnimal(idAnimal: Int,fechaYhora: LocalDateTime){
 

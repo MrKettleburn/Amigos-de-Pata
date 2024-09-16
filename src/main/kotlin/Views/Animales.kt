@@ -445,6 +445,7 @@ fun ActividadesExpandableRow(colors: RefugioColorPalette, row: ActividadTableRow
     val coroutineScope = rememberCoroutineScope()
     var showErrorUpdate by remember { mutableStateOf(false) }
     var showConfirmDialog by remember { mutableStateOf(false) }
+    var showError by remember { mutableStateOf(false) }
 
     var contratosVet by remember { mutableStateOf<List<ContratoVeterinario>>(emptyList()) }
     var contratosTransporte by remember { mutableStateOf<List<ContratoTransporte>>(emptyList()) }
@@ -582,10 +583,17 @@ fun ActividadesExpandableRow(colors: RefugioColorPalette, row: ActividadTableRow
                         if (success) {
                             showConfirmDialog = false
                         } else {
-                            // Mostrar un mensaje de error
+                            showError = true
                         }
                     }
                 }
+            )
+        }
+        if(showError) {
+            showErrorDialog(
+                title = "Error",
+                message = "No se puede eliminar actividades pasadas",
+                onDismissRequest = { showError = false }
             )
         }
 

@@ -14,9 +14,10 @@ data class ContratoProveedorAlim(
     val idServ: Int,
     val tipoAlim: String,
     val precioUnit: Double,
-    val fechaInicio: LocalDate, //TIPO DE DATO FECHA
-    val fechaFin: LocalDate, //TIPO DE DATO FECHA
-    val fechaConcil: LocalDate //TIPO DE DATO FECHA
+    val fechaInicio: LocalDate,
+    val fechaFin: LocalDate,
+    val fechaConcil: LocalDate,
+    val estado: String
 ){
     override fun toString(): String{
         return "C:$codigo N:$nombreProv A:$tipoAlim"

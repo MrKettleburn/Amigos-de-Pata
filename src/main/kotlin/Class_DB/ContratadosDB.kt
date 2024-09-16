@@ -1,12 +1,11 @@
 package Class_DB
 
 import Database.Database
-import Models.ProveedorDeAlimentos
-import Models.Transporte
-import Models.Veterinario
+import Models.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.sql.Connection
+import java.sql.SQLException
 
 object ContratadosDB {
 
@@ -380,5 +379,142 @@ object ContratadosDB {
 
         dbConnection.close()
         retorno
+    }
+
+    suspend fun deleteVeterinario(idVet: Int): Boolean = withContext(Dispatchers.IO){
+        val dbConnection: Connection? = null
+        try {
+            var success=true
+            val dbConnection = Database.connect()
+            val statement = dbConnection.prepareStatement(
+                "SELECT eliminar_veterinario(?)"
+            )
+
+            statement.setInt(1, idVet)
+
+            val resultSet = statement.executeQuery()
+
+            if (resultSet.next()) {
+                success = resultSet.getBoolean(1)
+            }
+
+            return@withContext success
+
+        } catch (e: SQLException) {
+            e.printStackTrace()
+            return@withContext false
+        } catch (e: Exception) {
+            e.printStackTrace()
+            return@withContext false
+        } finally {
+            try {
+                dbConnection?.close()
+            } catch (e: SQLException) {
+                e.printStackTrace()
+            }
+        }
+    }
+
+    suspend fun deleteTransporte(idTrans: Int): Boolean = withContext(Dispatchers.IO){
+        val dbConnection: Connection? = null
+        try {
+            var success=true
+            val dbConnection = Database.connect()
+            val statement = dbConnection.prepareStatement(
+                "SELECT eliminar_transporte(?)"
+            )
+
+            statement.setInt(1, idTrans)
+
+            val resultSet = statement.executeQuery()
+
+            if (resultSet.next()) {
+                success = resultSet.getBoolean(1)
+            }
+
+            return@withContext success
+
+        } catch (e: SQLException) {
+            e.printStackTrace()
+            return@withContext false
+        } catch (e: Exception) {
+            e.printStackTrace()
+            return@withContext false
+        } finally {
+            try {
+                dbConnection?.close()
+            } catch (e: SQLException) {
+                e.printStackTrace()
+            }
+        }
+    }
+
+    suspend fun deleteProveedorAlim(idProv: Int): Boolean = withContext(Dispatchers.IO){
+        val dbConnection: Connection? = null
+        try {
+            var success=true
+            val dbConnection = Database.connect()
+            val statement = dbConnection.prepareStatement(
+                "SELECT eliminar_proveedor_alimentos(?)"
+            )
+
+            statement.setInt(1, idProv)
+
+            val resultSet = statement.executeQuery()
+
+            if (resultSet.next()) {
+                success = resultSet.getBoolean(1)
+            }
+
+            return@withContext success
+
+        } catch (e: SQLException) {
+            e.printStackTrace()
+            return@withContext false
+        } catch (e: Exception) {
+            e.printStackTrace()
+            return@withContext false
+        } finally {
+            try {
+                dbConnection?.close()
+            } catch (e: SQLException) {
+                e.printStackTrace()
+            }
+        }
+    }
+
+    suspend fun getVeterinariosActivosForReport(clinica:String?, provincia: String?): List<ReporteVeterinariosActivosObj> = withContext(Dispatchers.IO)
+    {
+        var lista = mutableListOf<ReporteVeterinariosActivosObj>()
+        val dbConnection: Connection = Database.connect()
+        val statement = dbConnection.prepareStatement(
+            "SELECT * FROM reporte_veterinarios_activos(?,?)"
+        )
+
+        statement.setString(1,clinica)
+        statement.setString(2,provincia)
+
+        val resultSet = statement.executeQuery()
+
+        while (resultSet.next()) {
+            lista.add(
+                ReporteVeterinariosActivosObj(
+                    fechaInicio = resultSet.getDate("fecha_inicio").toLocalDate(),
+                    fechaFin = resultSet.getDate("fecha_fin").toLocalDate(),
+                    idVet = resultSet.getInt("id_contratado"),
+                    nombre = resultSet.getString("nombre_veterinario"),
+                    clinica = resultSet.getString("clinica"),
+                    provincia = resultSet.getString("provincia"),
+                    especialidad = resultSet.getString("especialidad"),
+                    telefono = resultSet.getString("telefono"),
+                    email = resultSet.getString("email"),
+                    modalidad = resultSet.getString("modalidad")
+                )
+            )
+        }
+        resultSet.close()
+        statement.close()
+        dbConnection.close()
+        lista
     }
 }
