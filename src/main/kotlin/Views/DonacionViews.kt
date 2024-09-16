@@ -170,7 +170,6 @@ fun FilterComponentsD(
 @Composable
 fun DonacionesTable(colors: RefugioColorPalette, donaciones: List<Donacion>) {
     LazyColumn {
-        // Encabezados de la tabla con íconos
         item {
             Row(
                 modifier = Modifier

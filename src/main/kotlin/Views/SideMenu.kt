@@ -43,7 +43,8 @@ fun AnimatedSideMenu(
             .verticalScroll(scrollState)
             .padding(16.dp)
     ) {
-        // Sección Gestión
+
+        //if(UsuarioSingleton.permiso == '')
         Text(
             "Gestión",
             style = MaterialTheme.typography.h6,
@@ -52,7 +53,6 @@ fun AnimatedSideMenu(
             modifier = Modifier.padding(bottom = 8.dp)
         )
 
-        // Menús expandibles
             ExpandableMenuItem(
                 "Contratos",
                 colors,

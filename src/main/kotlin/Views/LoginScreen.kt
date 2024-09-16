@@ -134,8 +134,8 @@ fun LoginScreen(colors: RefugioColorPalette, onLoginSuccess: () -> Unit) {
             val usuarioExiste = verificarUsuarioyContraseniaDialog(username, password)
             if (usuarioExiste) {
                 withContext(Dispatchers.IO) {
-                    showDialog = false // Cerrar el diálogo antes de mostrar la notificación
-                    delay(100) // Pequeña pausa para asegurar que el diálogo se cierre
+                    showDialog = false
+                    delay(100)
                     showNotification("El usuario ya existe. Intente con otras credenciales.", false)
                     delay(1500)
                     showDialog = true

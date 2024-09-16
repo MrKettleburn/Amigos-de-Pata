@@ -6,6 +6,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.sql.Connection
 import java.sql.Types
+import org.mindrot.jbcrypt.BCrypt
 
 object UsuarioDB {
     suspend fun getUsuariosFilter(
@@ -37,15 +38,17 @@ object UsuarioDB {
         usuarios
     }
 
-    suspend fun createUsuario(user: String, pass: String, rol:String): Int = withContext(Dispatchers.IO) {
+    suspend fun createUsuario(user: String, pass: String, rol: String): Int = withContext(Dispatchers.IO) {
         var nuevoId = -1
         val dbConnection: Connection = Database.connect()
         val statement = dbConnection.prepareStatement(
-            "SELECT insertar_usuario(?, ?, ?)"
+            "SELECT insertar_usuario_admin(?, ?, ?)"
         )
 
+        val hashedPassword = BCrypt.hashpw(pass, BCrypt.gensalt())
+
         statement.setString(1, user)
-        statement.setString(2, pass)
+        statement.setString(2, hashedPassword)
         statement.setString(3, rol)
 
         val resultSet = statement.executeQuery()
@@ -61,15 +64,16 @@ object UsuarioDB {
     }
 
     suspend fun updateUsuario(idUsuario: Int, nombreUsuario: String, contrasena: String, permiso: String): Boolean = withContext(Dispatchers.IO) {
-
         val dbConnection = Database.connect()
         val statement = dbConnection.prepareStatement(
             "SELECT actualizar_usuario(?,?,?,?)"
         )
 
+        val hashedPassword = BCrypt.hashpw(contrasena, BCrypt.gensalt())
+
         statement.setInt(1, idUsuario)
         statement.setString(2, nombreUsuario)
-        statement.setString(3, contrasena)
+        statement.setString(3, hashedPassword)
         statement.setString(4, permiso)
 
         var retorno: Boolean = true
@@ -83,6 +87,8 @@ object UsuarioDB {
             }
         }
 
+        resultSet.close()
+        statement.close()
         dbConnection.close()
         retorno
     }
@@ -94,9 +100,11 @@ object UsuarioDB {
             "SELECT insertar_usuario_adoptante(?, ?, ?)"
         )
 
+        val hashedPassword = BCrypt.hashpw(pass, BCrypt.gensalt())
+
         statement.setString(1, name)
         statement.setString(2, user)
-        statement.setString(3, pass)
+        statement.setString(3, hashedPassword)
 
         val resultSet = statement.executeQuery()
 
@@ -109,17 +117,13 @@ object UsuarioDB {
         dbConnection.close()
         nuevoId
     }
-    suspend fun verificarCredenciales(
-        username: String,
-        password: String
-    ): Pair<Int, String>? = withContext(Dispatchers.IO) {
+    suspend fun verificarCredenciales(username: String, password: String): Pair<Int, String>? = withContext(Dispatchers.IO) {
         val dbConnection: Connection = Database.connect()
         val statement = dbConnection.prepareStatement(
-            "SELECT * FROM verificar_usuario(?, ?)"
+            "SELECT * FROM verificar_usuario_hash(?)"
         )
 
         statement.setString(1, username)
-        statement.setString(2, password)
 
         val resultSet = statement.executeQuery()
 
@@ -127,7 +131,10 @@ object UsuarioDB {
         if (resultSet.next()) {
             val id = resultSet.getInt("id")
             val permiso = resultSet.getString("permiso")
-            result = Pair(id, permiso)
+            val hashedPassword = resultSet.getString("hashed_password")
+            if (BCrypt.checkpw(password, hashedPassword)) {
+                result = Pair(id, permiso)
+            }
         }
 
         resultSet.close()
@@ -162,23 +169,34 @@ object UsuarioDB {
 
         result
     }
-    suspend fun verificarUsuarioyContraseniaDialog(
-        username: String,
-        password: String
-    ): Boolean = withContext(Dispatchers.IO) {
+    suspend fun verificarUsuarioyContraseniaDialog(username: String, password: String): Boolean = withContext(Dispatchers.IO) {
         val dbConnection: Connection = Database.connect()
         val statement = dbConnection.prepareStatement(
-            "SELECT verificar_usuario_existente_dialog(?, ?)"
+            "SELECT verificar_usuario_existente_dialog_hash(?)"
         )
 
         statement.setString(1, username)
-        statement.setString(2, password)
 
         val resultSet = statement.executeQuery()
 
         var result = false
         if (resultSet.next()) {
-            result = resultSet.getBoolean(1)
+            val userExists = resultSet.getBoolean(1)
+            if (userExists) {
+                val statementPass = dbConnection.prepareStatement(
+                    "SELECT contrasena FROM usuario WHERE nombre_usuario = ?"
+                )
+                statementPass.setString(1, username)
+
+                val resultSetPass = statementPass.executeQuery()
+                if (resultSetPass.next()) {
+                    val hashedPassword = resultSetPass.getString("contrasena")
+                    result = BCrypt.checkpw(password, hashedPassword)
+                }
+
+                resultSetPass.close()
+                statementPass.close()
+            }
         }
 
         resultSet.close()

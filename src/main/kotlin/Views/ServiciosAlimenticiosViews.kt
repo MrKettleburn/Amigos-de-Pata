@@ -233,7 +233,7 @@ fun ServiciosRowAlimenticio(colors: RefugioColorPalette, row: ServicioTableRowAl
     ) {
         Text(text = row.id, modifier = Modifier.weight(1f))
         Text(text = row.tipoAlim, modifier = Modifier.weight(1f))
-        Text(text = "$${row.precioUnit}", modifier = Modifier.weight(1f)) // Convertir a String
+        Text(text = "$${row.precioUnit}", modifier = Modifier.weight(1f))
 
         Row {
             IconButton(onClick = { showUpdateDialog = true }) {
