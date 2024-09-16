@@ -19,7 +19,7 @@ fun createPdfContratosVeterinarios(destination: String, contratos: List<Contrato
     val pdf = PdfDocument(writer)
     val document = Document(pdf)
 
-    // Encabezado del refugio
+    // Encabezado del refugioz
     val title = Paragraph("Refugio Amigos de Pata")
         .setTextAlignment(TextAlignment.CENTER)
         .setFontSize(20f)
