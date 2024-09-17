@@ -22,6 +22,7 @@ import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.launch
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.ui.text.input.PasswordVisualTransformation
+import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.window.Dialog
 
 @Composable
@@ -247,6 +248,7 @@ fun AddUsuarioDialog(
     var contrasenia by remember { mutableStateOf("") }
     var permiso by remember { mutableStateOf("Gestion") }
     var expanded by remember { mutableStateOf(false) }
+    var passwordVisible by remember { mutableStateOf(false) }
 
     Dialog(onDismissRequest = onDismissRequest) {
         Surface(
@@ -269,7 +271,16 @@ fun AddUsuarioDialog(
                     onValueChange = { contrasenia = it },
                     label = { Text("Contraseña") },
                     modifier = Modifier.fillMaxWidth(),
-                    visualTransformation = PasswordVisualTransformation()
+                    visualTransformation = if (passwordVisible) VisualTransformation.None else PasswordVisualTransformation(),
+                    trailingIcon = {
+                        IconButton(onClick = { passwordVisible = !passwordVisible }) {
+                            Icon(
+                                imageVector = if (passwordVisible) Icons.Default.Visibility else Icons.Default.VisibilityOff,
+                                contentDescription = if (passwordVisible) "Ocultar contraseña" else "Mostrar contraseña"
+                            )
+                        }
+                    },
+                    singleLine = true
                 )
 
                 Spacer(modifier = Modifier.height(16.dp))
@@ -359,6 +370,7 @@ fun UpdateUsuarioDialog(
     var contrasenia by remember { mutableStateOf(contraseniaInicial) }
     var permiso by remember { mutableStateOf(permisoInicial) }
     var expanded by remember { mutableStateOf(false) }
+    var newPasswordVisible by remember { mutableStateOf(false) }
 
     Dialog(onDismissRequest = onDismissRequest) {
         Surface(
@@ -381,7 +393,16 @@ fun UpdateUsuarioDialog(
                     onValueChange = { contrasenia = it },
                     label = { Text("Nueva Contraseña") },
                     modifier = Modifier.fillMaxWidth(),
-                    visualTransformation = PasswordVisualTransformation()
+                    visualTransformation = if (newPasswordVisible) VisualTransformation.None else PasswordVisualTransformation(),
+                    trailingIcon = {
+                        IconButton(onClick = { newPasswordVisible = !newPasswordVisible }) {
+                            Icon(
+                                imageVector = if (newPasswordVisible) Icons.Default.Visibility else Icons.Default.VisibilityOff,
+                                contentDescription = if (newPasswordVisible) "Ocultar contraseña" else "Mostrar contraseña"
+                            )
+                        }
+                    },
+                    singleLine = true
                 )
 
                 Spacer(modifier = Modifier.height(16.dp))
