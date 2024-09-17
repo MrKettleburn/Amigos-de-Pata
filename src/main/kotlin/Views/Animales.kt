@@ -4,6 +4,7 @@ import Class_DB.ActividadDB
 import Class_DB.AnimalDB
 import Class_DB.ContratoDB
 import Models.*
+import ReportesPDF.generarReporteActividadesDeUnAnimal
 import UserLogged.UsuarioSingleton
 import Utiles.estimarMantenimientoSeisMeses
 import Utiles.estimarPrecioDeAdopcion
@@ -23,10 +24,14 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.window.Popup
+import androidx.compose.ui.window.PopupProperties
 import kotlinx.coroutines.launch
 import java.time.LocalDate
+import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 
 @Composable
@@ -307,6 +312,8 @@ fun AnimalsExpandableRow(colors: RefugioColorPalette, row: AnimalTableRow) {
     val backgroundColor = if (expanded) colors.menuBackground else Color.Transparent
     var showConfirmDialog by remember { mutableStateOf(false) }
     var showAdoptarDialog by remember { mutableStateOf(false) }
+    var showToolTip by remember { mutableStateOf(false) }
+    var generar by remember { mutableStateOf(false) }
 
     Column(
         modifier = Modifier
@@ -344,6 +351,19 @@ fun AnimalsExpandableRow(colors: RefugioColorPalette, row: AnimalTableRow) {
                         Icon(Icons.Default.Delete, contentDescription = "Eliminar")
                     }
                 }
+                if(UsuarioSingleton.permiso!="ADOPTANTE")
+                {
+
+                    IconButton(
+                        onClick = { generar = true },
+                        modifier = Modifier
+                            .onPointerEnter { showToolTip = true }
+                            .onPointerExit { showToolTip = false }
+                    ) {
+                        Icon(Icons.Default.Description, contentDescription = "Reporte")
+                    }
+
+                }
                 if(UsuarioSingleton.permiso=="ADOPTANTE") {
                     Button(
                         onClick = { showAdoptarDialog = true },
@@ -356,6 +376,33 @@ fun AnimalsExpandableRow(colors: RefugioColorPalette, row: AnimalTableRow) {
                     Icon(
                         if (expanded) Icons.Default.KeyboardArrowUp else Icons.Default.KeyboardArrowDown,
                         contentDescription = if (expanded) "Collapse" else "Expand"
+                    )
+                }
+            }
+        }
+
+        if(generar)
+        {
+            generarReporteActividadesDeUnAnimal(coroutineScope, row.id.toInt(), LocalDateTime.now())
+            generar=false
+        }
+
+        if (showToolTip) {
+            Popup(
+                alignment = Alignment.TopStart,
+                offset = IntOffset(1400, -40),
+                properties = PopupProperties(focusable = false)
+            ) {
+                Surface(
+                    color = MaterialTheme.colors.surface,
+                    shape = MaterialTheme.shapes.small,
+                    elevation = 4.dp,
+                    modifier = Modifier.padding(4.dp)
+                ) {
+                    Text(
+                        text = "Reporte de Actividades",
+                        modifier = Modifier.padding(8.dp),
+                        color = MaterialTheme.colors.onSurface
                     )
                 }
             }
@@ -524,6 +571,7 @@ fun ActividadesExpandableRow(colors: RefugioColorPalette, row: ActividadTableRow
                         Icon(Icons.Default.Delete, contentDescription = "Eliminar")
                     }
                 }
+
                 IconButton(onClick = { expanded = !expanded }) {
                     Icon(
                         if (expanded) Icons.Default.KeyboardArrowUp else Icons.Default.KeyboardArrowDown,

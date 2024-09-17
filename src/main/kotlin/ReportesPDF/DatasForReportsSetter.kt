@@ -1,69 +1,66 @@
 package ReportesPDF
 
 import Class_DB.*
-import Database.Database
 import Utiles.calcularMontoTotalPorAdopciones
 import Utiles.calcularMontoTotalPorDonaciones
 import Utiles.estimarMantenimientoSeisMeses
-import Utiles.estimarMantenimientoSeisMeses
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.rememberCoroutineScope
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.launch
 import java.time.LocalDateTime
 
-@Composable
-fun generarReporteContratosVeterinarios( fechaYhora: LocalDateTime) {
 
+fun generarReporteContratosVeterinarios(coroutineScope: CoroutineScope, fechaYhora: LocalDateTime) {
     val destination: String = "C:\\Users\\ruben\\IdeaProjects\\Amigos_de_Pata\\src\\main\\kotlin\\Contratos_Conciliados_Con_Veterinarios.pdf"
 
-    LaunchedEffect(Unit) {
+    coroutineScope.launch {
         val contratos = ContratoDB.getContratosVeterinariosForReport()
 
         createPdfContratosVeterinarios(destination, contratos, fechaYhora)
     }
 }
 
-@Composable
-fun generarReporteContratosTransporte(fechaYhora: LocalDateTime) {
+
+fun generarReporteContratosTransporte(coroutineScope: CoroutineScope, fechaYhora: LocalDateTime) {
 
     val destination: String = "C:\\Users\\ruben\\IdeaProjects\\Amigos_de_Pata\\src\\main\\kotlin\\Contratos_Conciliados_Con_Transportes.pdf"
 
-    LaunchedEffect(Unit) {
+    coroutineScope.launch {
         val contratos = ContratoDB.getContratosTransporteForReport()
 
         createPdfContratosTransporte(destination, contratos, fechaYhora)
     }
 }
 
-@Composable
-fun generarReporteContratosProveedoresAlim(fechaYhora: LocalDateTime) {
+
+fun generarReporteContratosProveedoresAlim(coroutineScope: CoroutineScope, fechaYhora: LocalDateTime) {
 
     val destination: String = "C:\\Users\\ruben\\IdeaProjects\\Amigos_de_Pata\\src\\main\\kotlin\\Contratos_Conciliados_Con_Proveedores_de_Alimentos.pdf"
 
-    LaunchedEffect(Unit) {
+    coroutineScope.launch {
         val contratos = ContratoDB.getContratosProveedoresAlimForReport()
 
         createPdfContratosProveedoresAlim(destination, contratos, fechaYhora)
     }
 }
 
-@Composable
-fun generarReporteVeterinariosActivos(clinica: String?, provincia: String?, fechaYhora: LocalDateTime) {
+
+fun generarReporteVeterinariosActivos(coroutineScope: CoroutineScope, clinica: String?, provincia: String?, fechaYhora: LocalDateTime) {
 
     val destination: String = "C:\\Users\\ruben\\IdeaProjects\\Amigos_de_Pata\\src\\main\\kotlin\\Veterinarios_Activos.pdf"
 
-    LaunchedEffect(Unit) {
+    coroutineScope.launch {
         val veterinarios = ContratadosDB.getVeterinariosActivosForReport(clinica, provincia)
 
         createPdfVeterinariosActivos(destination, clinica, provincia, veterinarios, fechaYhora)
     }
 }
 
-@Composable
-fun generarReporteActividadesDeUnAnimal(idAnimal: Int,fechaYhora: LocalDateTime){
 
+fun generarReporteActividadesDeUnAnimal(coroutineScope: CoroutineScope,idAnimal: Int,fechaYhora: LocalDateTime){
 
-    LaunchedEffect(Unit) {
-        val animales = AnimalDB.getAnimalesFilter(idAnimal, null, null, null, null, null, null)
+    coroutineScope.launch{
+    val animales = AnimalDB.getAnimalesFilter(idAnimal, null, null, null, null, null, null)
         val animal = animales.get(0)
 
         val destination: String = "C:\\Users\\ruben\\IdeaProjects\\Amigos_de_Pata\\src\\main\\kotlin\\Actividades_Animal.pdf"
@@ -75,12 +72,11 @@ fun generarReporteActividadesDeUnAnimal(idAnimal: Int,fechaYhora: LocalDateTime)
     }
 }
 
-@Composable
-fun generarReportePlanDeIngresos(fechaYhora: LocalDateTime){
+
+fun generarReportePlanDeIngresos(coroutineScope: CoroutineScope,fechaYhora: LocalDateTime){
 
 
-    LaunchedEffect(Unit) {
-
+    coroutineScope.launch{
         val destination: String = "C:\\Users\\ruben\\IdeaProjects\\Amigos_de_Pata\\src\\main\\kotlin\\Plan_de_Ingresos_por_Donaciones_y_Adopciones.pdf"
         val animalesAdoptados = AnimalDB.getAnimalesAdoptForReport()
         val montoTotalPorAdopciones = calcularMontoTotalPorAdopciones(animalesAdoptados)

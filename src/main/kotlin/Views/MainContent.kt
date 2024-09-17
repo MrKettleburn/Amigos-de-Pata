@@ -1,35 +1,31 @@
 package Views
 
-import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
-import androidx.compose.material.Text
-import androidx.compose.runtime.*
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.unit.dp
-import androidx.compose.foundation.layout.*
-import androidx.compose.material.*
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Pets
-import androidx.compose.ui.Alignment
-import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.unit.dp
+import ReportesPDF.*
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
-import androidx.compose.material.Text
-import androidx.compose.runtime.Composable
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.*
+import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.window.Dialog
+import java.time.LocalDateTime
 
 @Composable
 fun MainContent(colors: RefugioColorPalette, onLogout: () -> Unit) {
     var selectedItem by remember { mutableStateOf("") }
     var selectedSubItem by remember { mutableStateOf("") }
+    var showClinicaProvinciaDialog by remember { mutableStateOf(false) }
+    var clinica by remember { mutableStateOf<String?>(null) }
+    var provincia by remember { mutableStateOf<String?>(null) }
+    var generarReporte by remember { mutableStateOf(false) }
+    val coroutineScope = rememberCoroutineScope()
 
     Row(modifier = Modifier.fillMaxSize()) {
         // Sidebar con el menú expandible
@@ -88,14 +84,98 @@ fun MainContent(colors: RefugioColorPalette, onLogout: () -> Unit) {
                         "Usuarios" -> UsuariosMostrar(colors, selectedItem, selectedSubItem)
 
                         "Donaciones" -> DonacionesMostrar(colors, selectedItem, selectedSubItem)
+
+                        "Informes" -> {
+                            when(selectedSubItem){
+                                "Listado de Contratos Conciliados con Veterinarios" -> generarReporteContratosVeterinarios(coroutineScope,LocalDateTime.now())
+                                "Listado de Contratos de Proveedores de Alimentos" -> generarReporteContratosProveedoresAlim(coroutineScope,LocalDateTime.now())
+                                "Listado de Contratos de Servicios Complementarios" -> generarReporteContratosTransporte(coroutineScope,LocalDateTime.now())
+                                "Listado de Veterinarios Activos" -> showClinicaProvinciaDialog = true
+                                "Plan de Ingresos por Concepto de Adopciones y Donaciones" -> generarReportePlanDeIngresos(coroutineScope,LocalDateTime.now())
+                            }
+                        }
+                    }
+
+                    if (showClinicaProvinciaDialog) {
+                        ClinicaYProvinciaReporteDialog(
+                            colors = colors,
+                            onDismissRequest = { selectedSubItem=""
+                                showClinicaProvinciaDialog = false },
+                            onReporteHecho = { clinic, prov ->
+                                clinica = clinic
+                                provincia = prov
+                                generarReporte = true
+                                selectedSubItem=""
+                                showClinicaProvinciaDialog = false
+                            }
+                        )
+                    }
+                    if (generarReporte) {
+                        generarReporteVeterinariosActivos(coroutineScope, clinica, provincia, LocalDateTime.now())
+                        generarReporte = false
                     }
                 }
             }
         }
     }
 
+@Composable
+fun ClinicaYProvinciaReporteDialog(
+    colors: RefugioColorPalette,
+    onDismissRequest: () -> Unit,
+    onReporteHecho: (String?, String?) -> Unit // Permitir nulos
+){
+    var clinica by remember { mutableStateOf("") }
+    var provincia by remember { mutableStateOf("") }
 
-    @Composable
+    Dialog(onDismissRequest = onDismissRequest) {
+        Surface(
+            modifier = Modifier.padding(16.dp),
+            shape = RoundedCornerShape(8.dp),
+            color = colors.menuBackground
+        ) {
+            Column(modifier = Modifier.padding(16.dp)) {
+                Text("Reporte Veterinarios Activos", style = MaterialTheme.typography.h6)
+
+                OutlinedTextField(
+                    value = clinica,
+                    onValueChange = { clinica = it },
+                    label = { Text("Clínica") },
+                    modifier = Modifier.fillMaxWidth()
+                )
+
+                OutlinedTextField(
+                    value = provincia,
+                    onValueChange = { provincia = it },
+                    label = { Text("Provincia") },
+                    modifier = Modifier.fillMaxWidth()
+                )
+
+                Spacer(modifier = Modifier.height(16.dp))
+
+                Row(
+                    horizontalArrangement = Arrangement.End,
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    TextButton(onClick = onDismissRequest) {
+                        Text("Cancelar")
+                    }
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Button(onClick = {
+                        // Si están vacíos, se convierten en nulos
+                        val clinicTrimmed = clinica.trim().ifEmpty { null }
+                        val provinciaTrimmed = provincia.trim().ifEmpty { null }
+                        onReporteHecho(clinicTrimmed, provinciaTrimmed)
+                    }) {
+                        Text("Generar Reporte")
+                    }
+                }
+            }
+        }
+    }
+}
+
+@Composable
     fun DefaultContent(colors: RefugioColorPalette) {
         Column(
             modifier = Modifier
