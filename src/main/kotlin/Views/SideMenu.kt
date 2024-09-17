@@ -118,7 +118,6 @@ fun AnimatedSideMenu(
             Text("Donar")
         }
 
-        // Botón de Cerrar Sesión
         Button(
             onClick = onLogout,
             modifier = Modifier
