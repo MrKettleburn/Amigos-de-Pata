@@ -1,6 +1,8 @@
 package Views
 
+import Class_DB.DonacionesDB
 import UserLogged.UsuarioSingleton
+import UserLogged.UsuarioDB
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.background
@@ -27,6 +29,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.Popup
 import androidx.compose.ui.window.PopupProperties
+import kotlinx.coroutines.launch
 
 @Composable
 fun AnimatedSideMenu(
@@ -37,9 +40,8 @@ fun AnimatedSideMenu(
     onLogout: () -> Unit
 ) {
     val scrollState = rememberScrollState()
-
-    // Controlar la visibilidad del diálogo de donación
     var showDonacionDialog by remember { mutableStateOf(false) }
+    val coroutineScope = rememberCoroutineScope()
 
     Column(
         modifier = Modifier
@@ -105,7 +107,6 @@ fun AnimatedSideMenu(
 
         Spacer(modifier = Modifier.weight(1f))
 
-        // Botón de Donar
         Button(
             onClick = { showDonacionDialog = true },
             modifier = Modifier
@@ -130,19 +131,20 @@ fun AnimatedSideMenu(
         }
     }
 
-    // Mostrar diálogo de donación si showDonacionDialog es true
     if (showDonacionDialog) {
         AddDonacionDialog(
             colors = colors,
             onDismissRequest = { showDonacionDialog = false },
             onDonacionAdded = { monto ->
-                // Manejar la donación agregada
-                println("Donación añadida: $monto")
-                showDonacionDialog = false
+                coroutineScope.launch {
+                    DonacionesDB.createDonacion(monto, UsuarioSingleton.id ?: 0)
+                    showDonacionDialog = false
+                }
             }
         )
     }
 }
+
 @Composable
 fun AddDonacionDialog(
     colors: RefugioColorPalette,
