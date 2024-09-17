@@ -32,12 +32,10 @@ data class Donacion(
 fun DonacionesMostrar(colors: RefugioColorPalette, selectedItem: String, selectedSubItem: String) {
     val coroutineScope = rememberCoroutineScope()
     var donaciones by remember { mutableStateOf<List<Donacion>>(emptyList()) }
-    var showDialog by remember { mutableStateOf(false) }
     var filtroAdoptante by remember { mutableStateOf<String?>(null) }
     var montoInf by remember { mutableStateOf<Double?>(null) }
     var montoSup by remember { mutableStateOf<Double?>(null) }
 
-    // Cargar los datos iniciales sin filtros
     LaunchedEffect(Unit) {
         donaciones = DonacionesDB.getDonacionesFilter(null, null, null)
     }
@@ -59,7 +57,6 @@ fun DonacionesMostrar(colors: RefugioColorPalette, selectedItem: String, selecte
                 colors,
                 onFilterApplied = {
                     coroutineScope.launch {
-                        // Aplicamos los filtros solo si están presentes
                         donaciones = DonacionesDB.getDonacionesFilter(
                             montoInf,
                             montoSup,
@@ -94,26 +91,6 @@ fun DonacionesMostrar(colors: RefugioColorPalette, selectedItem: String, selecte
             ) {
                 Icon(Icons.Default.ArrowCircleDown, contentDescription = "Recargar")
             }
-
-            FloatingActionButton(
-                onClick = { showDialog = true },
-            ) {
-                Icon(Icons.Default.Add, contentDescription = "Donar")
-            }
-        }
-
-        if (showDialog) {
-            AddDonacionDialog(
-                colors = colors,
-                onDismissRequest = { showDialog = false },
-                onDonacionAdded = { monto ->
-                    coroutineScope.launch {
-                        DonacionesDB.createDonacion(monto, UsuarioSingleton.id ?: 0)
-                        donaciones = DonacionesDB.getDonacionesFilter(null , null, null)
-                        showDialog = false
-                    }
-                }
-            )
         }
     }
 }
@@ -227,86 +204,4 @@ fun DonacionRow(donacion: Donacion, colors: RefugioColorPalette) {
     }
 }
 
-@Composable
-fun AddDonacionDialog(
-    colors: RefugioColorPalette,
-    onDismissRequest: () -> Unit,
-    onDonacionAdded: (Double) -> Unit
-) {
-    var monto by remember { mutableStateOf(0.0) }
-    var cantidadInput by remember { mutableStateOf(TextFieldValue("0")) }
 
-    Dialog(onDismissRequest = onDismissRequest) {
-        Surface(
-            modifier = Modifier.padding(16.dp),
-            shape = RoundedCornerShape(8.dp),
-            color = colors.menuBackground
-        ) {
-            Column(modifier = Modifier.padding(16.dp)) {
-                Text("¿Cuánto desea donar?", style = MaterialTheme.typography.h5)
-
-                Spacer(modifier = Modifier.height(16.dp))
-
-                NumberPickerComponent(
-                    value = cantidadInput,
-                    onValueChange = { value ->
-                        cantidadInput = value
-                        monto = value.text.toDoubleOrNull() ?: 0.0
-                    }
-                )
-
-                Spacer(modifier = Modifier.height(16.dp))
-
-                Row(
-                    horizontalArrangement = Arrangement.End,
-                    modifier = Modifier.fillMaxWidth()
-                ) {
-                    TextButton(onClick = onDismissRequest) {
-                        Text("Cancelar")
-                    }
-                    Spacer(modifier = Modifier.width(8.dp))
-                    Button(onClick = {
-                        if (monto > 0.0) {
-                            onDonacionAdded(monto)
-                        } else {
-                            println("ERROR: El monto debe ser mayor a 0")
-                        }
-                    }) {
-                        Text("Donar")
-                    }
-                }
-            }
-        }
-    }
-}
-
-@Composable
-fun NumberPickerComponent(
-    value: TextFieldValue,
-    onValueChange: (TextFieldValue) -> Unit
-) {
-    Row(
-        verticalAlignment = Alignment.CenterVertically,
-        modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp)
-    ) {
-        IconButton(onClick = {
-            val newValue = (value.text.toIntOrNull() ?: 0) - 100
-            onValueChange(TextFieldValue(newValue.toString()))
-        }) {
-            Icon(Icons.Default.ArrowCircleDown, contentDescription = "Restar 100")
-        }
-
-        OutlinedTextField(
-            value = value,
-            onValueChange = onValueChange,
-            modifier = Modifier.weight(1f)
-        )
-
-        IconButton(onClick = {
-            val newValue = (value.text.toIntOrNull() ?: 0) + 100
-            onValueChange(TextFieldValue(newValue.toString()))
-        }) {
-            Icon(Icons.Default.Add, contentDescription = "Sumar 100")
-        }
-    }
-}
