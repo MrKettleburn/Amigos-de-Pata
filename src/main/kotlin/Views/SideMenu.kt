@@ -44,7 +44,7 @@ fun AnimatedSideMenu(
             .padding(16.dp)
     ) {
 
-        //if(UsuarioSingleton.permiso == '')
+
         Text(
             "Gestión",
             style = MaterialTheme.typography.h6,
@@ -53,6 +53,7 @@ fun AnimatedSideMenu(
             modifier = Modifier.padding(bottom = 8.dp)
         )
 
+        if(UsuarioSingleton.permiso=="Gestion"){
             ExpandableMenuItem(
                 "Contratos",
                 colors,
@@ -77,7 +78,7 @@ fun AnimatedSideMenu(
                 onSelectionChanged,
                 Icons.Default.Build
             )
-
+        }
             ExpandableMenuItem(
                 "Animales",
                 colors,
@@ -87,18 +88,26 @@ fun AnimatedSideMenu(
                 Icons.Default.Pets
             )
 
-        MenuItem("Donaciones", colors, selectedItem, selectedSubItem, Icons.Default.AttachMoney) {
-            onSelectionChanged("Donaciones", "")
+        if(UsuarioSingleton.permiso=="Gestion") {
+            MenuItem("Donaciones", colors, selectedItem, selectedSubItem, Icons.Default.AttachMoney) {
+                onSelectionChanged("Donaciones", "")
+            }
+
+            MenuItem("Usuarios", colors, selectedItem, selectedSubItem, Icons.Default.Person) {
+                onSelectionChanged("Usuarios", "")
+            }
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            ExpandableMenuItem(
+                "Informes",
+                colors,
+                selectedItem,
+                selectedSubItem,
+                onSelectionChanged,
+                Icons.Default.Assessment
+            )
         }
-
-        MenuItem("Usuarios", colors, selectedItem, selectedSubItem, Icons.Default.Person) {
-            onSelectionChanged("Usuarios", "")
-        }
-
-        Spacer(modifier = Modifier.height(16.dp))
-
-        ExpandableMenuItem("Informes", colors, selectedItem, selectedSubItem, onSelectionChanged, Icons.Default.Assessment)
-
         Spacer(modifier = Modifier.weight(1f))
 
         Button(
@@ -162,7 +171,16 @@ fun ExpandableMenuItem(
                 when (title) {
                     "Animales" -> {
                         SubMenuItem("En Refugio", colors, selectedItem, selectedSubItem, title, Icons.Default.Home) { onItemSelected(title, it) }
-                        SubMenuItem("En Adopción", colors, selectedItem, selectedSubItem, title, Icons.Default.Favorite) { onItemSelected(title, it) }
+                        if(UsuarioSingleton.permiso!="ADOPTANTE") {
+                            SubMenuItem(
+                                "En Adopción",
+                                colors,
+                                selectedItem,
+                                selectedSubItem,
+                                title,
+                                Icons.Default.Favorite
+                            ) { onItemSelected(title, it) }
+                        }
                     }
                     "Informes" -> {
                         SubMenuItem("Listado de Contratos Conciliados con Veterinarios", colors, selectedItem, selectedSubItem, title, Icons.Default.List) { onItemSelected(title, it) }

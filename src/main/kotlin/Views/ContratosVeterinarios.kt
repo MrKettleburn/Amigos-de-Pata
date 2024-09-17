@@ -2,42 +2,26 @@ package Views
 
 
 import Class_DB.ActividadDB
-import Class_DB.AnimalDB
 import Class_DB.ContratoDB
 import Models.Actividad
-import Models.Animal
 import Models.ContratoVeterinario
-import androidx.compose.foundation.*
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
-import androidx.compose.material.icons.rounded.Badge
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.launch
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
-import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.grid.GridCells
-import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
-import androidx.compose.foundation.lazy.grid.items
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.*
-import androidx.compose.runtime.*
-import androidx.compose.ui.graphics.Brush
-import androidx.compose.ui.unit.dp
-import androidx.compose.ui.window.Dialog
-import java.time.YearMonth
-import java.time.format.TextStyle
-import java.util.*
 
 
 @Composable
@@ -376,7 +360,47 @@ fun FilterComponentsVeterinarios(
 
 @Composable
 fun ContratosVeterinariosExpandableTable(colors: RefugioColorPalette, data: List<ContratoTableRow>) {
+    Spacer(modifier = Modifier.width(4.dp))
     LazyColumn {
+        item {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(vertical = 8.dp, horizontal = 16.dp),
+                horizontalArrangement = Arrangement.Start
+            ) {
+                val headersWithIcons = listOf(
+                    "Código" to getIconForAttribute("Código"),
+                    "Precio" to getIconForAttribute("Precio"),
+                    "Nombre del Contratado" to getIconForAttribute("Nombre del Contratado"),
+                    "Modalidad del Servicio" to getIconForAttribute("Modalidad del Servicio")
+                )
+
+                headersWithIcons.forEachIndexed { index, (header, icon) ->
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        modifier = Modifier.weight(1f, fill = false)
+                    ) {
+                        Icon(
+                            imageVector = icon,
+                            contentDescription = null,
+                            modifier = Modifier.size(20.dp)
+                        )
+                        Spacer(modifier = Modifier.width(4.dp))
+                        Text(
+                            text = header,
+                            fontWeight = FontWeight.Bold,
+
+                        )
+                    }
+                    if(index < headersWithIcons.size-1)
+                    {
+                        Spacer(modifier = Modifier.width(150.dp))
+                    }
+                }
+            }
+            Divider(color = colors.primary, thickness = 1.5.dp)
+        }
         items(data) { row ->
             ContratosVeterinariosExpandableRow(colors, row)
             Divider(color = colors.primary, thickness = 1.5.dp)
@@ -408,25 +432,10 @@ fun ContratosVeterinariosExpandableRow(colors: RefugioColorPalette, row: Contrat
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {
-            row.mainAttributes.forEach { (key, value) ->
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    modifier = Modifier.padding(0.dp)
-                ) {
-                    Icon(
-                        imageVector = getIconForAttribute(key),
-                        contentDescription = null,
-                        modifier = Modifier.size(20.dp)
-                    )
-                    Spacer(modifier = Modifier.width(4.dp))
-                    Text(
-                        text = "$key: ",
-                        fontWeight = FontWeight.Bold
-                    )
-                    Text(text = value)
-                    Spacer(modifier = Modifier.width(4.dp))
-                }
-            }
+            Text(text = row.id, modifier = Modifier.weight(1f))
+            Text(text = row.mainAttributes["Precio"] ?: "", modifier = Modifier.weight(1f))
+            Text(text = row.mainAttributes["Nombre del Contratado"] ?: "", modifier = Modifier.weight(1f))
+            Text(text = row.mainAttributes["Modalidad del Servicio"] ?: "", modifier = Modifier.weight(1f))
             Row {
 
                 IconButton(onClick = { showDeleteContratDialog = true  }) {
@@ -497,11 +506,10 @@ fun ContratosVeterinariosExpandableRow(colors: RefugioColorPalette, row: Contrat
 
         if(showConfirmDeleteWithAct)
         {
-            ConfirmDeleteContratoWithActDialog(
+            ConfirmDeleteGeneral(//PARA VINCULO CON ACTIVIDADES
                 colors=colors,
                 title = "Confirmar Eliminación",
                 text = "El contrato está vinculado a ${checkPoder?.size} actividades. Si elimina el contrato se eliminarán las actividades. Desea eliminar el contrato?",
-                contrId = row.id.toInt(),
                 onDismissRequest = {showConfirmDeleteWithAct=false},
                 onConfirmDelete = {
                     coroutineScope.launch {

@@ -1,25 +1,12 @@
 
-import Database.Database
-import Models.Actividad
-import Models.ActividadReporte
-import ReportesPDF.generarReporteActividadesDeUnAnimal
-import ReportesPDF.generarReporteContratosVeterinarios
-import ReportesPDF.generarReporteVeterinariosActivos
-import Utiles.sacarActividadesMesPasado
-import Views.LoginScreen
 import Views.RefugioApp
 import Views.RefugioColorPalette
-import androidx.compose.ui.window.Window
-import androidx.compose.ui.window.application
-import androidx.compose.desktop.ui.tooling.preview.Preview
 import androidx.compose.runtime.*
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.window.Window
+import androidx.compose.ui.window.application
 import java.awt.GraphicsDevice
 import java.awt.GraphicsEnvironment
-import java.sql.Connection
-import java.time.LocalDate
-import java.time.LocalDateTime
-import java.time.format.DateTimeFormatter
 
 @Composable
 fun App(window: java.awt.Window) {
@@ -51,6 +38,7 @@ fun main() = application {
     ) {
         App(window)
     }
+
 
 
 //    LaunchedEffect(Unit) {

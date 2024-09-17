@@ -1,28 +1,26 @@
 package Views
 
-import Class_DB.ContratadosDB
 import Class_DB.ContratoDB
 import Class_DB.ServiciosDB
 import Models.Contrato
 import Models.ServAlimenticio
-import Models.ServTransporte
-import androidx.compose.foundation.*
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.*
+import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.ArrowCircleDown
+import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.Edit
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.launch
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.ui.window.Dialog
 
 @Composable
 fun ServiciosAlimenticioMostrar(colors: RefugioColorPalette, selectedItem: String, selectedSubItem: String) {
@@ -178,6 +176,39 @@ fun FilterComponentsAlimenticio(
 @Composable
 fun ServiciosTableAlimenticio(colors: RefugioColorPalette, data: List<ServicioTableRowAlimenticio>) {
     LazyColumn {
+        item {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(vertical = 8.dp),
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                val headersWithIcons = listOf(
+                    "Código" to getIconForAttribute("Código"),
+                    "Tipo de Alimento" to getIconForAttribute("Tipo de Alimento"),
+                    "Precio" to getIconForAttribute("Precio")
+                )
+
+                headersWithIcons.forEach { (header, icon) ->
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        modifier = Modifier.weight(1f)
+                    ) {
+                        Icon(
+                            imageVector = icon,
+                            contentDescription = null,
+                            modifier = Modifier.size(20.dp)
+                        )
+                        Spacer(modifier = Modifier.width(4.dp))
+                        Text(
+                            text = header,
+                            fontWeight = FontWeight.Bold
+                        )
+                    }
+                }
+            }
+            Divider(color = colors.primary, thickness = 1.5.dp)
+        }
         items(data) { row ->
             ServiciosRowAlimenticio(colors, row)
             Divider(color = colors.primary, thickness = 1.5.dp)
@@ -200,24 +231,9 @@ fun ServiciosRowAlimenticio(colors: RefugioColorPalette, row: ServicioTableRowAl
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically
     ) {
-        row.mainAttributes.forEach { (key, value) ->
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                modifier = Modifier.weight(1f)
-            ) {
-                Icon(
-                    imageVector = getIconForAttribute(key),
-                    contentDescription = null,
-                    modifier = Modifier.size(20.dp)
-                )
-                Spacer(modifier = Modifier.width(4.dp))
-                Text(
-                    text = "$key: ",
-                    fontWeight = FontWeight.Bold
-                )
-                Text(text = value)
-            }
-        }
+        Text(text = row.id, modifier = Modifier.weight(1f))
+        Text(text = row.tipoAlim, modifier = Modifier.weight(1f))
+        Text(text = "$${row.precioUnit}", modifier = Modifier.weight(1f))
         Row {
             IconButton(onClick = { showUpdateDialog=true }) {
                 Icon(Icons.Default.Edit, contentDescription = "Modificar")

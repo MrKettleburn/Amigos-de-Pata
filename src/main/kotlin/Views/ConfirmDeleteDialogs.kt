@@ -224,11 +224,10 @@ fun ConfirmDeleteContratadoServicioDialog(
 }
 
 @Composable
-fun ConfirmDeleteContratoWithActDialog(
+fun ConfirmDeleteGeneral(
     colors: RefugioColorPalette,
     title: String,
     text: String,
-    contrId: Int,
     onDismissRequest: () -> Unit,
     onConfirmDelete: () -> Unit
 ) {

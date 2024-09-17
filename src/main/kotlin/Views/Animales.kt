@@ -4,41 +4,30 @@ import Class_DB.ActividadDB
 import Class_DB.AnimalDB
 import Class_DB.ContratoDB
 import Models.*
+import UserLogged.UsuarioSingleton
 import Utiles.estimarMantenimientoSeisMeses
 import Utiles.estimarPrecioDeAdopcion
-import androidx.compose.foundation.*
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
-import androidx.compose.material.icons.rounded.Badge
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import kotlinx.coroutines.launch
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
-import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.grid.GridCells
-import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
-import androidx.compose.foundation.lazy.grid.items
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.*
-import androidx.compose.runtime.*
-import androidx.compose.ui.graphics.Brush
-import androidx.compose.ui.graphics.vector.addPathNodes
-import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
-import androidx.compose.ui.window.Dialog
-import java.time.YearMonth
-import java.time.format.TextStyle
-import java.util.*
 
 @Composable
 fun AnimalesEnRefugioMostrar(colors: RefugioColorPalette, selectedItem: String, selectedSubItem: String) {
@@ -126,11 +115,12 @@ fun AnimalesEnRefugioMostrar(colors: RefugioColorPalette, selectedItem: String, 
             ) {
                 Icon(Icons.Default.ArrowCircleDown, contentDescription = "Recargar")
             }
-
-            FloatingActionButton(
-                onClick = { showDialog = true },
-            ) {
-                Icon(Icons.Default.Add, contentDescription = "Agregar")
+            if(UsuarioSingleton.permiso=="Cuidador") {
+                FloatingActionButton(
+                    onClick = { showDialog = true },
+                ) {
+                    Icon(Icons.Default.Add, contentDescription = "Agregar")
+                }
             }
         }
 
@@ -283,7 +273,7 @@ fun AnimalsExpandableTable(colors: RefugioColorPalette, data: List<AnimalTableRo
                         )
                     }
                     if (index < headersWithIcons.size - 1) {
-                        Spacer(modifier = Modifier.width(130.dp))
+                        Spacer(modifier = Modifier.width(200.dp))
                     }
                 }
             }
@@ -338,23 +328,29 @@ fun AnimalsExpandableRow(colors: RefugioColorPalette, row: AnimalTableRow) {
                 )
             }
             Row {
-                Button(
-                    onClick = { showActivityDialog = true },
-                    modifier = Modifier.align(Alignment.CenterVertically)
-                ) {
-                    Text("Ver Actividades")
+                if(UsuarioSingleton.permiso!="ADOPTANTE") {
+                    Button(
+                        onClick = { showActivityDialog = true },
+                        modifier = Modifier.align(Alignment.CenterVertically)
+                    ) {
+                        Text("Ver Actividades")
+                    }
                 }
-                IconButton(onClick = { showUpdateDialog=true }) {
-                    Icon(Icons.Default.Edit, contentDescription = "Modificar")
+                if(UsuarioSingleton.permiso=="Cuidador") {
+                    IconButton(onClick = { showUpdateDialog = true }) {
+                        Icon(Icons.Default.Edit, contentDescription = "Modificar")
+                    }
+                    IconButton(onClick = { showConfirmDialog = true }) {
+                        Icon(Icons.Default.Delete, contentDescription = "Eliminar")
+                    }
                 }
-                IconButton(onClick = { showConfirmDialog=true }) {
-                    Icon(Icons.Default.Delete, contentDescription = "Eliminar")
-                }
-                Button(
-                    onClick = { showAdoptarDialog = true },
-                    modifier = Modifier.align(Alignment.CenterVertically)
-                ) {
-                    Text("Adoptar")
+                if(UsuarioSingleton.permiso=="ADOPTANTE") {
+                    Button(
+                        onClick = { showAdoptarDialog = true },
+                        modifier = Modifier.align(Alignment.CenterVertically)
+                    ) {
+                        Text("Adoptar")
+                    }
                 }
                 IconButton(onClick = { expanded = !expanded }) {
                     Icon(
@@ -520,11 +516,13 @@ fun ActividadesExpandableRow(colors: RefugioColorPalette, row: ActividadTableRow
                 }
             }
             Row {
-                IconButton(onClick = { showUpdateDialog=true }) {
-                    Icon(Icons.Default.Edit, contentDescription = "Modificar")
-                }
-                IconButton(onClick = { showConfirmDialog=true }) {
-                    Icon(Icons.Default.Delete, contentDescription = "Eliminar")
+                if(UsuarioSingleton.permiso=="Cuidador") {
+                    IconButton(onClick = { showUpdateDialog = true }) {
+                        Icon(Icons.Default.Edit, contentDescription = "Modificar")
+                    }
+                    IconButton(onClick = { showConfirmDialog = true }) {
+                        Icon(Icons.Default.Delete, contentDescription = "Eliminar")
+                    }
                 }
                 IconButton(onClick = { expanded = !expanded }) {
                     Icon(
@@ -732,14 +730,15 @@ fun ActividadesDialog(
                 ) {
                     Text("Actividades de ${nombreAnim}", style = MaterialTheme.typography.h6)
 
-                    Button(
-                        onClick = {
-                            showAddDialog = true
-                        },
-                    ) {
-                        Text("Agregar Actividad")
+                    if(UsuarioSingleton.permiso=="Cuidador") {
+                        Button(
+                            onClick = {
+                                showAddDialog = true
+                            },
+                        ) {
+                            Text("Agregar Actividad")
+                        }
                     }
-
                     Button(
                         onClick = {
                             coroutineScope.launch {

@@ -1,20 +1,17 @@
 package Views
 
-import Class_DB.ActividadDB
-import Class_DB.AnimalDB
 import Models.Animal
-import Utiles.estimarMantenimientoSeisMeses
-import Utiles.estimarPrecioDeAdopcion
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.unit.dp
-import androidx.compose.ui.window.Dialog
-import androidx.compose.foundation.Image
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import androidx.compose.ui.window.Dialog
 
 @Composable
 fun DialogAdopcion(
@@ -58,9 +55,10 @@ fun DialogAdopcion(
                     modifier = Modifier.padding(bottom = 8.dp)
                 )
                 Text(
-                    text = "\$${precioAdopcion}",
+                    text = String.format("%.2f", precioAdopcion),
                     style = MaterialTheme.typography.body1,
-                    modifier = Modifier.padding(bottom = 24.dp)
+                    modifier = Modifier.padding(bottom = 24.dp),
+                    fontSize = 20.sp
                 )
 
                 // Botones
