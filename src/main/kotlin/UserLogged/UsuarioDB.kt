@@ -1,12 +1,10 @@
 package UserLogged
 
 import Database.Database
-import Models.Adoptante
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-import java.sql.Connection
-import java.sql.Types
 import org.mindrot.jbcrypt.BCrypt
+import java.sql.Connection
 
 object UsuarioDB {
     suspend fun getUsuariosFilter(
@@ -169,7 +167,7 @@ object UsuarioDB {
 
         result
     }
-    suspend fun verificarUsuarioyContraseniaDialog(username: String, password: String): Boolean = withContext(Dispatchers.IO) {
+    suspend fun verificarUsuarioyContraseniaLoginDialog(username: String, password: String): Boolean = withContext(Dispatchers.IO) {
         val dbConnection: Connection = Database.connect()
         val statement = dbConnection.prepareStatement(
             "SELECT verificar_usuario_existente_dialog_hash(?)"
@@ -183,6 +181,43 @@ object UsuarioDB {
         if (resultSet.next()) {
             val userExists = resultSet.getBoolean(1)
             if (userExists) {
+                val statementPass = dbConnection.prepareStatement(
+                    "SELECT contrasena FROM usuario WHERE nombre_usuario = ?"
+                )
+                statementPass.setString(1, username)
+
+                val resultSetPass = statementPass.executeQuery()
+                if (resultSetPass.next()) {
+                    val hashedPassword = resultSetPass.getString("contrasena")
+                    result = BCrypt.checkpw(password, hashedPassword)
+                }
+
+                resultSetPass.close()
+                statementPass.close()
+            }
+        }
+
+        resultSet.close()
+        statement.close()
+        dbConnection.close()
+
+        result
+    }
+
+    suspend fun verificarUsuarioyContraseniaRegistroDialog(username: String, password: String): Boolean = withContext(Dispatchers.IO) {
+        val dbConnection: Connection = Database.connect()
+        val statement = dbConnection.prepareStatement(
+            "SELECT verificar_usuario_existente_dialog_hash(?)"
+        )
+
+        statement.setString(1, username)
+
+        val resultSet = statement.executeQuery()
+
+        var result = true
+        if (resultSet.next()) {
+            val userExists = resultSet.getBoolean(1)
+            if (!userExists) {
                 val statementPass = dbConnection.prepareStatement(
                     "SELECT contrasena FROM usuario WHERE nombre_usuario = ?"
                 )
